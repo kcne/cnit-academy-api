@@ -1,4 +1,4 @@
-import { Response, NextFunction } from "express";
+import { Response, NextFunction, Request } from "express";
 import jwt from "jsonwebtoken";
 
 export interface AuthenticatedRequest extends Request {
@@ -10,7 +10,7 @@ const authMiddleware = (
   res: Response,
   next: NextFunction,
 ): void => {
-  const authHeader = req.headers.get("authorization") || "";
+  const authHeader = req.headers.authorization || "";
   const token = authHeader.split(" ")[1];
 
   if (!token) {
@@ -21,7 +21,10 @@ const authMiddleware = (
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    const decoded = jwt.verify(
+      token,
+      "8faf80ea-0bb2-489d-acb7-bd6ff52f2147",
+    ) as {
       id: string;
       email: string;
     };
