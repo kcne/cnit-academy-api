@@ -32,8 +32,10 @@ async function getUser(data: { email: string; password: string }): Promise<{
 
   let token = jwt.sign(
     { id: user?.id, email: user?.email },
-    "8faf80ea-0bb2-489d-acb7-bd6ff52f2147",
-    { expiresIn: "1d" },
+    process.env.JWT_SECRET || "fallback secret",
+    {
+      expiresIn: "1d",
+    },
   );
 
   return { user: { id: user.id, email: user.email }, token };

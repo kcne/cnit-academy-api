@@ -23,7 +23,7 @@ const authMiddleware = (
   try {
     const decoded = jwt.verify(
       token,
-      "8faf80ea-0bb2-489d-acb7-bd6ff52f2147",
+      process.env.JWT_SECRET || "fallback secret",
     ) as {
       id: string;
       email: string;
