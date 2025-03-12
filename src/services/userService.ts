@@ -1,7 +1,7 @@
 import prisma from "../prisma";
 import createHttpError from "http-errors";
 
-export const getAllUsers = async () => {
+async function getAllUsers() {
   try {
     const users = await prisma.user.findMany();
 
@@ -9,4 +9,6 @@ export const getAllUsers = async () => {
   } catch (error) {
     throw createHttpError(500, "Failed to fetch");
   }
-};
+}
+
+export { getAllUsers };
