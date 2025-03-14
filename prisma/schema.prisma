@@ -15,3 +15,34 @@ model User {
   email     String @unique
   password  String
 }
+
+model Profile {
+  id         Int          @id @default(autoincrement())
+  name       String
+  surname    String
+  skills     String // comma seperated list for now
+  education  Education[]  @relation("ProfileEducation")
+  experience Experience[] @relation("ProfileExperience")
+}
+
+model Education {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String
+  organization String
+  startPeriod  DateTime
+  endPeriod    DateTime
+  profile      Profile  @relation("ProfileEducation", fields: [profileId], references: [id])
+  profileId    Int
+}
+
+model Experience {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String
+  organization String
+  startPeriod  DateTime
+  endPeriod    DateTime
+  profile      Profile  @relation("ProfileExperience", fields: [profileId], references: [id])
+  profileId    Int
+}
