@@ -8,7 +8,7 @@ import {
   deleteProfile,
 } from "../controllers/profileController";
 
-let router = Router();
+const router = Router();
 
 router.get("/", authMiddleware, getAllProfiles);
 router.get("/:id", authMiddleware, getProfileById);
