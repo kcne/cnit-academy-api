@@ -1,9 +1,16 @@
 import prisma from "../prisma";
-import dotenv from "dotenv";
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
-dotenv.config();
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: process.env.SMTP_PORT,
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 export const sendVerificationCode = async (email: string) => {
   try {
@@ -26,18 +33,8 @@ export const sendVerificationCode = async (email: string) => {
       data: { verificationCode, expiresAt },
     });
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false,
-      auth: {
-        user: "lisette95@ethereal.email",
-        pass: "zGyjkcfbxK2CGhZ42b",
-      },
-    });
-
     await transporter.sendMail({
-      from: `"Verifikacija" <lisette95@ethereal.email>`,
+      from: process.env.SMTP_USER,
       to: email,
       subject: "Kod za verifikaciju",
       text: `Vaš kod za verifikaciju je: ${verificationCode}. Važi 5 minuta.`,
@@ -103,18 +100,8 @@ export const resendVerificationCode = async (email: string) => {
       data: { verificationCode, expiresAt },
     });
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false,
-      auth: {
-        user: "lisette95@ethereal.email",
-        pass: "zGyjkcfbxK2CGhZ42b",
-      },
-    });
-
     await transporter.sendMail({
-      from: `"Verifikacija" <lisette95@ethereal.email>`,
+      from: process.env.SMTP_USER,
       to: email,
       subject: "Ponovni kod za verifikaciju",
       text: `Vaš novi kod za verifikaciju je: ${verificationCode}. Važi 5 minuta.`,
