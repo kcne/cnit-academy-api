@@ -58,14 +58,19 @@ async function getProfile(id: number) {
   return raw_to_profile(profile);
 }
 
-async function addProfile(profile: Profile) {
+async function addProfile(id: number, profile: Profile) {
   if (typeof profile.skills === "string") {
     throw new Error(
       "internal validation error: profile.skills was string instead of string[]",
     );
   }
+  if (!(await prisma.user.findUnique({ where: { id } }))) {
+    return null;
+  }
+
   const new_profile = await prisma.profile.create({
     data: {
+      id,
       ...profile,
       skills: profile.skills.join(","),
       education: { create: profile.education },
@@ -82,6 +87,10 @@ async function changeProfile(id: number, profile: Profile) {
     throw new Error(
       "internal validation error: profile.skills was string instead of string[]",
     );
+  }
+
+  if (!(await prisma.profile.findUnique({ where: { id } }))) {
+    return null;
   }
 
   await prisma.education.deleteMany({ where: { profileId: id } });
@@ -106,6 +115,10 @@ async function changeProfile(id: number, profile: Profile) {
 }
 
 async function removeProfile(id: number) {
+  if (!(await prisma.profile.findUnique({ where: { id } }))) {
+    return null;
+  }
+
   await prisma.education.deleteMany({ where: { profileId: id } });
   await prisma.experience.deleteMany({ where: { profileId: id } });
   await prisma.profile.delete({ where: { id } });
