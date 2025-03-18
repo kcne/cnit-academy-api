@@ -3,7 +3,7 @@ import { Course } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-interface CourseService {
+interface ICourseService {
   getAllCourses(): Promise<Course[]>;
   getCourseById(id: number): Promise<Course | null>;
   deleteCourseById(id: number): Promise<void>;
@@ -11,7 +11,7 @@ interface CourseService {
   createCourse(course: Course): Promise<Course>;
 }
 
-class CourseServiceImpl implements CourseService {
+class CourseService implements ICourseService {
   async getAllCourses(): Promise<Course[]> {
     return prisma.course.findMany();
   }
@@ -33,4 +33,4 @@ class CourseServiceImpl implements CourseService {
   }
 }
 
-export default CourseServiceImpl;
+export default CourseService;
