@@ -2,6 +2,7 @@ import prisma from "../prisma";
 import jwt from "jsonwebtoken";
 import argon2 from "argon2";
 import { sendVerificationCode } from "./emailService";
+import { generateVerificationCode } from "./userService";
 
 async function createUser(data: {
   firstName: string;
@@ -15,7 +16,8 @@ async function createUser(data: {
     data: { ...data, password },
   });
 
-  await sendVerificationCode(data.email);
+  const verificationCode = await generateVerificationCode(data.email);
+  await sendVerificationCode(data.email, verificationCode);
 
   return user;
 }
