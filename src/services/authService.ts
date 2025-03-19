@@ -17,7 +17,7 @@ async function createUser(data: {
   });
 
   const verificationCode = await generateVerificationCode(data.email);
-  await sendVerificationCode(data.email, verificationCode);
+  await sendVerificationCode(data.email, verificationCode, data.firstName);
 
   return user;
 }

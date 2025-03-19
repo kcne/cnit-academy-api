@@ -65,16 +65,16 @@ async function verifyEmail(code: string, email: string) {
       throw new Error("Invalid code.");
     }
   } catch (error) {
-    throw new Error("There are an error, try again.");
+    throw new Error("Failed to verify e-mail, try again.");
   }
 }
 
-async function resendVerificationCode(email: string) {
+async function resendVerificationCode(email: string, firstName: string) {
   try {
     const verificationCode = await generateVerificationCode(email);
-    await sendVerificationCode(email, verificationCode);
+    await sendVerificationCode(email, verificationCode, firstName);
   } catch (err) {
-    throw new Error("There are an error, try again.");
+    throw new Error("Failed to send a new code, try again.");
   }
 }
 

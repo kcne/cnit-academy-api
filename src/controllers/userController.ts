@@ -20,9 +20,9 @@ async function verifyEmail(req: Request, res: Response) {
 
 async function resendEmail(req: Request, res: Response) {
   try {
-    const { email } = req.body;
+    const { email, firstName } = req.body;
 
-    const result = await userService.resendVerificationCode(email);
+    const result = await userService.resendVerificationCode(email, firstName);
 
     res.status(200).json({ message: "New code sent!" });
   } catch (error: any) {

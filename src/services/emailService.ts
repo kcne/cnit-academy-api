@@ -3,8 +3,15 @@ import nodemailer from "nodemailer";
 
 dotenv.config();
 
-export const sendVerificationCode = async (email: string, code: string) => {
+export const sendVerificationCode = async (
+  email: string,
+  code: string,
+  firstName: string
+) => {
   try {
+    const formattedFirstName =
+      firstName.charAt(0).toUpperCase() + firstName.slice(1);
+
     const transporter = nodemailer.createTransport({
       host: process.env.MAIL_HOST,
       port: Number(process.env.MAIL_PORT),
@@ -16,16 +23,23 @@ export const sendVerificationCode = async (email: string, code: string) => {
     });
 
     const info = await transporter.sendMail({
-      from: `"Verification" <${process.env.MAIL_USER}>`,
+      from: `"Verification, CentarNIT Academy" <${process.env.MAIL_USER}>`,
       to: email,
       subject: "Verification Code",
-      text: `Your verification code: ${code}. Valid for 5 minutes.`,
+      html: `
+      <p>Dear ${formattedFirstName},</p>
+      <p>Thank you for registering with us!</p>
+      <p>Please use the following verification code to complete your registration process:</p>
+      <p><strong>Verification Code: ${code}</strong></p>
+      <p>This code is valid for the next 5 minutes. If you did not request this verification code, please ignore this email.</p>
+      <p>If you encounter any issues or need further assistance, feel free to contact us.</p>
+      <p>Best regards,</p>
+      <p>The CentarNit Academy Team</p>
+      `,
     });
 
-    console.log("Message sent: %s", info.messageId);
     return { message: "Code sent successfully!" };
   } catch (error) {
-    console.error("Error sending email:", error);
     throw new Error("Failed to send verification code. Please try again.");
   }
 };
