@@ -14,6 +14,7 @@ model User {
   lastName  String
   email     String   @unique
   password  String
+  roles     Role[]   @relation("UserRoles")
   Profile   Profile?
 }
 
@@ -47,4 +48,18 @@ model Experience {
   endPeriod    DateTime
   profile      Profile  @relation("ProfileExperience", fields: [profileId], references: [id])
   profileId    Int
+}
+
+model Course {
+  id               Int     @id @default(autoincrement())
+  title            String
+  description      String?
+  numberOfStudents Int?
+  durationInHours  Float?
+}
+
+model Role {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  users User[] @relation("UserRoles")
 }
