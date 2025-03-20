@@ -9,13 +9,16 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  firstName String
-  lastName  String
-  email     String   @unique
-  password  String
-  roles     Role[]   @relation("UserRoles")
-  Profile   Profile?
+  id               Int       @id @default(autoincrement())
+  firstName        String
+  lastName         String
+  email            String    @unique
+  password         String
+  roles            Role[]    @relation("UserRoles")
+  isEmailVerified  Boolean   @default(false)
+  verificationCode String?
+  expiresAt        DateTime?
+  Profile          Profile?
 }
 
 model Profile {
