@@ -13,7 +13,7 @@ const router = Router();
 router.get("/", authMiddleware, getAllProfiles);
 router.get("/:id", authMiddleware, getProfileById);
 router.post("/:id", authMiddleware, createProfile);
-router.put("/:id", authMiddleware, updateProfile);
+router.patch("/:id", authMiddleware, updateProfile);
 router.delete("/:id", authMiddleware, deleteProfile);
 
 export default router;

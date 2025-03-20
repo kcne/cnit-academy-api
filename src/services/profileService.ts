@@ -10,11 +10,20 @@ interface Profile {
 }
 
 interface EducationExperience {
+  id?: number;
   title: string;
   description: string;
   organization: string;
   startPeriod: Date;
   endPeriod: Date;
+}
+
+function compare_edu_exp(obj1: EducationExperience, obj2: EducationExperience) {
+  return (
+    obj1.title === obj2.title ||
+    obj1.description === obj2.description ||
+    obj1.organization === obj2.organization
+  );
 }
 
 function raw_to_profile(obj: any): Profile | null {
@@ -24,20 +33,8 @@ function raw_to_profile(obj: any): Profile | null {
   return {
     ...obj,
     skills: obj.skills.split(","),
-    education: obj.education.map((el: EducationExperience) => ({
-      title: el.title,
-      description: el.description,
-      organization: el.organization,
-      startPeriod: el.startPeriod,
-      endPeriod: el.endPeriod,
-    })),
-    experience: obj.experience.map((el: EducationExperience) => ({
-      title: el.title,
-      description: el.description,
-      organization: el.organization,
-      startPeriod: el.startPeriod,
-      endPeriod: el.endPeriod,
-    })),
+    education: obj.education,
+    experience: obj.experience,
   };
 }
 
@@ -93,24 +90,75 @@ async function changeProfile(id: number, profile: Profile) {
     return null;
   }
 
-  await prisma.education.deleteMany({ where: { profileId: id } });
-  await prisma.education.createMany({
-    data: profile.education.map((el) => ({ ...el, profileId: id })),
-  });
-  await prisma.experience.deleteMany({ where: { profileId: id } });
-  await prisma.experience.createMany({
-    data: profile.experience.map((el) => ({ ...el, profileId: id })),
-  });
+  const transactions = [];
+
+  if (prisma.education) {
+    transactions.push(
+      prisma.education.deleteMany({
+        where: {
+          id: {
+            in: (await prisma.education.findMany({ where: { profileId: id } }))
+              .filter((old_el) =>
+                profile.education.every(
+                  (new_el) => !compare_edu_exp(old_el, new_el),
+                ),
+              )
+              .map((el) => el.id),
+          },
+        },
+      }),
+    );
+    profile.education.forEach((education) => {
+      transactions.push(
+        prisma.education.upsert({
+          create: { ...education, profileId: id },
+          update: education,
+          where: {
+            id: education.id || -1,
+          },
+        }),
+      );
+    });
+  }
+  if (prisma.experience) {
+    transactions.push(
+      prisma.experience.deleteMany({
+        where: {
+          id: {
+            in: (await prisma.experience.findMany({ where: { profileId: id } }))
+              .filter((old_el) =>
+                profile.experience.every(
+                  (new_el) => !compare_edu_exp(old_el, new_el),
+                ),
+              )
+              .map((el) => el.id),
+          },
+        },
+      }),
+    );
+    profile.experience.forEach((experience) => {
+      transactions.push(
+        prisma.experience.upsert({
+          create: { ...experience, profileId: id },
+          update: experience,
+          where: {
+            id: experience.id || -1,
+          },
+        }),
+      );
+    });
+  }
+
+  await prisma.$transaction(transactions);
   const new_profile = await prisma.profile.update({
     data: {
       name: profile.name,
       surname: profile.surname,
-      skills: profile.skills.join(","),
+      skills: profile.skills ? profile.skills.join(",") : undefined,
     },
     where: { id },
     include: { education: true, experience: true },
   });
-
   return raw_to_profile(new_profile);
 }
 
