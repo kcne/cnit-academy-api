@@ -9,23 +9,56 @@ datasource db {
 }
 
 model User {
-  id                Int     @id @default(autoincrement())
-  firstName         String
-  lastName          String
-  email             String  @unique
-  password          String
-  isEmailVerified   Boolean @default(false)
-  verificationCode  String?
-  expiresAt         DateTime? 
-  roles     Role[]  @relation("UserRoles")
+  id               Int       @id @default(autoincrement())
+  firstName        String
+  lastName         String
+  email            String    @unique
+  password         String
+  roles            Role[]    @relation("UserRoles")
+  isEmailVerified  Boolean   @default(false)
+  verificationCode String?
+  expiresAt        DateTime?
+  Profile          Profile?
+}
+
+model Profile {
+  id         Int          @id
+  user       User         @relation(fields: [id], references: [id])
+  name       String
+  surname    String
+  skills     String // comma seperated list for now
+  education  Education[]  @relation("ProfileEducation")
+  experience Experience[] @relation("ProfileExperience")
+}
+
+model Education {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String
+  organization String
+  startPeriod  DateTime
+  endPeriod    DateTime
+  profile      Profile  @relation("ProfileEducation", fields: [profileId], references: [id])
+  profileId    Int
+}
+
+model Experience {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String
+  organization String
+  startPeriod  DateTime
+  endPeriod    DateTime
+  profile      Profile  @relation("ProfileExperience", fields: [profileId], references: [id])
+  profileId    Int
 }
 
 model Course {
-  id       Int     @id @default(autoincrement())
-  title    String
-  description String?
+  id               Int     @id @default(autoincrement())
+  title            String
+  description      String?
   numberOfStudents Int?
-  durationInHours Float?
+  durationInHours  Float?
 }
 
 model Role {
