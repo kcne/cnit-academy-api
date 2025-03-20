@@ -1,8 +1,9 @@
 import { Response, NextFunction, Request } from "express";
 import jwt from "jsonwebtoken";
+import prisma from "../prisma";
 
 export interface AuthenticatedRequest extends Request {
-  user?: { id: string; email: string };
+  user?: { id: number; email: string };
 }
 
 const authMiddleware = (
@@ -16,7 +17,7 @@ const authMiddleware = (
   if (!token) {
     res
       .status(401)
-      .json({ message: "Authentication token is missing or invalid" });
+      .json({ error: "Authentication token is missing or invalid" });
     return;
   }
 
@@ -25,13 +26,20 @@ const authMiddleware = (
       token,
       process.env.JWT_SECRET || "fallback secret",
     ) as {
-      id: string;
+      id: number;
       email: string;
     };
+    if (
+      !prisma.user.findUnique({
+        where: { id: decoded.id, isEmailVerified: true },
+      })
+    ) {
+      res.status(403).json({ error: "Email is not verified" });
+    }
     req.user = decoded;
     next();
   } catch (error) {
-    res.status(403).json({ message: "Invalid or expired token" });
+    res.status(403).json({ error: "Invalid or expired token" });
   }
 };
 
