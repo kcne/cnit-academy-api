@@ -6,7 +6,7 @@
     "dev": "ts-node src/index.ts"
   },
   "dependencies": {
-    "@prisma/client": "^6.2.1",
+    "@prisma/client": "^6.5.0",
     "argon2": "^0.41.1",
     "dotenv": "^16.4.7",
     "express": "4.21.2",

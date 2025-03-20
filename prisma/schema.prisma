@@ -17,5 +17,19 @@ model User {
   isEmailVerified   Boolean @default(false)
   verificationCode  String?
   expiresAt         DateTime? 
+  roles     Role[]  @relation("UserRoles")
 }
 
+model Course {
+  id       Int     @id @default(autoincrement())
+  title    String
+  description String?
+  numberOfStudents Int?
+  durationInHours Float?
+}
+
+model Role {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  users User[] @relation("UserRoles")
+}
