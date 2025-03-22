@@ -73,8 +73,8 @@ model Program {
   description         String
   founder             String    
   durationInDays      Int
-  appliedCount        Int?      @default(0)
-  studentCount        Int?      @default(0)
+  appliedCount        Int      @default(0)
+  studentCount        Int      @default(0)
   applicationDeadline DateTime
   CreatedAt           DateTime @default(now())
 }
