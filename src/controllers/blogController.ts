@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import BlogService from '../services/blogService';
+import { Request, Response } from "express";
+import BlogService from "../services/blogService";
 
 const blogService = new BlogService();
 
@@ -31,7 +31,14 @@ class BlogController {
   async deleteBlog(req: Request, res: Response) {
     const id = parseInt(req.params.id);
     await blogService.deleteBlog(id);
-    res.json({ message: 'Blog deleted successfully' });
+    res.json({ message: "Blog deleted successfully" });
+  }
+
+  async togglePublishBlog(req: Request, res: Response) {
+    const id = parseInt(req.params.id);
+    const publish = req.body.publish;
+    const blog = await blogService.togglePublishBlog(id, publish);
+    res.json(blog);
   }
 }
 
