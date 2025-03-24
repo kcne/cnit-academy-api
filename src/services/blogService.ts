@@ -40,14 +40,14 @@ class BlogService {
     return { message: "Blog deleted successfully" };
   }
 
-  async togglePublishBlog(id: number, publish: boolean) {
-    if (typeof publish !== "boolean") {
-      throw new ErrorResponse("Invalid publish value", 400);
+  async updateBlogPublishStatus(blogId: number, isPublished: boolean) {
+    if (typeof isPublished !== "boolean") {
+      throw new ErrorResponse("Invalid publish status", 400);
     }
 
-    return await prisma.blog.update({
-      where: { id },
-      data: { published: publish },
+    return prisma.blog.update({
+      where: { id: blogId },
+      data: { published: isPublished },
     });
   }
 }

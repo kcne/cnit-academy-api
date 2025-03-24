@@ -37,7 +37,7 @@ class BlogController {
   async togglePublishBlog(req: Request, res: Response) {
     const id = parseInt(req.params.id);
     const publish = req.body.publish;
-    const blog = await blogService.togglePublishBlog(id, publish);
+    const blog = await blogService.updateBlogPublishStatus(id, publish);
     res.json(blog);
   }
 }
