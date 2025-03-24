@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
 
+dotenv.config();
+
 export const sendVerificationCode = async (
   email: string,
   code: string,

@@ -6,6 +6,7 @@ async function register(req: Request, res: Response) {
   try {
     user = await createUser(req.body);
   } catch (error) {
+    console.log(error);
     res.status(409).json({ error: "User already exists with the same email" });
     return;
   }
