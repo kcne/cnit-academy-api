@@ -29,10 +29,10 @@ async function getUser(data: { email: string; password: string }): Promise<{
   } | null;
   token: string;
 }> {
-  const user = await prisma.user.findFirstOrThrow({
+  const user = await prisma.user.findUnique({
     where: { email: data.email },
   });
-  if (!(await argon2.verify(user.password, data.password))) {
+  if (!user || !(await argon2.verify(user.password, data.password))) {
     return { user: null, token: "" };
   }
 
@@ -41,7 +41,7 @@ async function getUser(data: { email: string; password: string }): Promise<{
     process.env.JWT_SECRET || "fallback secret",
     {
       expiresIn: "1d",
-    }
+    },
   );
 
   return { user: { id: user.id, email: user.email }, token };
