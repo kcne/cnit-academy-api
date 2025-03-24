@@ -6,7 +6,7 @@ dotenv.config();
 export const sendVerificationCode = async (
   email: string,
   code: string,
-  firstName: string
+  firstName: string,
 ) => {
   try {
     const formattedFirstName =

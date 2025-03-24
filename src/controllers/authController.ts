@@ -20,14 +20,23 @@ async function register(req: Request, res: Response) {
 }
 
 async function login(req: Request, res: Response) {
-  const { user, token } = await getUser(req.body);
+  try {
+    const { user, token } = await getUser(req.body);
+    if (!token) {
+      res.status(404).json({ error: "Wrong password or email" });
+      return;
+    }
 
-  if (!token) {
-    res.status(404).json({ error: "Wrong password or email" });
-    return;
+    res.status(200).json({ user, token });
+  } catch (error) {
+    if (error === "Email is not verified") {
+      res.status(401);
+    } else {
+      res.status(500);
+    }
+
+    res.json({ error });
   }
-
-  res.status(200).json({ user, token });
 }
 
 export { register, login };

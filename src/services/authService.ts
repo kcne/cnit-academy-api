@@ -35,6 +35,9 @@ async function getUser(data: { email: string; password: string }): Promise<{
   if (!user || !(await argon2.verify(user.password, data.password))) {
     return { user: null, token: "" };
   }
+  if (!user.isEmailVerified) {
+    throw new Error("Email is not verified");
+  }
 
   const token = jwt.sign(
     { id: user?.id, email: user?.email },
