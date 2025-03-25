@@ -19,8 +19,8 @@ model User {
   verificationCode String?
   expiresAt        DateTime?
   Profile          Profile?
-  updatedAt        DateTime @updatedAt
-  totalCoins       Int @default(0)
+  updatedAt        DateTime  @updatedAt
+  totalCoins       Int       @default(0)
 }
 
 model Profile {
@@ -29,6 +29,7 @@ model Profile {
   skills     String // comma seperated list for now
   education  Education[]  @relation("ProfileEducation")
   experience Experience[] @relation("ProfileExperience")
+  pfp        String       @default("http://link.to/default/profile/picture") // TODO: change this placeholder
 }
 
 model Education {

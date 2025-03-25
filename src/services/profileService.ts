@@ -8,6 +8,7 @@ interface Profile {
   education: EducationExperience[];
   experience: EducationExperience[];
   totalCoins?: number;
+  pfp?: string;
 }
 
 interface EducationExperience {
@@ -39,6 +40,7 @@ function raw_to_profile(obj: any): Profile | null {
     education: obj.education,
     experience: obj.experience,
     totalCoins: obj.user?.totalCoins,
+    pfp: obj.pfp,
   };
 }
 
@@ -79,11 +81,11 @@ async function addProfile(id: number, profile: Profile) {
 
   const new_profile = await prisma.profile.create({
     data: {
-      id,
       ...profile,
       skills: profile.skills.join(","),
       education: { create: profile.education },
       experience: { create: profile.experience },
+      id,
     },
     include: {
       education: true,
