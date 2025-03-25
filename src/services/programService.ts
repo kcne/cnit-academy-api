@@ -1,16 +1,49 @@
 import { PrismaClient } from '@prisma/client';
 import { Program } from '@prisma/client';
-import { DateUtil } from '../utils/dateUtil';
+import { validateRequest } from '../middlewares/validate';
+import { z } from 'zod';
 
 const prisma = new PrismaClient();
 
-export class ProgramService {
-    private dateUtil: DateUtil;
-
-    constructor(dateUtil: DateUtil) {
-        this.dateUtil = dateUtil;
+const parseDate = (value: unknown): Date | undefined => {
+    if(value instanceof Date){
+        return value;
     }
+    if(typeof value === 'string' || typeof value === 'number'){
+        const date = new Date(value);
+        if(!isNaN(date.getTime())){
+            return date;
+        }
+    }
+    return undefined;
+}
 
+const updProgramSchema = z.object({
+    title: z.string().optional(),
+    description: z.string().optional(),
+    founder: z.string().optional(),
+    durationInDays: z.number().optional(),
+    applicationDeadline: z.union([z.string(), z.date()]).transform((val) => parseDate(val)).optional(),
+  }).transform((data) => ({
+    ...data,
+    applicationDeadline: parseDate(data.applicationDeadline ? parseDate(data.applicationDeadline): undefined)
+  }));
+
+const programSchema = z.object({
+    title: z.string(),
+    description: z.string(),
+    founder: z.string(),
+    durationInDays: z.number(),
+    applicationDeadline: z.union([z.string(), z.date()]).transform((val) => parseDate(val)),
+  }).transform((data) => ({
+    ...data,
+    applicationDeadline: parseDate(data.applicationDeadline)!
+  }));
+
+  const validateUpdateProgram = validateRequest(updProgramSchema);
+  const validateCreateProgram = validateRequest(programSchema);
+
+export class ProgramService {
     async getAllPrograms(): Promise<Program[]> {
         try{
             const programs = await prisma.program.findMany();
@@ -28,35 +61,17 @@ export class ProgramService {
             throw new Error("Program doesn't exist");
         }
     }
-
+    
     async createProgram(
-        title: string,
-        description: string,
-        founder: string,
-        durationInDays: number,
-        applicationDeadline: Date
+        data: z.infer<typeof programSchema>
     ): Promise<Program> {
         try{
-            if (!title.trim()) {
-                throw new Error("Title cannot be empty or whitespace only");
-            }
-
-            const parsedDate = typeof applicationDeadline === 'string' ? new Date(applicationDeadline) : applicationDeadline;
-            
-            if(!this.dateUtil.validateDate(parsedDate)) {
-                console.log(parsedDate);
-                throw new Error("Invalid due date: must be a valid date");
-            }
+            const parsedData = await programSchema.parseAsync(data);
 
             const newProgram = await prisma.program.create({
-                data: {
-                    title,
-                    description,
-                    founder,
-                    durationInDays,
-                    applicationDeadline: parsedDate
-                }
+                data: parsedData
             })
+            
 
             return newProgram;
         } catch (error) {
@@ -65,27 +80,20 @@ export class ProgramService {
           }
     }
 
+    
+
     async updateProgram(
         id: number,
-        updates: Partial<{
-            title: string;
-            description: string;
-            founder: string;
-            durationInDays: number;
-            applicationDeadline: Date;
-        }>
+        updates: z.infer<typeof updProgramSchema>
     ): Promise<Program> {
         try{
-            const parsedDate = typeof updates.applicationDeadline === 'string' ? new Date(updates.applicationDeadline) : updates.applicationDeadline;
-            if(!this.dateUtil.validateDate(parsedDate)) {
-                throw new Error("Invalid due date: must be a valid date");
-            }
-            updates.applicationDeadline = parsedDate;
-            const updProgram = await prisma.program.update({where: {id}, data: updates});
+            const parsedUpdates = await updProgramSchema.parseAsync(updates);
 
-            if(!updates.title && !updates.description && !updates.founder && !updates.durationInDays && !updates.applicationDeadline) {
+            if (!Object.keys(updates).length) {
                 throw new Error("No fields to update");
             }
+
+            const updProgram = await prisma.program.update({where: {id}, data: parsedUpdates});
             return updProgram;
         } catch (error) {
             console.error(error);
@@ -101,7 +109,7 @@ export class ProgramService {
         }
     }
 
-    async AppliedToProgram(id: number): Promise<void> {
+    async ApplyToProgram(id: number): Promise<void> {
         try{
             await prisma.program.update({where: {id}, data: {
                 appliedCount: {increment: 1}
@@ -111,7 +119,7 @@ export class ProgramService {
         }
     }
 
-    async AcceptedToProgram(id: number): Promise<void> {
+    async EnrollToProgram(id: number): Promise<void> {
         try{
             await prisma.program.update({where: {id}, data: {
                 studentCount: {increment: 1}
@@ -123,3 +131,4 @@ export class ProgramService {
 }
 
 export default ProgramService;
+export { validateUpdateProgram, validateCreateProgram };

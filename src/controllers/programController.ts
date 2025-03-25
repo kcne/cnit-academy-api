@@ -1,9 +1,7 @@
 import {Request, Response} from "express";
 import ProgramService from "../services/programService";
-import { DateUtil } from "../utils/dateUtil";
 
-const dateUtil = new DateUtil();
-const programService = new ProgramService(dateUtil);
+const programService = new ProgramService();
 
 export const getAllPrograms = async (req: Request, res: Response) => {
     const programs = await programService.getAllPrograms();
@@ -21,17 +19,10 @@ export const getProgramById = async (req: Request, res: Response) => {
 }
 
 export const createProgram = async (req: Request, res: Response) => {
-    const {title, description, founder, durationInDays, applicationDeadline} = req.body;
-    if(!title || !description || !founder || !durationInDays || !applicationDeadline) {
-        res.status(400).json({ message: 'Missing input fields' });
-        return;
-    }
-
-    console.log(title, description, founder, durationInDays, applicationDeadline);
-
+    const program = req.body;
     try{
-        const program = await programService.createProgram(title, description, founder, durationInDays, applicationDeadline);
-        res.json(program);
+        const NewProgram = await programService.createProgram(program);
+        res.json(NewProgram);
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Error creating program', error });
@@ -51,14 +42,14 @@ export const deleteProgram = async (req: Request, res: Response) => {
     res.json({ message: "Program deleted" });
 }
 
-export const AppliedToProgram = async (req: Request, res: Response) => {
+export const ApplyToProgram = async (req: Request, res: Response) => {
     const id = parseInt(req.params.id);
-    await programService.AppliedToProgram(id);
-    res.json({ message: "Applied to program successfully" });
+    await programService.ApplyToProgram(id);
+    res.json({ message: "Applied to program" });
 }
 
-export const AcceptedToProgram = async (req: Request, res: Response) => {
+export const EnrollToProgram = async (req: Request, res: Response) => {
     const id = parseInt(req.params.id);
-    await programService.AcceptedToProgram(id);
-    res.json({ message: "Accepted to program successfully" });
+    await programService.EnrollToProgram(id);
+    res.json({ message: "Enrolled into program" });
 }

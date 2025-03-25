@@ -19,6 +19,8 @@ model User {
   verificationCode String?
   expiresAt        DateTime?
   Profile          Profile?
+  updatedAt        DateTime @updatedAt
+  totalCoins       Int @default(0)
 }
 
 model Profile {

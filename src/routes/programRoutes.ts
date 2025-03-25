@@ -5,18 +5,21 @@ import {
     createProgram,
     updateProgram,
     deleteProgram,
-    AppliedToProgram,
-    AcceptedToProgram
+    ApplyToProgram,
+    EnrollToProgram
 } from "../controllers/programController";
+import { validateUpdateProgram } from "../services/programService";
+import { validateCreateProgram } from "../services/programService";
 
 const router = Router();
 
+
 router.get("/", getAllPrograms);
 router.get("/:id", getProgramById);
-router.post("/", createProgram);
-router.put("/:id", updateProgram);
+router.post("/", validateCreateProgram, createProgram);
+router.put("/:id", validateUpdateProgram,  updateProgram);
 router.delete("/:id", deleteProgram);
-router.put("/:id/apply", AppliedToProgram);
-router.put("/:id/accept", AcceptedToProgram);
+router.put("/:id/apply", ApplyToProgram);
+router.put("/:id/enroll", EnrollToProgram);
 
 export default router;
