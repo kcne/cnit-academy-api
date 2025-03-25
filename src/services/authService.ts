@@ -9,6 +9,7 @@ async function createUser(data: {
   lastName: string;
   email: string;
   password: string;
+  pfp?: string;
 }) {
   if (
     !(await prisma.user.findUnique({
@@ -27,8 +28,17 @@ async function createUser(data: {
     const verificationCode = await generateVerificationCode(data.email);
     await sendVerificationCode(data.email, verificationCode, data.firstName);
   } catch (error) {
+    // assume user will try to send another verification code if he doesnt get this one
     console.error("Error while sending verification code: ", error);
   }
+
+  prisma.profile.create({
+    data: {
+      id: user.id,
+      pfp: data.pfp,
+      skills: "",
+    },
+  });
 
   return user;
 }
