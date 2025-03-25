@@ -2,11 +2,12 @@ import prisma from "../prisma";
 
 interface Profile {
   id?: number;
-  name: string;
-  surname: string;
+  firstName?: string;
+  lastName?: string;
   skills: string[] | string;
   education: EducationExperience[];
   experience: EducationExperience[];
+  totalCoins?: number;
 }
 
 interface EducationExperience {
@@ -31,16 +32,23 @@ function raw_to_profile(obj: any): Profile | null {
     return null;
   }
   return {
-    ...obj,
+    id: obj.id,
+    firstName: obj.user?.firstName,
+    lastName: obj.user?.lastName,
     skills: obj.skills.split(","),
     education: obj.education,
     experience: obj.experience,
+    totalCoins: obj.user?.totalCoins,
   };
 }
 
 async function getProfiles() {
   const profiles = await prisma.profile.findMany({
-    include: { education: true, experience: true },
+    include: {
+      education: true,
+      experience: true,
+      user: { select: { firstName: true, lastName: true, totalCoins: true } },
+    },
   });
 
   return profiles.map(raw_to_profile);
@@ -48,7 +56,11 @@ async function getProfiles() {
 
 async function getProfile(id: number) {
   const profile = await prisma.profile.findUnique({
-    include: { education: true, experience: true },
+    include: {
+      education: true,
+      experience: true,
+      user: { select: { firstName: true, lastName: true, totalCoins: true } },
+    },
     where: { id },
   });
 
@@ -73,7 +85,11 @@ async function addProfile(id: number, profile: Profile) {
       education: { create: profile.education },
       experience: { create: profile.experience },
     },
-    include: { education: true, experience: true },
+    include: {
+      education: true,
+      experience: true,
+      user: { select: { firstName: true, lastName: true, totalCoins: true } },
+    },
   });
 
   return raw_to_profile(new_profile);
@@ -152,14 +168,20 @@ async function changeProfile(id: number, profile: Profile) {
   await prisma.$transaction(transactions);
   const new_profile = await prisma.profile.update({
     data: {
-      name: profile.name,
-      surname: profile.surname,
       skills: profile.skills ? profile.skills.join(",") : undefined,
     },
     where: { id },
     include: { education: true, experience: true },
   });
-  return raw_to_profile(new_profile);
+  const new_user = await prisma.user.update({
+    data: {
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+    },
+    where: { id },
+    select: { firstName: true, lastName: true, totalCoins: true },
+  });
+  return raw_to_profile({ ...new_profile, ...new_user });
 }
 
 async function removeProfile(id: number) {

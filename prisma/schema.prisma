@@ -26,8 +26,6 @@ model User {
 model Profile {
   id         Int          @id
   user       User         @relation(fields: [id], references: [id])
-  name       String
-  surname    String
   skills     String // comma seperated list for now
   education  Education[]  @relation("ProfileEducation")
   experience Experience[] @relation("ProfileExperience")
