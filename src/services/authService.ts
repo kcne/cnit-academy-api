@@ -10,14 +10,25 @@ async function createUser(data: {
   email: string;
   password: string;
 }) {
+  if (
+    !(await prisma.user.findUnique({
+      where: { email: data.email },
+    }))
+  ) {
+    throw new Error("User already exists with the same email");
+  }
+
   const password = await argon2.hash(data.password);
-  console.log(password);
   const user = await prisma.user.create({
     data: { ...data, password },
   });
 
-  const verificationCode = await generateVerificationCode(data.email);
-  await sendVerificationCode(data.email, verificationCode, data.firstName);
+  try {
+    const verificationCode = await generateVerificationCode(data.email);
+    await sendVerificationCode(data.email, verificationCode, data.firstName);
+  } catch (error) {
+    console.error("Error while sending verification code: ", error);
+  }
 
   return user;
 }
