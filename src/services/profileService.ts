@@ -81,7 +81,7 @@ async function addProfile(id: number, profile: Profile) {
 
   const new_profile = await prisma.profile.create({
     data: {
-      ...profile,
+      pfp: profile.pfp,
       skills: profile.skills.join(","),
       education: { create: profile.education },
       experience: { create: profile.experience },

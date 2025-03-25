@@ -29,7 +29,7 @@ model Profile {
   skills     String // comma seperated list for now
   education  Education[]  @relation("ProfileEducation")
   experience Experience[] @relation("ProfileExperience")
-  pfp        String       @default("http://link.to/default/profile/picture") // TODO: change this placeholder
+  pfp        String       @default("/pfp/default")
 }
 
 model Education {
