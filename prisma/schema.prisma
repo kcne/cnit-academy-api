@@ -20,6 +20,8 @@ model User {
   expiresAt        DateTime?
   Profile          Profile?
   Blog             Blog[]
+  updatedAt        DateTime @updatedAt
+  totalCoins       Int @default(0)
 }
 
 model Profile {
@@ -77,4 +79,16 @@ model Blog {
   createdBy       User     @relation(fields: [id], references: [id])
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model Program {
+  id                  Int       @id @default(autoincrement())
+  title               String
+  description         String
+  founder             String    
+  durationInDays      Int
+  appliedCount        Int      @default(0)
+  studentCount        Int      @default(0)
+  applicationDeadline DateTime
+  CreatedAt           DateTime @default(now())
 }
