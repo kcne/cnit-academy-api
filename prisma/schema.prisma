@@ -69,11 +69,12 @@ model Role {
 }
 
 model Blog {
-  id        Int      @id @default(autoincrement())
-  title     String
-  published Boolean  @default(false)
-  content   String
-  createdBy User     @relation(fields: [id], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              Int      @id @default(autoincrement())
+  title           String
+  published       Boolean  @default(false)
+  content         String
+  blogDescription String? 
+  createdBy       User     @relation(fields: [id], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
