@@ -36,8 +36,8 @@ function raw_to_profile(obj: any): Profile | null {
   }
   return {
     id: obj.id,
-    email: obj.email,
-    isEmailVerified: obj.isEmailVerified,
+    email: obj.user?.email,
+    isEmailVerified: obj.user?.isEmailVerified,
     firstName: obj.user?.firstName,
     lastName: obj.user?.lastName,
     skills: obj.skills.split(",").filter((el: any) => el),
@@ -209,7 +209,7 @@ async function changeProfile(id: number, profile: Profile) {
       isEmailVerified: true,
     },
   });
-  return raw_to_profile({ ...new_profile, ...new_user });
+  return raw_to_profile({ ...new_profile, user: new_user });
 }
 
 async function removeProfile(id: number) {
