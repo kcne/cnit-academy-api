@@ -7,12 +7,13 @@ async function register(req: Request, res: Response) {
     user = await createUser(req.body);
   } catch (error) {
     console.error(error);
-    if (error === "User already exists with the same email") {
-      res.status(409);
-    } else {
-      res.status(500);
+    res.status(500);
+    if (error instanceof Error) {
+      if (error.message === "User already exists with the same email") {
+        res.status(409);
+      }
+      res.json({ error: error.message });
     }
-    res.json({ error });
     return;
   }
 
@@ -34,13 +35,15 @@ async function login(req: Request, res: Response) {
 
     res.status(200).json({ user, token });
   } catch (error) {
-    if (error === "Email is not verified") {
-      res.status(401);
-    } else {
-      res.status(500);
+    console.error(error);
+    res.status(500);
+    if (error instanceof Error) {
+      if (error.message === "Email is not verified") {
+        res.status(401);
+      }
+      res.json({ error: error.message });
     }
-
-    res.json({ error });
+    return;
   }
 }
 
