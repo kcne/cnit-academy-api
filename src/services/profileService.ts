@@ -2,6 +2,8 @@ import prisma from "../prisma";
 
 interface Profile {
   id?: number;
+  email: string;
+  isEmailVerified?: string;
   firstName?: string;
   lastName?: string;
   skills: string[] | string;
@@ -34,9 +36,11 @@ function raw_to_profile(obj: any): Profile | null {
   }
   return {
     id: obj.id,
+    email: obj.email,
+    isEmailVerified: obj.isEmailVerified,
     firstName: obj.user?.firstName,
     lastName: obj.user?.lastName,
-    skills: obj.skills.split(","),
+    skills: obj.skills.split(",").filter((el: any) => el),
     education: obj.education,
     experience: obj.experience,
     totalCoins: obj.user?.totalCoins,
@@ -49,7 +53,15 @@ async function getProfiles() {
     include: {
       education: true,
       experience: true,
-      user: { select: { firstName: true, lastName: true, totalCoins: true } },
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+          totalCoins: true,
+          email: true,
+          isEmailVerified: true,
+        },
+      },
     },
   });
 
@@ -61,7 +73,15 @@ async function getProfile(id: number) {
     include: {
       education: true,
       experience: true,
-      user: { select: { firstName: true, lastName: true, totalCoins: true } },
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+          totalCoins: true,
+          email: true,
+          isEmailVerified: true,
+        },
+      },
     },
     where: { id },
   });
@@ -181,7 +201,13 @@ async function changeProfile(id: number, profile: Profile) {
       lastName: profile.lastName,
     },
     where: { id },
-    select: { firstName: true, lastName: true, totalCoins: true },
+    select: {
+      firstName: true,
+      lastName: true,
+      totalCoins: true,
+      email: true,
+      isEmailVerified: true,
+    },
   });
   return raw_to_profile({ ...new_profile, ...new_user });
 }

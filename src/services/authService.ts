@@ -31,7 +31,7 @@ async function createUser(data: {
     console.error("Error while sending verification code: ", error);
   }
 
-  prisma.profile.create({
+  const profile = await prisma.profile.create({
     data: {
       id: user.id,
       pfp: data.pfp,
@@ -39,7 +39,13 @@ async function createUser(data: {
     },
   });
 
-  return user;
+  return {
+    ...user,
+    pfp: profile.pfp,
+    password: undefined,
+    verificationCode: undefined,
+    expiresAt: undefined,
+  };
 }
 
 async function getUser(data: { email: string; password: string }): Promise<{

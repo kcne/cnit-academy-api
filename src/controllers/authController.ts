@@ -22,7 +22,7 @@ async function register(req: Request, res: Response) {
     return;
   }
 
-  res.status(201).json({ ...user, password: undefined });
+  res.status(201).json(user);
 }
 
 async function login(req: Request, res: Response) {
