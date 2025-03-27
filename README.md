@@ -530,3 +530,67 @@ Request query params:
 | id  | 2       | ID of the course, positive integer |
 
 Response 200 -> Course deleted successfully
+
+## Leaderboard
+
+### GET /api/leaderboard
+
+Prone to change: \
+Directly return leaderboard object \
+Return a max of X profiles
+
+Response 200 JSON:
+
+```json
+{
+  "success": true,
+  "leaderboard": [
+    {
+      "id": 1,
+      "firstName": "john",
+      "lastName": "doe",
+      "totalCoins": 1000,
+      "updatedAt": "2025-03-27T18:54:17.460Z"
+    },
+    {
+      "id": 2,
+      "firstName": "jane",
+      "lastName": "doe",
+      "totalCoins": 50,
+      "updatedAt": "2025-03-27T18:54:22.415Z"
+    }
+  ]
+}
+```
+
+### GET /api/leaderboard/weekly
+
+Only returns profiles which have been updated this week \
+Prone to change: \
+Directly return leaderboard object \
+Return a max of X profiles \
+Fixing the logic error
+
+Response 200 JSON:
+
+```json
+{
+  "success": true,
+  "leaderboard": [
+    {
+      "id": 1,
+      "firstName": "john",
+      "lastName": "doe",
+      "totalCoins": 1000,
+      "updatedAt": "2025-03-27T18:54:17.460Z"
+    },
+    {
+      "id": 2,
+      "firstName": "jane",
+      "lastName": "doe",
+      "totalCoins": 50,
+      "updatedAt": "2025-03-27T18:54:22.415Z"
+    }
+  ]
+}
+```
