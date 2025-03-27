@@ -31,9 +31,9 @@
     - [PUT /api/courses/:id](#put-apicoursesid)
     - [DELETE /api/courses/:id](#delete-apicoursesid)
   - [Leaderboard](#leaderboard)
-    - [GET /api/leaderboard]#get-apileaderboard)
+    - [GET /api/leaderboard](#get-apileaderboard)
     - [GET /api/leaderboard/weekly](#get-apileaderboardweekly)
-  <!--toc:end-->
+    <!--toc:end-->
 
 ## Usage
 
