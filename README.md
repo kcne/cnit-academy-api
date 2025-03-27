@@ -30,7 +30,9 @@
     - [POST /api/courses](#post-apicourses)
     - [PUT /api/courses/:id](#put-apicoursesid)
     - [DELETE /api/courses/:id](#delete-apicoursesid)
-  - [Leaderboard](#leaderboard) - [GET /api/leaderboard](#get-apileaderboard) - [GET /api/leaderboard/weekly](#get-apileaderboardweekly)
+  - [Leaderboard](#leaderboard)
+    - [GET /api/leaderboard]#get-apileaderboard)
+    - [GET /api/leaderboard/weekly](#get-apileaderboardweekly)
   <!--toc:end-->
 
 ## Usage
@@ -383,7 +385,7 @@ Response 200 JSON:
 
 Update program \
 All of the fields are optional \
-Subject to change from PUT to PATCH
+**Subject to change from PUT to PATCH**
 
 Request query params:
 
@@ -535,7 +537,7 @@ Response 200 JSON:
 Update a course \
 All of the fields are optional \
 Crashes the application if course does not exist \
-Subject to change from PUT to PATCH
+**Subject to change from PUT to PATCH**
 
 Request query params:
 
@@ -583,9 +585,10 @@ Response 200 -> Course deleted successfully
 
 ### GET /api/leaderboard
 
-Prone to change: \
-Directly return leaderboard object \
-Return a max of X profiles
+**Prone to change:**
+
+- Directly return leaderboard object
+- Return a max of X profiles
 
 Response 200 JSON:
 
@@ -614,10 +617,11 @@ Response 200 JSON:
 ### GET /api/leaderboard/weekly
 
 Only returns profiles which have been updated this week \
-Prone to change: \
-Directly return leaderboard object \
-Return a max of X profiles \
-Fixing the logic error
+**Prone to change:**
+
+- Directly return leaderboard object
+- Return a max of X profiles
+- Fixing the logic error
 
 Response 200 JSON:
 
