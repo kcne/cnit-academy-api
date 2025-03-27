@@ -1,22 +1,5 @@
 # CNIT academy backend
 
-<!--toc:start-->
-- [CNIT academy backend](#cnit-academy-backend)
-  - [Usage](#usage)
-  - [Authentication](#authentication)
-    - [POST /api/register](#post-apiregister)
-    - [POST /api/users/verify-email](#post-apiusersverify-email)
-    - [POST /api/users/resend-email](#post-apiusersresend-email)
-    - [POST /api/login](#post-apilogin)
-    - [GET /api/protected](#get-apiprotected)
-  - [Profiles (Users)](#profiles-users)
-    - [GET /api/profile](#get-apiprofile)
-    - [GET /api/profile/:id](#get-apiprofileid)
-    - [POST /api/profile/me](#post-apiprofileme)
-    - [PATCH /api/profile/me](#patch-apiprofileme)
-    - [DELETE /api/profile/me](#delete-apiprofileme)
-<!--toc:end-->
-
 ## Usage
 
 Install packages: `npm install` \
@@ -66,7 +49,7 @@ Request JSON:
 }
 ```
 
-Response 200 -> User's email is successfully verified
+Response 200 -> User's email is successfully verified \
 Response 400 -> Invalid code, invalid email or malformed request
 
 ### POST /api/users/resend-email
@@ -79,7 +62,7 @@ Request JSON:
 }
 ```
 
-Response 200 -> Another email with a new code has been sent
+Response 200 -> Another email with a new code has been sent \
 Response 400 -> Failed to send an email, try again
 
 ### POST /api/login
@@ -107,7 +90,7 @@ Response 200 JSON:
 }
 ```
 
-Response 401 -> Email is not verified
+Response 401 -> Email is not verified \
 Response 404 -> Invalid email or password
 
 ### GET /api/protected
@@ -120,7 +103,7 @@ Request headers:
 | ------------- | -------------- | -------------------------------------- |
 | Authorization | "Bearer TOKEN" | TOKEN is the string you get from login |
 
-Response 401 -> Authorization header is missing or malformed
+Response 401 -> Authorization header is missing or malformed \
 Response 403 -> Token is invalid or expired
 
 ## Profiles (Users)
@@ -194,7 +177,8 @@ Response 404 -> Profile with :id doesn't exist
 
 ### POST /api/profile/me
 
-New profiles are created during registration, this route serves as a fallback if a user is created without a profile
+New profiles are created during registration,
+this route serves as a fallback if a user is created without a profile
 
 Request JSON:
 
@@ -207,12 +191,12 @@ Request JSON:
 }
 ```
 
-Response 200 JSON: same as above
+Response 200 JSON: same as above \
 Reponse 404 -> User does not exist (don't use this instead of [/api/register](#post-apiregister))
 
 ### PATCH /api/profile/me
 
-Update profile (every field is optional)
+Update profile (every field is optional) \
 Changing education/experience:
 
 - Including id modifies an existing object it if it's already in the database
@@ -249,12 +233,181 @@ Request JSON:
 }
 ```
 
-Response 200 JSON: same as above
+Response 200 JSON: same as above \
 Reponse 404 -> Profile does not exist
 
 ### DELETE /api/profile/me
 
 Deletes own profile (but not the user leading to buggy behaviour currently)
 
-Response 200 -> no response
+Response 200 -> no response \
 Reponse 404 -> Profile does not exist
+
+## Programs
+
+Will probably require authorization in the future
+
+### GET /api/programs
+
+Fetch all programs
+
+Response 200 JSON:
+
+```json
+[
+  {
+    "id": 1,
+    "title": "title",
+    "description": "description",
+    "founder": "founder",
+    "durationInDays": 2,
+    "appliedCount": 0,
+    "studentCount": 0,
+    "applicationDeadline": "2025-03-07T16:42:30.000Z",
+    "CreatedAt": "2025-03-27T18:05:56.343Z"
+  }
+]
+```
+
+### GET /api/programs/:id
+
+Request query params:
+
+| key | example | description                         |
+| --- | ------- | ----------------------------------- |
+| id  | 2       | ID of the program, positive integer |
+
+Response 200 JSON:
+
+```json
+[
+  {
+    "id": 1,
+    "title": "title",
+    "description": "description",
+    "founder": "founder",
+    "durationInDays": 2,
+    "appliedCount": 0,
+    "studentCount": 0,
+    "applicationDeadline": "2025-03-07T16:42:30.000Z",
+    "CreatedAt": "2025-03-27T18:05:56.343Z"
+  }
+]
+```
+
+Request 404 -> Program not found (bad ID)
+
+### POST /api/programs
+
+Create new program
+
+Request JSON:
+
+```json
+{
+  "title": "title",
+  "description": "description",
+  "founder": "founder",
+  "durationInDays": 2,
+  "applicationDeadline": "2025-03-07T17:42:30+01:00"
+}
+```
+
+Response 200 JSON:
+
+```json
+[
+  {
+    "id": 1,
+    "title": "title",
+    "description": "description",
+    "founder": "founder",
+    "durationInDays": 2,
+    "appliedCount": 0,
+    "studentCount": 0,
+    "applicationDeadline": "2025-03-07T16:42:30.000Z",
+    "CreatedAt": "2025-03-27T18:05:56.343Z"
+  }
+]
+```
+
+### PUT /api/programs/:id
+
+Update program \
+All of the fields are optional \
+Subject to change from PUT to PATCH
+
+Request query params:
+
+| key | example | description                         |
+| --- | ------- | ----------------------------------- |
+| id  | 2       | ID of the program, positive integer |
+
+Request JSON:
+
+```json
+{
+  "title": "title",
+  "description": "description",
+  "founder": "founder",
+  "durationInDays": 2,
+  "applicationDeadline": "2025-03-07T17:42:30+01:00"
+}
+```
+
+Response 200 JSON:
+
+```json
+[
+  {
+    "id": 1,
+    "title": "title",
+    "description": "description",
+    "founder": "founder",
+    "durationInDays": 2,
+    "appliedCount": 0,
+    "studentCount": 0,
+    "applicationDeadline": "2025-03-07T16:42:30.000Z",
+    "CreatedAt": "2025-03-27T18:05:56.343Z"
+  }
+]
+```
+
+### DELETE /api/programs/:id
+
+Deletes a program \
+Crashes the application if program does not exists
+
+Request query params:
+
+| key | example | description                         |
+| --- | ------- | ----------------------------------- |
+| id  | 2       | ID of the program, positive integer |
+
+Response 200 -> Program deleted
+
+### PUT /api/programs/:id/apply
+
+Increments applieadCount by one \
+Crashes the application if program does not exists
+
+Request query params:
+
+| key | example | description                         |
+| --- | ------- | ----------------------------------- |
+| id  | 2       | ID of the program, positive integer |
+
+Response 200 -> Applied to program
+
+### PUT /api/programs/:id/enroll
+
+Increments studentCount by one \
+Crashes the application if program does not exists
+
+Request query params:
+
+| key | example | description                         |
+| --- | ------- | ----------------------------------- |
+| id  | 2       | ID of the program, positive integer |
+
+Response 200 -> Enrolled into program
