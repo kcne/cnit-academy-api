@@ -376,7 +376,7 @@ Response 200 JSON:
 ### DELETE /api/programs/:id
 
 Deletes a program \
-Crashes the application if program does not exists
+Crashes the application if program does not exist
 
 Request query params:
 
@@ -389,7 +389,7 @@ Response 200 -> Program deleted
 ### PUT /api/programs/:id/apply
 
 Increments applieadCount by one \
-Crashes the application if program does not exists
+Crashes the application if program does not exist
 
 Request query params:
 
@@ -402,7 +402,7 @@ Response 200 -> Applied to program
 ### PUT /api/programs/:id/enroll
 
 Increments studentCount by one \
-Crashes the application if program does not exists
+Crashes the application if program does not exist
 
 Request query params:
 
@@ -411,3 +411,122 @@ Request query params:
 | id  | 2       | ID of the program, positive integer |
 
 Response 200 -> Enrolled into program
+
+## Courses
+
+### GET /api/courses
+
+Fetch all courses
+
+Response 200 JSON:
+
+```json
+[
+  {
+    "id": 1,
+    "title": "title",
+    "description": "description",
+    "durationInHours": 2,
+    "numberOfStudents": 0
+  }
+]
+```
+
+### GET /api/courses/:id
+
+Request query params:
+
+| key | example | description                        |
+| --- | ------- | ---------------------------------- |
+| id  | 2       | ID of the course, positive integer |
+
+Response 200 JSON:
+
+```json
+{
+  "id": 1,
+  "title": "title",
+  "description": "description",
+  "durationInHours": 2,
+  "numberOfStudents": 0
+}
+```
+
+Request 404 -> Course not found (bad ID)
+
+### POST /api/courses
+
+Create a new course \
+Only the title field is required
+
+Request JSON:
+
+```json
+{
+  "title": "title",
+  "description": "description",
+  "durationInHours": 2,
+  "numberOfStudents": 0
+}
+```
+
+Response 200 JSON:
+
+```json
+{
+  "id": 1,
+  "title": "title",
+  "description": "description",
+  "durationInHours": 2,
+  "numberOfStudents": 0
+}
+```
+
+### PUT /api/courses/:id
+
+Update a course \
+All of the fields are optional \
+Crashes the application if course does not exist \
+Subject to change from PUT to PATCH
+
+Request query params:
+
+| key | example | description                        |
+| --- | ------- | ---------------------------------- |
+| id  | 2       | ID of the course, positive integer |
+
+Request JSON:
+
+```json
+{
+  "title": "title",
+  "description": "description",
+  "durationInHours": 2,
+  "numberOfStudents": 0
+}
+```
+
+Response 200 JSON:
+
+```json
+{
+  "id": 1,
+  "title": "title",
+  "description": "description",
+  "durationInHours": 2,
+  "numberOfStudents": 0
+}
+```
+
+### DELETE /api/courses/:id
+
+Delete a course \
+Crashes the application if course does not exist
+
+Request query params:
+
+| key | example | description                        |
+| --- | ------- | ---------------------------------- |
+| id  | 2       | ID of the course, positive integer |
+
+Response 200 -> Course deleted successfully
