@@ -1,5 +1,39 @@
 # CNIT academy backend
 
+<!--toc:start-->
+- [CNIT academy backend](#cnit-academy-backend)
+  - [Usage](#usage)
+  - [Authentication](#authentication)
+    - [POST /api/register](#post-apiregister)
+    - [POST /api/users/verify-email](#post-apiusersverify-email)
+    - [POST /api/users/resend-email](#post-apiusersresend-email)
+    - [POST /api/login](#post-apilogin)
+    - [GET /api/protected](#get-apiprotected)
+  - [Profiles (Users)](#profiles-users)
+    - [GET /api/profile](#get-apiprofile)
+    - [GET /api/profile/:id](#get-apiprofileid)
+    - [POST /api/profile/me](#post-apiprofileme)
+    - [PATCH /api/profile/me](#patch-apiprofileme)
+    - [DELETE /api/profile/me](#delete-apiprofileme)
+  - [Programs](#programs)
+    - [GET /api/programs](#get-apiprograms)
+    - [GET /api/programs/:id](#get-apiprogramsid)
+    - [POST /api/programs](#post-apiprograms)
+    - [PUT /api/programs/:id](#put-apiprogramsid)
+    - [DELETE /api/programs/:id](#delete-apiprogramsid)
+    - [PUT /api/programs/:id/apply](#put-apiprogramsidapply)
+    - [PUT /api/programs/:id/enroll](#put-apiprogramsidenroll)
+  - [Courses](#courses)
+    - [GET /api/courses](#get-apicourses)
+    - [GET /api/courses/:id](#get-apicoursesid)
+    - [POST /api/courses](#post-apicourses)
+    - [PUT /api/courses/:id](#put-apicoursesid)
+    - [DELETE /api/courses/:id](#delete-apicoursesid)
+  - [Leaderboard](#leaderboard)
+    - [GET /api/leaderboard](#get-apileaderboard)
+    - [GET /api/leaderboard/weekly](#get-apileaderboardweekly)
+<!--toc:end-->
+
 ## Usage
 
 Install packages: `npm install` \
