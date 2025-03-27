@@ -9,17 +9,43 @@ async function createUser(data: {
   lastName: string;
   email: string;
   password: string;
+  pfp?: string;
 }) {
+  const old_user = await prisma.user.findUnique({
+    where: { email: data.email },
+  });
+  if (old_user) {
+    throw new Error("User already exists with the same email");
+  }
+
   const password = await argon2.hash(data.password);
-  console.log(password);
   const user = await prisma.user.create({
     data: { ...data, password },
   });
 
-  const verificationCode = await generateVerificationCode(data.email);
-  await sendVerificationCode(data.email, verificationCode, data.firstName);
+  try {
+    const verificationCode = await generateVerificationCode(data.email);
+    await sendVerificationCode(data.email, verificationCode, data.firstName);
+  } catch (error) {
+    // assume user will try to send another verification code if he doesnt get this one
+    console.error("Error while sending verification code: ", error);
+  }
 
-  return user;
+  const profile = await prisma.profile.create({
+    data: {
+      id: user.id,
+      pfp: data.pfp,
+      skills: "",
+    },
+  });
+
+  return {
+    ...user,
+    pfp: profile.pfp,
+    password: undefined,
+    verificationCode: undefined,
+    expiresAt: undefined,
+  };
 }
 
 async function getUser(data: { email: string; password: string }): Promise<{
@@ -29,11 +55,14 @@ async function getUser(data: { email: string; password: string }): Promise<{
   } | null;
   token: string;
 }> {
-  const user = await prisma.user.findFirstOrThrow({
+  const user = await prisma.user.findUnique({
     where: { email: data.email },
   });
-  if (!(await argon2.verify(user.password, data.password))) {
+  if (!user || !(await argon2.verify(user.password, data.password))) {
     return { user: null, token: "" };
+  }
+  if (!user.isEmailVerified) {
+    throw new Error("Email is not verified");
   }
 
   const token = jwt.sign(
@@ -41,7 +70,7 @@ async function getUser(data: { email: string; password: string }): Promise<{
     process.env.JWT_SECRET || "fallback secret",
     {
       expiresIn: "1d",
-    }
+    },
   );
 
   return { user: { id: user.id, email: user.email }, token };

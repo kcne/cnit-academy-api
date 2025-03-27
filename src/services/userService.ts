@@ -69,9 +69,14 @@ async function verifyEmail(code: string, email: string) {
   }
 }
 
-async function resendVerificationCode(email: string, firstName: string) {
+async function resendVerificationCode(email: string) {
   try {
     const verificationCode = await generateVerificationCode(email);
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { firstName: true },
+    });
+    const firstName = user?.firstName || "Dearest";
     await sendVerificationCode(email, verificationCode, firstName);
   } catch (err) {
     throw new Error("Failed to send a new code, try again.");
