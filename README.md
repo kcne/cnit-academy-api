@@ -1,6 +1,7 @@
 # CNIT academy backend
 
 <!--toc:start-->
+
 - [CNIT academy backend](#cnit-academy-backend)
   - [Usage](#usage)
   - [Authentication](#authentication)
@@ -29,14 +30,27 @@
     - [POST /api/courses](#post-apicourses)
     - [PUT /api/courses/:id](#put-apicoursesid)
     - [DELETE /api/courses/:id](#delete-apicoursesid)
-  - [Leaderboard](#leaderboard)
-    - [GET /api/leaderboard](#get-apileaderboard)
-    - [GET /api/leaderboard/weekly](#get-apileaderboardweekly)
-<!--toc:end-->
+  - [Leaderboard](#leaderboard) - [GET /api/leaderboard](#get-apileaderboard) - [GET /api/leaderboard/weekly](#get-apileaderboardweekly)
+  <!--toc:end-->
 
 ## Usage
 
+Create .env file and edit it accordingly:
+
+```sh
+MAIL_HOST="email host"
+MAIL_PORT=587
+MAIL_USER="user email"
+MAIL_PASS="user password for email"
+MAIL_SECURE=false
+JWT_SECRET="a string that encrypts the jwt tokens, longer = more secure"
+```
+
+A popular email service for testing is [ethereal](ethereal.email),
+but it doesn't deliver the emails
+
 Install packages: `npm install` \
+Initialize the db: `npx prisma db push; npx prisma seed` \
 Start the backend: `npm run dev`
 
 ## Authentication
