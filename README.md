@@ -40,19 +40,25 @@
 Create .env file and edit it accordingly:
 
 ```sh
-MAIL_HOST="email host"
+MAIL_HOST=smtp.mail.com
 MAIL_PORT=587
-MAIL_USER="user email"
-MAIL_PASS="user password for email"
+MAIL_USER=email@mail.com
+MAIL_PASS=password
 MAIL_SECURE=false
-JWT_SECRET="a string that encrypts the jwt tokens, longer = more secure"
+
+JWT_SECRET="secret" # a string that encrypts the jwt tokens, longer = more secure
+
+# additional options for npx prisma db seed
+SEED=42 # setting this variable creates reproducible results
+USERS=15 # number of users to create
 ```
 
 A popular email service for testing is [ethereal](ethereal.email),
 but it doesn't deliver the emails
 
 Install packages: `npm install` \
-Initialize the db: `npx prisma db push; npx prisma seed` \
+Initialize the db: `npx prisma db push` \
+Add default values: `npx prisma db seed` \
 Start the backend: `npm run dev`
 
 ## Authentication
