@@ -64,11 +64,32 @@ async function createNewUser() {
   };
 }
 
+function createNewCourse() {
+  return {
+    title: faker.hacker.noun(),
+    description: faker.hacker.phrase(),
+    durationInHours: faker.number.float({ min: 0, max: 10 }),
+    numberOfStudents: faker.number.int({ min: 0, max: 120 }),
+  };
+}
+
+function createNewProgram() {
+  return {
+    title: faker.book.title(),
+    description: faker.hacker.phrase(),
+    founder: faker.person.fullName(),
+    durationInDays: faker.number.int({ min: 2, max: 365 }),
+    applicationDeadline: faker.date.soon({ days: 30 }),
+  };
+}
+
 async function main() {
   if (process.env.SEED) {
     faker.seed(Number(process.env.SEED));
   }
   const users = Number(process.env.USERS || 15);
+  const courses = Number(process.env.COURSES || 10);
+  const programs = Number(process.env.PROGRAMS || 5);
 
   const transactions: any[] = [];
 
@@ -80,10 +101,28 @@ async function main() {
       }),
     );
   }
+  for (let i = 0; i < courses; i++) {
+    const course = createNewCourse();
+    transactions.push(
+      prisma.course.create({
+        data: course,
+      }),
+    );
+  }
+  for (let i = 0; i < programs; i++) {
+    const program = createNewProgram();
+    transactions.push(
+      prisma.program.create({
+        data: program,
+      }),
+    );
+  }
 
   await prisma.$transaction(transactions);
 
   console.log("Seeding completed with " + users + " users!");
+  console.log("Seeding completed with " + courses + " courses!");
+  console.log("Seeding completed with " + programs + " programs!");
 }
 
 main()
