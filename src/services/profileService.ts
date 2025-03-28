@@ -22,7 +22,7 @@ interface EducationExperience {
   endPeriod: Date;
 }
 
-function compare_edu_exp(obj1: EducationExperience, obj2: EducationExperience) {
+function compareEduExp(obj1: EducationExperience, obj2: EducationExperience) {
   return (
     obj1.title === obj2.title ||
     obj1.description === obj2.description ||
@@ -30,7 +30,7 @@ function compare_edu_exp(obj1: EducationExperience, obj2: EducationExperience) {
   );
 }
 
-function raw_to_profile(obj: any): Profile | null {
+function rawToProfile(obj: any): Profile | null {
   if (!obj) {
     return null;
   }
@@ -65,7 +65,7 @@ async function getProfiles() {
     },
   });
 
-  return profiles.map(raw_to_profile);
+  return profiles.map(rawToProfile);
 }
 
 async function getProfile(id: number) {
@@ -86,7 +86,7 @@ async function getProfile(id: number) {
     where: { id },
   });
 
-  return raw_to_profile(profile);
+  return rawToProfile(profile);
 }
 
 async function addProfile(id: number, profile: Profile) {
@@ -114,7 +114,7 @@ async function addProfile(id: number, profile: Profile) {
     },
   });
 
-  return raw_to_profile(new_profile);
+  return rawToProfile(new_profile);
 }
 
 async function changeProfile(id: number, profile: Profile) {
@@ -138,7 +138,7 @@ async function changeProfile(id: number, profile: Profile) {
             in: (await prisma.education.findMany({ where: { profileId: id } }))
               .filter((old_el) =>
                 profile.education.every(
-                  (new_el) => !compare_edu_exp(old_el, new_el),
+                  (new_el) => !compareEduExp(old_el, new_el),
                 ),
               )
               .map((el) => el.id),
@@ -166,7 +166,7 @@ async function changeProfile(id: number, profile: Profile) {
             in: (await prisma.experience.findMany({ where: { profileId: id } }))
               .filter((old_el) =>
                 profile.experience.every(
-                  (new_el) => !compare_edu_exp(old_el, new_el),
+                  (new_el) => !compareEduExp(old_el, new_el),
                 ),
               )
               .map((el) => el.id),
@@ -209,7 +209,7 @@ async function changeProfile(id: number, profile: Profile) {
       isEmailVerified: true,
     },
   });
-  return raw_to_profile({ ...new_profile, user: new_user });
+  return rawToProfile({ ...new_profile, user: new_user });
 }
 
 async function removeProfile(id: number) {

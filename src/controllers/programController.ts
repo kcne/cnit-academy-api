@@ -1,55 +1,68 @@
-import {Request, Response} from "express";
-import ProgramService from "../services/programService";
+import { Request, Response } from "express";
+import {
+  getAll,
+  findItem,
+  createItem,
+  updateItem,
+  deleteItem,
+  applyDeprecated,
+  enrollDeprecated,
+} from "../services/programService";
 
-const programService = new ProgramService();
-
-export const getAllPrograms = async (req: Request, res: Response) => {
-    const programs = await programService.getAllPrograms();
-    res.json(programs);
+async function getAllPrograms(_req: Request, res: Response) {
+  const programs = await getAll({
+    pagination: { page: 1, limit: Number.MAX_SAFE_INTEGER }, // TODO: add pagination
+  });
+  res.json(programs);
 }
 
-export const getProgramById = async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id);
-    const program = await programService.getProgramById(id);
-    if (!program) {
-        res.status(404).json({ message: "Program not found" });
-    } else {
-        res.json(program);
-    }
+async function getProgramById(req: Request, res: Response) {
+  const id = Number(req.params.id);
+  const program = await findItem(id);
+  if (!program) {
+    res.status(404).json({ message: "Program not found" });
+  } else {
+    res.json(program);
+  }
 }
 
-export const createProgram = async (req: Request, res: Response) => {
-    const program = req.body;
-    try{
-        const NewProgram = await programService.createProgram(program);
-        res.json(NewProgram);
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: 'Error creating program', error });
-    }
+async function createProgram(req: Request, res: Response) {
+  const newProgram = req.body;
+  const program = await createItem(newProgram);
+  res.json(program);
 }
 
-export const updateProgram = async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id);
-    const program = req.body;
-    const updProgram = await programService.updateProgram(id, program);
-    res.json(updProgram);
+async function updateProgram(req: Request, res: Response) {
+  const id = Number(req.params.id);
+  const newProgram = req.body;
+  const program = await updateItem(id, newProgram);
+  res.json(program);
 }
 
-export const deleteProgram = async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id);
-    await programService.deleteProgram(id);
-    res.json({ message: "Program deleted" });
+async function deleteProgram(req: Request, res: Response) {
+  const id = Number(req.params.id);
+  const program = await deleteItem(id);
+  res.json(program);
 }
 
-export const ApplyToProgram = async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id);
-    await programService.ApplyToProgram(id);
-    res.json({ message: "Applied to program" });
+async function applyToProgram(req: Request, res: Response) {
+  const id = Number(req.params.id);
+  await applyDeprecated(id);
+  res.send();
 }
 
-export const EnrollToProgram = async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id);
-    await programService.EnrollToProgram(id);
-    res.json({ message: "Enrolled into program" });
+async function enrollToProgram(req: Request, res: Response) {
+  const id = Number(req.params.id);
+  await enrollDeprecated(id);
+  res.send();
 }
+
+export {
+  getAllPrograms,
+  getProgramById,
+  createProgram,
+  updateProgram,
+  deleteProgram,
+  applyToProgram,
+  enrollToProgram,
+};

@@ -1,36 +1,8 @@
-import { PrismaClient } from '@prisma/client';
-import { Course } from '@prisma/client';
+import prisma from "../prisma";
+import { PrismaRepositoryService } from "./prismaRepositoryService";
 
-const prisma = new PrismaClient();
+const { getAll, findItem, createItem, updateItem, deleteItem } =
+  new PrismaRepositoryService(prisma, prisma.course);
 
-interface ICourseService {
-  getAllCourses(): Promise<Course[]>;
-  getCourseById(id: number): Promise<Course | null>;
-  deleteCourseById(id: number): Promise<void>;
-  updateCourseById(id: number, course: Course): Promise<Course>;
-  createCourse(course: Course): Promise<Course>;
-}
+export { getAll, findItem, createItem, updateItem, deleteItem };
 
-class CourseService implements ICourseService {
-  async getAllCourses(): Promise<Course[]> {
-    return prisma.course.findMany();
-  }
-
-  async getCourseById(id: number): Promise<Course | null> {
-    return prisma.course.findUnique({ where: { id } });
-  }
-
-  async deleteCourseById(id: number): Promise<void> {
-    await prisma.course.delete({ where: { id } });
-  }
-
-  async updateCourseById(id: number, course: Course): Promise<Course> {
-    return prisma.course.update({ where: { id }, data: course });
-  }
-
-  async createCourse(course: Course): Promise<Course> {
-    return prisma.course.create({ data: course });
-  }
-}
-
-export default CourseService;

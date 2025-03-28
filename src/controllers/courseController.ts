@@ -1,38 +1,52 @@
 import { Request, Response } from "express";
-import CourseService from "../services/courseService";
+import {
+  getAll,
+  findItem,
+  createItem,
+  updateItem,
+  deleteItem,
+} from "../services/courseService";
 
-const courseService = new CourseService();
+async function getAllCourses(_req: Request, res: Response) {
+  const courses = await getAll({
+    pagination: { page: 1, limit: Number.MAX_SAFE_INTEGER }, // TODO: add pagination
+  });
+  res.json(courses.data);
+}
 
-export const getAllCourses = async (req: Request, res: Response) => {
-  const courses = await courseService.getAllCourses();
-  res.json(courses);
-};
-
-export const getCourseById = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-  const course = await courseService.getCourseById(id);
+async function getCourseById(req: Request, res: Response) {
+  const id = Number(req.params.id);
+  const course = await findItem(id);
   if (!course) {
     res.status(404).json({ message: "Course not found" });
   } else {
     res.json(course);
   }
-};
+}
 
-export const deleteCourseById = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-  await courseService.deleteCourseById(id);
+async function deleteCourseById(req: Request, res: Response) {
+  const id = Number(req.params.id);
+  await deleteItem(id);
   res.json({ message: "Course deleted successfully" });
-};
+}
 
-export const updateCourseById = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+async function updateCourseById(req: Request, res: Response) {
+  const id = Number(req.params.id);
   const course = req.body;
-  const updatedCourse = await courseService.updateCourseById(id, course);
+  const updatedCourse = await updateItem(id, course);
   res.json(updatedCourse);
-};
+}
 
-export const createCourse = async (req: Request, res: Response) => {
+async function createCourse(req: Request, res: Response) {
   const course = req.body;
-  const createdCourse = await courseService.createCourse(course);
+  const createdCourse = await createItem(course);
   res.json(createdCourse);
+}
+
+export {
+  getAllCourses,
+  getCourseById,
+  deleteCourseById,
+  updateCourseById,
+  createCourse,
 };

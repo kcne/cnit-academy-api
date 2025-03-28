@@ -10,10 +10,10 @@ async function createUser(data: {
   password: string;
   pfp?: string;
 }) {
-  const old_user = await prisma.user.findUnique({
+  const oldUser = await prisma.user.findUnique({
     where: { email: data.email },
   });
-  if (old_user) {
+  if (oldUser) {
     throw new Error("User already exists with the same email");
   }
 

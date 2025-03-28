@@ -15,8 +15,8 @@ export class PrismaRepositoryService<T, K extends string> {
     this.model = model;
   }
 
-  async findAll(options: QueryOptions<K>): Promise<PaginatedResult<T>> {
-    const { pagination, sort, filters, includeUser } = options;
+  async getAll(options: QueryOptions<K>): Promise<PaginatedResult<T>> {
+    const { pagination, sort, filters } = options;
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
 
@@ -36,26 +36,26 @@ export class PrismaRepositoryService<T, K extends string> {
     return createPaginatedResponse(items, total, pagination);
   }
 
-  async findById(id: number): Promise<T | null> {
+  async findItem(id: number): Promise<T | null> {
     return this.model.findUnique({
-      where: { id: Number(id) },
+      where: { id: id },
     });
   }
 
-  async create(data: any): Promise<T> {
+  async createItem(data: any): Promise<T> {
     return this.model.create({ data });
   }
 
-  async update(id: number, data: any): Promise<T> {
+  async updateItem(id: number, data: any): Promise<T> {
     return this.model.update({
-      where: { id: Number(id) },
+      where: { id: id },
       data,
     });
   }
 
-  async delete(id: number): Promise<T> {
+  async deleteItem(id: number): Promise<T> {
     return this.model.delete({
-      where: { id: Number(id) },
+      where: { id: id },
     });
   }
 }
