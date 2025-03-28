@@ -51,6 +51,8 @@ JWT_SECRET="secret" # a string that encrypts the jwt tokens, longer = more secur
 # additional options for npx prisma db seed
 SEED=42 # setting this variable creates reproducible results
 USERS=15 # number of users to create
+COURSES=10 # number of courses to create
+PROGRAMS=5 # number of programs to create
 ```
 
 A popular email service for testing is [ethereal](ethereal.email),
