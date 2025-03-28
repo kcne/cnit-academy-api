@@ -30,3 +30,9 @@ export const updateCourseById = async (req: Request, res: Response) => {
   const updatedCourse = await courseService.updateCourseById(id, course);
   res.json(updatedCourse);
 };
+
+export const createCourse = async (req: Request, res: Response) => {
+  const course = req.body;
+  const createdCourse = await courseService.createCourse(course);
+  res.json(createdCourse);
+};

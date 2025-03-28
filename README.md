@@ -5,11 +5,11 @@
 - [CNIT academy backend](#cnit-academy-backend)
   - [Usage](#usage)
   - [Authentication](#authentication)
-    - [POST /api/register](#post-apiregister)
-    - [POST /api/users/verify-email](#post-apiusersverify-email)
-    - [POST /api/users/resend-email](#post-apiusersresend-email)
-    - [POST /api/login](#post-apilogin)
-    - [GET /api/protected](#get-apiprotected)
+    - [POST /api/auth/register](#post-apiauthregister)
+    - [POST /api/auth/verify-email](#post-apiauthverify-email)
+    - [POST /api/auth/resend-email](#post-apiauthresend-email)
+    - [POST /api/auth/login](#post-apiauthlogin)
+    - [GET /api/auth/protected](#get-apiauthprotected)
   - [Profiles (Users)](#profiles-users)
     - [GET /api/profile](#get-apiprofile)
     - [GET /api/profile/:id](#get-apiprofileid)
@@ -18,7 +18,7 @@
     - [DELETE /api/profile/me](#delete-apiprofileme)
   - [Programs](#programs)
     - [GET /api/programs](#get-apiprograms)
-    - [GET /api/programs/:id](#get-apiprogramsid)
+    - [GET /api/programs/:id](#get-apiprograms:d)
     - [POST /api/programs](#post-apiprograms)
     - [PUT /api/programs/:id](#put-apiprogramsid)
     - [DELETE /api/programs/:id](#delete-apiprogramsid)
@@ -65,7 +65,7 @@ Start the backend: `npm run dev`
 
 ## Authentication
 
-### POST /api/register
+### POST /api/auth/register
 
 Registering a user automatically sends an email. On failure to send it fails silently.
 
@@ -96,7 +96,7 @@ Response 201 JSON:
 
 Response 409 -> User with given email already exists
 
-### POST /api/users/verify-email
+### POST /api/auth/verify-email
 
 Request JSON:
 
@@ -110,7 +110,7 @@ Request JSON:
 Response 200 -> User's email is successfully verified \
 Response 400 -> Invalid code, invalid email or malformed request
 
-### POST /api/users/resend-email
+### POST /api/auth/resend-email
 
 Request JSON:
 
@@ -123,7 +123,7 @@ Request JSON:
 Response 200 -> Another email with a new code has been sent \
 Response 400 -> Failed to send an email, try again
 
-### POST /api/login
+### POST /api/auth/login
 
 Email has to be verified before logging in
 
@@ -151,7 +151,7 @@ Response 200 JSON:
 Response 401 -> Email is not verified \
 Response 404 -> Invalid email or password
 
-### GET /api/protected
+### GET /api/auth/protected
 
 Route to test authorization
 
@@ -166,7 +166,7 @@ Response 403 -> Token is invalid or expired
 
 ## Profiles (Users)
 
-Requires authorization (see [/api/protected](#get-apiprotected))
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
 
 ### GET /api/profile
 
@@ -250,7 +250,7 @@ Request JSON:
 ```
 
 Response 200 JSON: same as above \
-Reponse 404 -> User does not exist (don't use this instead of [/api/register](#post-apiregister))
+Reponse 404 -> User does not exist (don't use this instead of [/api/auth/register](#post-apiauthregister))
 
 ### PATCH /api/profile/me
 

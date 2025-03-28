@@ -1,8 +1,7 @@
 import prisma from "../prisma";
 import jwt from "jsonwebtoken";
 import argon2 from "argon2";
-import { sendVerificationCode } from "./emailService";
-import { generateVerificationCode } from "./userService";
+import { generateVerificationCode, sendVerificationCode } from "./emailService";
 
 async function createUser(data: {
   firstName: string;

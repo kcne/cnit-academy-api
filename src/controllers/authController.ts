@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { getUser, createUser } from "../services/authService";
+import { resendVerificationCode, verifyCode } from "../services/emailService";
 
 async function register(req: Request, res: Response) {
   let user;
@@ -47,4 +48,27 @@ async function login(req: Request, res: Response) {
   }
 }
 
-export { register, login };
+async function verifyEmail(req: Request, res: Response) {
+  try {
+    const { code, email } = req.body;
+
+    const result = await verifyCode(code, email);
+    res.status(200).json({ message: "Successfully e-mail is verified" });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+async function resendEmail(req: Request, res: Response) {
+  try {
+    const { email } = req.body;
+
+    const result = await resendVerificationCode(email);
+
+    res.status(200).json({ message: "New code sent!" });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+export { verifyEmail, resendEmail, register, login };
