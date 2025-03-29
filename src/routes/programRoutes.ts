@@ -1,25 +1,27 @@
-import {Router} from "express";
+import { Router } from "express";
 import {
-    getAllPrograms,
-    getProgramById,
-    createProgram,
-    updateProgram,
-    deleteProgram,
-    ApplyToProgram,
-    EnrollToProgram
+  getAllPrograms,
+  getProgramById,
+  createProgram,
+  updateProgram,
+  deleteProgram,
+  applyToProgram,
+  enrollToProgram,
 } from "../controllers/programController";
-import { validateUpdateProgram } from "../services/programService";
-import { validateCreateProgram } from "../services/programService";
+import {
+  validateCreateProgram,
+  validateUpdateProgram,
+} from "../services/programService";
 
 const router = Router();
-
 
 router.get("/", getAllPrograms);
 router.get("/:id", getProgramById);
 router.post("/", validateCreateProgram, createProgram);
-router.put("/:id", validateUpdateProgram,  updateProgram);
+router.put("/:id", validateUpdateProgram, updateProgram);
 router.delete("/:id", deleteProgram);
-router.put("/:id/apply", ApplyToProgram);
-router.put("/:id/enroll", EnrollToProgram);
+router.put("/:id/apply", applyToProgram);
+router.put("/:id/enroll", enrollToProgram);
 
 export default router;
+

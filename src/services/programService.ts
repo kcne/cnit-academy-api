@@ -1,6 +1,7 @@
 import { z } from "zod";
 import prisma from "../prisma";
 import { PrismaRepositoryService } from "./prismaRepositoryService";
+import { validateRequest } from "../middlewares/validate";
 
 const programSchema = z.object({
   title: z.string(),
@@ -10,22 +11,11 @@ const programSchema = z.object({
   applicationDeadline: z.coerce.date(),
 });
 
-const {
-  getAll,
-  findItem,
-  createItem: preCreateItem,
-  updateItem: preUpdateItem,
-  deleteItem,
-} = new PrismaRepositoryService(prisma, prisma.program);
+const validateCreateProgram = validateRequest(programSchema);
+const validateUpdateProgram = validateRequest(programSchema.partial());
 
-async function createItem(preData: z.infer<typeof programSchema>) {
-  const data = programSchema.parseAsync(preData);
-  return preCreateItem(data);
-}
-async function updateItem(id: number, preData: z.infer<typeof programSchema>) {
-  const data = programSchema.partial().parseAsync(preData);
-  return preUpdateItem(id, data);
-}
+const { getAll, findItem, createItem, updateItem, deleteItem } =
+  new PrismaRepositoryService(prisma, prisma.program);
 
 async function applyDeprecated(id: number): Promise<void> {
   await prisma.program.update({
@@ -53,4 +43,6 @@ export {
   deleteItem,
   applyDeprecated,
   enrollDeprecated,
+  validateCreateProgram,
+  validateUpdateProgram,
 };

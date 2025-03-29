@@ -5,6 +5,7 @@ import courseRoutes from "./routes/courseRoutes";
 import profileRoutes from "./routes/profileRoutes";
 import programRoutes from "./routes/programRoutes";
 import leaderboardRoutes from "./routes/leaderboardRoutes";
+import errorHandler from "./middlewares/errorHandler";
 
 const app = express();
 
@@ -16,6 +17,8 @@ app.use("/api/course", courseRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/program", programRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
+
+app.use(errorHandler);
 
 app.use((_, res) => {
   res.status(404).json({ error: "Route not found" });
