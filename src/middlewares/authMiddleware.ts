@@ -1,46 +1,49 @@
 import { Response, NextFunction, Request } from "express";
 import jwt from "jsonwebtoken";
 import prisma from "../prisma";
+import createHttpError from "http-errors";
 
 export interface AuthenticatedRequest extends Request {
-  user?: { id: number; email: string };
+  user?: User;
+}
+
+interface User {
+  id: number;
+  email: string;
 }
 
 const authMiddleware = (
   req: AuthenticatedRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction,
-): void => {
+) => {
   const authHeader = req.headers.authorization || "";
   const token = authHeader.split(" ")[1];
 
   if (!token) {
-    res
-      .status(401)
-      .json({ error: "Authentication token is missing or invalid" });
-    return;
+    throw createHttpError(401, "Authentication token is missing or malformed");
   }
 
+  let decoded;
   try {
-    const decoded = jwt.verify(
+    decoded = jwt.verify(
       token,
       process.env.JWT_SECRET || "fallback secret",
-    ) as {
-      id: number;
-      email: string;
-    };
-    if (
-      !prisma.user.findUnique({
-        where: { id: decoded.id, isEmailVerified: true },
-      })
-    ) {
-      res.status(403).json({ error: "Email is not verified" });
-    }
-    req.user = decoded;
-    next();
+    ) as User;
   } catch (error) {
-    res.status(403).json({ error: "Invalid or expired token" });
+    throw createHttpError(403, "Invalid or expired token");
   }
+
+  const user = prisma.user.findUnique({
+    where: { id: decoded.id, email: decoded.email, isEmailVerified: true },
+    select: { id: true, email: true },
+  });
+  if (!user) {
+    throw createHttpError(403, "Invalid or expired token");
+  }
+
+  req.user = decoded;
+  next();
 };
 
 export default authMiddleware;

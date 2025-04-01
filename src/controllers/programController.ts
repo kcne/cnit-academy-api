@@ -19,22 +19,18 @@ async function getAllPrograms(_req: Request, res: Response) {
 async function getProgramById(req: Request, res: Response) {
   const id = Number(req.params.id);
   const program = await findItem(id);
-  if (!program) {
-    res.status(404).json({ message: "Program not found" });
-  } else {
-    res.json(program);
-  }
+  res.json(program);
 }
 
 async function createProgram(req: Request, res: Response) {
-  const newProgram = req.body;
+  const newProgram = req.body; // TODO: add validation
   const program = await createItem(newProgram);
   res.json(program);
 }
 
 async function updateProgram(req: Request, res: Response) {
   const id = Number(req.params.id);
-  const newProgram = req.body;
+  const newProgram = req.body; // TODO: add validation
   const program = await updateItem(id, newProgram);
   res.json(program);
 }

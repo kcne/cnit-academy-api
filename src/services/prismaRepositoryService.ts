@@ -5,6 +5,7 @@ import {
   createPaginatedResponse,
   PaginatedResult,
 } from "../utils/queryBuilder";
+import createHttpError from "http-errors";
 
 export class PrismaRepositoryService<T, K extends string> {
   protected prisma: PrismaClient;
@@ -36,10 +37,15 @@ export class PrismaRepositoryService<T, K extends string> {
     return createPaginatedResponse(items, total, pagination);
   }
 
-  async findItem(id: number): Promise<T | null> {
-    return this.model.findUnique({
+  async findItem(id: number): Promise<T> {
+    const model = this.model.findUnique({
       where: { id: id },
     });
+    if (!model) {
+      throw createHttpError(404, "Not found");
+    }
+
+    return model;
   }
 
   async createItem(data: any): Promise<T> {
@@ -47,6 +53,13 @@ export class PrismaRepositoryService<T, K extends string> {
   }
 
   async updateItem(id: number, data: any): Promise<T> {
+    const model = this.model.findUnique({
+      where: { id: id },
+    });
+    if (!model) {
+      throw createHttpError(404, "Not found");
+    }
+
     return this.model.update({
       where: { id: id },
       data,
@@ -54,6 +67,13 @@ export class PrismaRepositoryService<T, K extends string> {
   }
 
   async deleteItem(id: number): Promise<T> {
+    const model = this.model.findUnique({
+      where: { id: id },
+    });
+    if (!model) {
+      throw createHttpError(404, "Not found");
+    }
+
     return this.model.delete({
       where: { id: id },
     });

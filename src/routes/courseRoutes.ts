@@ -6,13 +6,14 @@ import {
   getCourseById,
   updateCourseById,
 } from "../controllers/courseController";
+import asyncHandler from "../middlewares/asyncHandler";
 
 const router = Router();
 
-router.get("/", getAllCourses);
-router.get("/:id", getCourseById);
-router.post("/", createCourse);
-router.put("/:id", updateCourseById);
-router.delete("/:id", deleteCourseById);
+router.get("/", asyncHandler(getAllCourses));
+router.get("/:id", asyncHandler(getCourseById));
+router.post("/", asyncHandler(createCourse));
+router.put("/:id", asyncHandler(updateCourseById));
+router.delete("/:id", asyncHandler(deleteCourseById));
 
 export default router;

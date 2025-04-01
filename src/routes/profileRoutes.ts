@@ -1,5 +1,4 @@
 import { Router } from "express";
-import authMiddleware from "../middlewares/authMiddleware";
 import {
   createProfile,
   getAllProfiles,
@@ -7,13 +6,14 @@ import {
   updateProfile,
   deleteProfile,
 } from "../controllers/profileController";
+import asyncHandler from "../middlewares/asyncHandler";
 
 const router = Router();
 
-router.get("/", authMiddleware, getAllProfiles);
-router.get("/:id", authMiddleware, getProfileById);
-router.post("/:id", authMiddleware, createProfile);
-router.patch("/:id", authMiddleware, updateProfile);
-router.delete("/:id", authMiddleware, deleteProfile);
+router.get("/", asyncHandler(getAllProfiles));
+router.get("/:id", asyncHandler(getProfileById));
+router.post("/me", asyncHandler(createProfile));
+router.patch("/me", asyncHandler(updateProfile));
+router.delete("/me", asyncHandler(deleteProfile));
 
 export default router;

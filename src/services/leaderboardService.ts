@@ -1,5 +1,5 @@
-import { PrismaClient } from "@prisma/client"; 
-const prisma = new PrismaClient(); 
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 interface LeaderboardUser {
   id: number;
@@ -9,20 +9,22 @@ interface LeaderboardUser {
   totalCoins: number;
 }
 
-export const getLeaderboardData = async (domain: string | undefined): Promise<LeaderboardUser[]> => {
-  try {
-    const dateFilter = domain === "weekly" ? new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) : undefined;
+export async function getLeaderboardData(
+  weekly: boolean,
+): Promise<LeaderboardUser[]> {
+  const leaderboard = await prisma.user.findMany({
+    where: weekly
+      ? { updatedAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } }
+      : {},
+    orderBy: { totalCoins: "desc" },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      totalCoins: true,
+      updatedAt: true,
+    },
+  });
 
-    const leaderboard = await prisma.user.findMany({
-      where: dateFilter ? { updatedAt: { gte: dateFilter } } : {}, 
-      orderBy: { totalCoins: "desc" },
-      select: { id: true, firstName: true, lastName: true, totalCoins: true, updatedAt: true },
-    });
-
-    return leaderboard;
-  } catch (error) {
-    console.log(error);
-    throw new Error("Error fetching leaderboard data");
-  }
-};
-
+  return leaderboard;
+}

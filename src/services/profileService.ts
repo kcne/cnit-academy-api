@@ -1,3 +1,4 @@
+import createHttpError from "http-errors";
 import prisma from "../prisma";
 
 interface Profile {
@@ -59,7 +60,6 @@ async function getProfiles() {
           lastName: true,
           totalCoins: true,
           email: true,
-          isEmailVerified: true,
         },
       },
     },
@@ -86,6 +86,10 @@ async function getProfile(id: number) {
     where: { id },
   });
 
+  if (!profile) {
+    throw createHttpError(404, "Profile not found");
+  }
+
   return rawToProfile(profile);
 }
 
@@ -96,7 +100,7 @@ async function addProfile(id: number, profile: Profile) {
     );
   }
   if (!(await prisma.user.findUnique({ where: { id } }))) {
-    return null;
+    throw createHttpError(404, "User not found");
   }
 
   const new_profile = await prisma.profile.create({
@@ -124,8 +128,8 @@ async function changeProfile(id: number, profile: Profile) {
     );
   }
 
-  if (!(await prisma.profile.findUnique({ where: { id } }))) {
-    return null;
+  if (!(await prisma.user.findUnique({ where: { id } }))) {
+    throw createHttpError(404, "User not found");
   }
 
   const transactions = [];
@@ -214,7 +218,7 @@ async function changeProfile(id: number, profile: Profile) {
 
 async function removeProfile(id: number) {
   if (!(await prisma.profile.findUnique({ where: { id } }))) {
-    return null;
+    throw createHttpError(404, "User not found");
   }
 
   await prisma.education.deleteMany({ where: { profileId: id } });
