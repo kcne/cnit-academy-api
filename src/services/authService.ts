@@ -3,14 +3,30 @@ import jwt from "jsonwebtoken";
 import argon2 from "argon2";
 import { generateVerificationCode, sendVerificationCode } from "./emailService";
 import createHttpError from "http-errors";
+import { z } from "zod";
 
-async function createUser(data: {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  pfp?: string;
-}) {
+const NewUserSchema = z.object({
+  firstName: z.string().min(2).max(256),
+  lastName: z.string().min(2).max(256),
+  email: z.string().email(),
+  password: z.string().min(8).max(256),
+  pfp: z
+    .string()
+    .max(64)
+    .refine(
+      (str) => str.match(/^(\/pfp\/\d+\.)(png|webp|jpg)$/),
+      "Pfp string is invalid",
+    )
+    .optional(),
+});
+const GetUserSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8).max(256),
+});
+
+async function createUser(data: z.infer<typeof NewUserSchema>) {
+  await NewUserSchema.parseAsync(data);
+
   const oldUser = await prisma.user.findUnique({
     where: { email: data.email },
   });
@@ -48,11 +64,13 @@ async function createUser(data: {
   };
 }
 
-async function getUser(data: { email: string; password: string }): Promise<{
+async function getUser(data: z.infer<typeof GetUserSchema>): Promise<{
   id: number;
   email: string;
   token: string;
 }> {
+  await GetUserSchema.parseAsync(data);
+
   const user = await prisma.user.findUnique({
     where: { email: data.email },
   });

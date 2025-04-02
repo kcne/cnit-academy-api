@@ -1,5 +1,51 @@
 import createHttpError from "http-errors";
 import prisma from "../prisma";
+import { z } from "zod";
+import { validateRequest } from "../middlewares/validate";
+
+const EducationExperienceSchema = z.object({
+  id: z.number().positive().int().optional(),
+  title: z.string().min(2).max(256),
+  description: z.string().min(2).max(1024),
+  organization: z.string().min(2).max(256),
+  startPeriod: z.date().max(new Date()),
+  endPeriod: z.date().max(new Date()),
+});
+
+const UpdateProfileSchema = z.object({
+  id: z.number().positive().int(),
+  firstName: z.string().min(2).max(256),
+  lastName: z.string().min(2).max(256),
+  skills: z.array(z.string().max(64)),
+  education: z.array(EducationExperienceSchema),
+  experience: z.array(EducationExperienceSchema),
+  totalCoins: z.number().positive().int(),
+  pfp: z
+    .string()
+    .max(64)
+    .refine(
+      (str) => str.match(/^(\/pfp\/\d+\.)(png|webp|jpg)$/),
+      "Pfp string is invalid",
+    )
+    .optional(),
+});
+
+const CreateProfileSchema = z.object({
+  skills: z.array(z.string().max(64)),
+  education: z.array(EducationExperienceSchema),
+  experience: z.array(EducationExperienceSchema),
+  pfp: z
+    .string()
+    .max(64)
+    .refine(
+      (str) => str.match(/^(\/pfp\/\d+\.)(png|webp|jpg)$/),
+      "Pfp string is invalid",
+    )
+    .optional(),
+});
+
+const validateCreateProfile = validateRequest(CreateProfileSchema);
+const validateUpdateProfile = validateRequest(UpdateProfileSchema);
 
 interface Profile {
   id?: number;
@@ -20,7 +66,7 @@ interface EducationExperience {
   description: string;
   organization: string;
   startPeriod: Date;
-  endPeriod: Date;
+  endPeriod: Date; // TODO: jobs don't need an end date
 }
 
 function compareEduExp(obj1: EducationExperience, obj2: EducationExperience) {
@@ -103,7 +149,7 @@ async function addProfile(id: number, profile: Profile) {
     throw createHttpError(404, "User not found");
   }
 
-  const new_profile = await prisma.profile.create({
+  const newProfile = await prisma.profile.create({
     data: {
       pfp: profile.pfp,
       skills: profile.skills.join(","),
@@ -118,7 +164,7 @@ async function addProfile(id: number, profile: Profile) {
     },
   });
 
-  return rawToProfile(new_profile);
+  return rawToProfile(newProfile);
 }
 
 async function changeProfile(id: number, profile: Profile) {
@@ -140,9 +186,9 @@ async function changeProfile(id: number, profile: Profile) {
         where: {
           id: {
             in: (await prisma.education.findMany({ where: { profileId: id } }))
-              .filter((old_el) =>
+              .filter((oldEl) =>
                 profile.education.every(
-                  (new_el) => !compareEduExp(old_el, new_el),
+                  (newEl) => !compareEduExp(oldEl, newEl),
                 ),
               )
               .map((el) => el.id),
@@ -168,9 +214,9 @@ async function changeProfile(id: number, profile: Profile) {
         where: {
           id: {
             in: (await prisma.experience.findMany({ where: { profileId: id } }))
-              .filter((old_el) =>
+              .filter((oldEl) =>
                 profile.experience.every(
-                  (new_el) => !compareEduExp(old_el, new_el),
+                  (newEl) => !compareEduExp(oldEl, newEl),
                 ),
               )
               .map((el) => el.id),
@@ -192,14 +238,14 @@ async function changeProfile(id: number, profile: Profile) {
   }
 
   await prisma.$transaction(transactions);
-  const new_profile = await prisma.profile.update({
+  const newProfile = await prisma.profile.update({
     data: {
       skills: profile.skills ? profile.skills.join(",") : undefined,
     },
     where: { id },
     include: { education: true, experience: true },
   });
-  const new_user = await prisma.user.update({
+  const newUser = await prisma.user.update({
     data: {
       firstName: profile.firstName,
       lastName: profile.lastName,
@@ -213,7 +259,7 @@ async function changeProfile(id: number, profile: Profile) {
       isEmailVerified: true,
     },
   });
-  return rawToProfile({ ...new_profile, user: new_user });
+  return rawToProfile({ ...newProfile, user: newUser });
 }
 
 async function removeProfile(id: number) {
@@ -226,4 +272,12 @@ async function removeProfile(id: number) {
   await prisma.profile.delete({ where: { id } });
 }
 
-export { getProfiles, getProfile, addProfile, changeProfile, removeProfile };
+export {
+  getProfiles,
+  getProfile,
+  addProfile,
+  changeProfile,
+  removeProfile,
+  validateCreateProfile,
+  validateUpdateProfile,
+};

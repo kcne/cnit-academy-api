@@ -2,6 +2,7 @@ import nodemailer from "nodemailer";
 import prisma from "../prisma";
 import createHttpError from "http-errors";
 import crypto from "crypto";
+import { z } from "zod";
 
 const transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST,
@@ -38,6 +39,8 @@ const sendVerificationCode = async (
 };
 
 async function generateVerificationCode(email: string) {
+  await z.string().email().parseAsync(email);
+
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) {
@@ -59,6 +62,9 @@ async function generateVerificationCode(email: string) {
 }
 
 async function verifyCode(code: string, email: string) {
+  await z.string().email().parseAsync(email);
+  await z.number().int().min(100000).max(999999).parseAsync(code);
+
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) {

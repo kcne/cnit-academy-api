@@ -6,6 +6,7 @@ import {
   updateItem,
   deleteItem,
 } from "../services/courseService";
+import { z } from "zod";
 
 async function getAllCourses(_req: Request, res: Response) {
   const courses = await getAll({
@@ -15,29 +16,29 @@ async function getAllCourses(_req: Request, res: Response) {
 }
 
 async function getCourseById(req: Request, res: Response) {
-  const id = Number(req.params.id); // TODO: add validation
+  const id = await z.number().positive().int().parseAsync(req.params.id);
   const course = await findItem(id);
 
   res.json(course);
 }
 
 async function deleteCourseById(req: Request, res: Response) {
-  const id = Number(req.params.id); // TODO: add validation
-  await deleteItem(id); // TODO: add validation
+  const id = await z.number().positive().int().parseAsync(req.params.id);
+  await deleteItem(id);
 
   res.send();
 }
 
 async function updateCourseById(req: Request, res: Response) {
-  const id = Number(req.params.id); // TODO: add validation
-  const course = req.body; // TODO: add validation
+  const id = await z.number().positive().int().parseAsync(req.params.id);
+  const course = req.body;
   const updatedCourse = await updateItem(id, course);
 
   res.json(updatedCourse);
 }
 
 async function createCourse(req: Request, res: Response) {
-  const course = req.body; // TODO: add validation
+  const course = req.body;
   const createdCourse = await createItem(course);
 
   res.json(createdCourse);

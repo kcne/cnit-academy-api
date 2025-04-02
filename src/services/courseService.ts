@@ -1,8 +1,27 @@
+import { z } from "zod";
 import prisma from "../prisma";
 import { PrismaRepositoryService } from "./prismaRepositoryService";
+import { validateRequest } from "../middlewares/validate";
+
+const CourseSchema = z.object({
+  title: z.string().max(256),
+  description: z.string().max(1024),
+  founder: z.string().max(256),
+  durationInDays: z.number().int().min(1).max(1000),
+  applicationDeadline: z.date().min(new Date()),
+});
+const validateCreateCourse = validateRequest(CourseSchema);
+const validateUpdateCourse = validateRequest(CourseSchema.partial());
 
 const { getAll, findItem, createItem, updateItem, deleteItem } =
   new PrismaRepositoryService(prisma, prisma.course);
 
-export { getAll, findItem, createItem, updateItem, deleteItem };
-
+export {
+  getAll,
+  findItem,
+  createItem,
+  updateItem,
+  deleteItem,
+  validateCreateCourse,
+  validateUpdateCourse,
+};
