@@ -22,7 +22,6 @@ model User {
   Blog             Blog[]
   updatedAt        DateTime @updatedAt
   totalCoins       Int @default(0)
-  totalCoins       Int       @default(0)
 }
 
 model Profile {
