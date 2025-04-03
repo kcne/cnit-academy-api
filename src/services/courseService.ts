@@ -13,15 +13,6 @@ const CourseSchema = z.object({
 const validateCreateCourse = validateRequest(CourseSchema);
 const validateUpdateCourse = validateRequest(CourseSchema.partial());
 
-const { getAll, findItem, createItem, updateItem, deleteItem } =
-  new PrismaRepositoryService(prisma, prisma.course);
+const repositoryService = new PrismaRepositoryService(prisma, prisma.course);
 
-export {
-  getAll,
-  findItem,
-  createItem,
-  updateItem,
-  deleteItem,
-  validateCreateCourse,
-  validateUpdateCourse,
-};
+export { repositoryService, validateCreateCourse, validateUpdateCourse };
