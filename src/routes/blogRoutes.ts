@@ -6,14 +6,14 @@ const blogController = new BlogController();
 
 // GET routes
 
-router.get("/blogs", blogController.getBlogs);
-router.get("/blogs/:id", blogController.getBlog);
+router.get("/", blogController.getBlogs);
+router.get("/:id", blogController.getBlog);
 
 // POST, PUT, DELETE routes
 
-router.post("/blogs", blogController.createBlog);
-router.put("/blogs/:id", blogController.updateBlog);
-router.put("/blogs/:id/publish", blogController.togglePublishBlog);
-router.delete("/blogs/:id", blogController.deleteBlog);
+router.post("/", blogController.createBlog);
+router.put("/:id", blogController.updateBlog);
+router.put("/:id/publish", blogController.togglePublishBlog);
+router.delete("/:id", blogController.deleteBlog);
 
 export default router;

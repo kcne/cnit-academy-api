@@ -7,6 +7,7 @@ import programRoutes from "./routes/programRoutes";
 import leaderboardRoutes from "./routes/leaderboardRoutes";
 import errorHandler from "./middlewares/errorHandler";
 import authMiddleware from "./middlewares/authMiddleware";
+import blogRoutes from "./routes/blogRoutes";
 
 const app = express();
 
@@ -15,12 +16,12 @@ app.use(cors());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/course", authMiddleware, courseRoutes);
+app.use("/api/blog", blogRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/program", authMiddleware, programRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 
 app.use(errorHandler);
-
 app.use((_, res) => {
   res.status(404).json({ error: "Route not found" });
 });
