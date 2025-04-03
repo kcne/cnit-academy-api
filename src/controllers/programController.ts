@@ -6,9 +6,14 @@ import {
 } from "../services/programService";
 import { z } from "zod";
 
-async function getAllPrograms(_req: Request, res: Response) {
+async function getAllPrograms(req: Request, res: Response) {
+  const { page, limit } = req.query;
+
   const programs = await repositoryService.getAll({
-    pagination: { page: 1, limit: Number.MAX_SAFE_INTEGER }, // TODO: add pagination
+    pagination: {
+      page: Number(page ?? 1),
+      limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+    },
   });
   res.json(programs);
 }

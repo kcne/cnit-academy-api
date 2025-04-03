@@ -9,8 +9,13 @@ import {
 } from "../services/profileService";
 import { z } from "zod";
 
-async function getAllProfiles(_req: AuthenticatedRequest, res: Response) {
-  const profiles = await getProfiles();
+async function getAllProfiles(req: AuthenticatedRequest, res: Response) {
+  const { page, limit } = req.query;
+
+  const profiles = await getProfiles(
+    Number(page ?? 1),
+    Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+  );
 
   res.json(profiles);
 }

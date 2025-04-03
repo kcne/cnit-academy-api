@@ -95,8 +95,10 @@ function rawToProfile(obj: any): Profile | null {
   };
 }
 
-async function getProfiles() {
+async function getProfiles(page: number, limit: number) {
   const profiles = await prisma.profile.findMany({
+    take: limit,
+    skip: page * limit - limit,
     include: {
       education: true,
       experience: true,

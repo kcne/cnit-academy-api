@@ -2,11 +2,16 @@ import { Request, Response } from "express";
 import { repositoryService } from "../services/courseService";
 import { z } from "zod";
 
-async function getAllCourses(_req: Request, res: Response) {
+async function getAllCourses(req: Request, res: Response) {
+  const { page, limit } = req.query;
+
   const courses = await repositoryService.getAll({
-    pagination: { page: 1, limit: Number.MAX_SAFE_INTEGER }, // TODO: add pagination
+    pagination: {
+      page: Number(page ?? 1),
+      limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+    },
   });
-  res.json(courses.data);
+  res.json(courses);
 }
 
 async function getCourseById(req: Request, res: Response) {
