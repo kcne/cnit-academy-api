@@ -6,6 +6,7 @@ import profileRoutes from "./routes/profileRoutes";
 import programRoutes from "./routes/programRoutes";
 import leaderboardRoutes from "./routes/leaderboardRoutes";
 import errorHandler from "./middlewares/errorHandler";
+import authMiddleware from "./middlewares/authMiddleware";
 
 const app = express();
 
@@ -13,10 +14,10 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/api/auth", authRoutes);
-app.use("/api/course", courseRoutes);
-app.use("/api/profile", profileRoutes);
-app.use("/api/program", programRoutes);
-app.use("/api/leaderboard", leaderboardRoutes);
+app.use("/api/course", authMiddleware, courseRoutes);
+app.use("/api/profile", authMiddleware, profileRoutes);
+app.use("/api/program", authMiddleware, programRoutes);
+app.use("/api/leaderboard", authMiddleware, leaderboardRoutes);
 
 app.use(errorHandler);
 
