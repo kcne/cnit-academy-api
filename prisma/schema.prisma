@@ -22,16 +22,16 @@ model User {
   Blog             Blog[]
   updatedAt        DateTime @updatedAt
   totalCoins       Int @default(0)
+  totalCoins       Int       @default(0)
 }
 
 model Profile {
   id         Int          @id
   user       User         @relation(fields: [id], references: [id])
-  name       String
-  surname    String
   skills     String // comma seperated list for now
   education  Education[]  @relation("ProfileEducation")
   experience Experience[] @relation("ProfileExperience")
+  pfp        String       @default("/pfp/default")
 }
 
 model Education {

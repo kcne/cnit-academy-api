@@ -1,4 +1,5 @@
-import { Request, Response } from "express";
+import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import { Response } from "express";
 import {
   addProfile,
   getProfiles,
@@ -7,17 +8,20 @@ import {
   removeProfile,
 } from "../services/profileService";
 
-async function getAllProfiles(_req: Request, res: Response) {
+async function getAllProfiles(_req: AuthenticatedRequest, res: Response) {
   const profiles = await getProfiles();
 
   res.status(200).json(profiles);
 }
-async function getProfileById(req: Request, res: Response) {
-  const id = Number(req.params.id);
+async function getProfileById(req: AuthenticatedRequest, res: Response) {
+  const id = req.params.id === "me" ? req.user?.id : Number(req.params.id);
+  if (id === undefined) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
   if (Number.isNaN(id)) {
-    res
-      .status(400)
-      .json({ error: "Query paramater id must be a number larger than 0" });
+    res.status(400).json({
+      error: 'Query paramater id must be a number larger than 0 or "me"',
+    });
     return;
   }
 
@@ -30,12 +34,16 @@ async function getProfileById(req: Request, res: Response) {
   res.status(200).json(profile);
 }
 
-async function createProfile(req: Request, res: Response) {
-  const id = Number(req.params.id);
-  if (Number.isNaN(id)) {
-    res
-      .status(400)
-      .json({ error: "Query paramater id must be a number larger than 0" });
+async function createProfile(req: AuthenticatedRequest, res: Response) {
+  const id = req.user?.id;
+  if (id === undefined) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  if (req.params.id !== "me") {
+    res.status(403).json({
+      error:
+        'Modifying foreign profiles is forbidden for now. Query paramater id must be "me"',
+    });
     return;
   }
 
@@ -47,12 +55,16 @@ async function createProfile(req: Request, res: Response) {
   res.status(201).json(profile);
 }
 
-async function updateProfile(req: Request, res: Response) {
-  const id = Number(req.params.id);
-  if (Number.isNaN(id)) {
-    res
-      .status(400)
-      .json({ error: "Query paramater id must be a number larger than 0" });
+async function updateProfile(req: AuthenticatedRequest, res: Response) {
+  const id = req.user?.id;
+  if (id === undefined) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  if (req.params.id !== "me") {
+    res.status(403).json({
+      error:
+        'Modifying foreign profiles is forbidden for now. Query paramater id must be "me"',
+    });
     return;
   }
 
@@ -65,12 +77,16 @@ async function updateProfile(req: Request, res: Response) {
   res.status(200).json(profile);
 }
 
-async function deleteProfile(req: Request, res: Response) {
-  const id = Number(req.params.id);
-  if (Number.isNaN(id)) {
-    res
-      .status(400)
-      .json({ error: "Query paramater id must be a number larger than 0" });
+async function deleteProfile(req: AuthenticatedRequest, res: Response) {
+  const id = req.user?.id;
+  if (id === undefined) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  if (req.params.id !== "me") {
+    res.status(403).json({
+      error:
+        'Modifying foreign profiles is forbidden for now. Query paramater id must be "me"',
+    });
     return;
   }
 

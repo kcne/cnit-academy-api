@@ -6,8 +6,14 @@ async function register(req: Request, res: Response) {
   try {
     user = await createUser(req.body);
   } catch (error) {
-    console.log(error);
-    res.status(409).json({ error: "User already exists with the same email" });
+    console.error(error);
+    res.status(500);
+    if (error instanceof Error) {
+      if (error.message === "User already exists with the same email") {
+        res.status(409);
+      }
+      res.json({ error: error.message });
+    }
     return;
   }
 
@@ -16,18 +22,29 @@ async function register(req: Request, res: Response) {
     return;
   }
 
-  res.status(201).json({ ...user, password: undefined });
+  res.status(201).json(user);
 }
 
 async function login(req: Request, res: Response) {
-  const { user, token } = await getUser(req.body);
+  try {
+    const { user, token } = await getUser(req.body);
+    if (!token) {
+      res.status(404).json({ error: "Wrong password or email" });
+      return;
+    }
 
-  if (!token) {
-    res.status(404).json({ error: "Wrong password or email" });
+    res.status(200).json({ user, token });
+  } catch (error) {
+    console.error(error);
+    res.status(500);
+    if (error instanceof Error) {
+      if (error.message === "Email is not verified") {
+        res.status(401);
+      }
+      res.json({ error: error.message });
+    }
     return;
   }
-
-  res.status(200).json({ user, token });
 }
 
 export { register, login };
