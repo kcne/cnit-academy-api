@@ -15,21 +15,21 @@ async function getAllCourses(req: Request, res: Response) {
 }
 
 async function getCourseById(req: Request, res: Response) {
-  const id = await z.number().positive().int().parseAsync(req.params.id);
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   const course = await repositoryService.findItem(id);
 
   res.json(course);
 }
 
 async function deleteCourseById(req: Request, res: Response) {
-  const id = await z.number().positive().int().parseAsync(req.params.id);
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   await repositoryService.deleteItem(id);
 
   res.send();
 }
 
 async function updateCourseById(req: Request, res: Response) {
-  const id = await z.number().positive().int().parseAsync(req.params.id);
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   const course = req.body;
   const updatedCourse = await repositoryService.updateItem(id, course);
 

@@ -17,7 +17,7 @@ const router = Router();
 router.get("/", asyncHandler(getAllCourses));
 router.get("/:id", asyncHandler(getCourseById));
 router.post("/", validateCreateCourse, asyncHandler(createCourse));
-router.put("/:id", validateUpdateCourse, asyncHandler(updateCourseById));
+router.patch("/:id", validateUpdateCourse, asyncHandler(updateCourseById));
 router.delete("/:id", asyncHandler(deleteCourseById));
 
 export default router;

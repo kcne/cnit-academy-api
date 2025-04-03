@@ -38,7 +38,7 @@ export class PrismaRepositoryService<T, K extends string> {
   }
 
   async findItem(id: number): Promise<T> {
-    const model = this.model.findUnique({
+    const model = await this.model.findUnique({
       where: { id: id },
     });
     if (!model) {
@@ -49,32 +49,32 @@ export class PrismaRepositoryService<T, K extends string> {
   }
 
   async createItem(data: any): Promise<T> {
-    return this.model.create({ data });
+    return await this.model.create({ data });
   }
 
   async updateItem(id: number, data: any): Promise<T> {
-    const model = this.model.findUnique({
+    const model = await this.model.findUnique({
       where: { id: id },
     });
     if (!model) {
       throw createHttpError(404, "Not found");
     }
 
-    return this.model.update({
+    return await this.model.update({
       where: { id: id },
       data,
     });
   }
 
   async deleteItem(id: number): Promise<T> {
-    const model = this.model.findUnique({
+    const model = await this.model.findUnique({
       where: { id: id },
     });
     if (!model) {
       throw createHttpError(404, "Not found");
     }
 
-    return this.model.delete({
+    return await this.model.delete({
       where: { id: id },
     });
   }

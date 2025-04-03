@@ -2,6 +2,10 @@ import createHttpError from "http-errors";
 import prisma from "../prisma";
 import { z } from "zod";
 import { validateRequest } from "../middlewares/validate";
+import {
+  createPaginatedResponse,
+  PaginationOptions,
+} from "../utils/queryBuilder";
 
 const EducationExperienceSchema = z.object({
   id: z.number().positive().int().optional(),
@@ -95,7 +99,8 @@ function rawToProfile(obj: any): Profile | null {
   };
 }
 
-async function getProfiles(page: number, limit: number) {
+async function getProfiles(pagination: PaginationOptions) {
+  const { page, limit } = pagination;
   const profiles = await prisma.profile.findMany({
     take: limit,
     skip: page * limit - limit,
@@ -112,8 +117,9 @@ async function getProfiles(page: number, limit: number) {
       },
     },
   });
+  const total = await prisma.profile.count();
 
-  return profiles.map(rawToProfile);
+  return createPaginatedResponse(profiles.map(rawToProfile), total, pagination);
 }
 
 async function getProfile(id: number) {
@@ -272,6 +278,7 @@ async function removeProfile(id: number) {
   await prisma.education.deleteMany({ where: { profileId: id } });
   await prisma.experience.deleteMany({ where: { profileId: id } });
   await prisma.profile.delete({ where: { id } });
+  await prisma.user.delete({ where: { id } });
 }
 
 export {

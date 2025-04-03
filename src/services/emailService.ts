@@ -63,7 +63,7 @@ async function generateVerificationCode(email: string) {
 
 async function verifyCode(code: string, email: string) {
   await z.string().email().parseAsync(email);
-  await z.number().int().min(100000).max(999999).parseAsync(code);
+  await z.coerce.number().int().min(100000).max(999999).parseAsync(code);
 
   const user = await prisma.user.findUnique({ where: { email } });
 

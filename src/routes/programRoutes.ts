@@ -19,7 +19,7 @@ const router = Router();
 router.get("/", asyncHandler(getAllPrograms));
 router.get("/:id", asyncHandler(getProgramById));
 router.post("/", validateCreateProgram, asyncHandler(createProgram));
-router.put("/:id", validateUpdateProgram, asyncHandler(updateProgram));
+router.patch("/:id", validateUpdateProgram, asyncHandler(updateProgram));
 router.delete("/:id", asyncHandler(deleteProgram));
 router.put("/:id/apply", asyncHandler(applyToProgram));
 router.put("/:id/enroll", asyncHandler(enrollToProgram));

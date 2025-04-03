@@ -12,10 +12,10 @@ import { z } from "zod";
 async function getAllProfiles(req: AuthenticatedRequest, res: Response) {
   const { page, limit } = req.query;
 
-  const profiles = await getProfiles(
-    Number(page ?? 1),
-    Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
-  );
+  const profiles = await getProfiles({
+    page: Number(page ?? 1),
+    limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+  });
 
   res.json(profiles);
 }
@@ -27,7 +27,7 @@ async function getProfileById(req: AuthenticatedRequest, res: Response) {
   const id =
     req.params.id === "me"
       ? req.user.id
-      : await z.number().positive().int().parseAsync(req.params.id);
+      : await z.coerce.number().positive().int().parseAsync(req.params.id);
 
   const profile = await getProfile(id);
 

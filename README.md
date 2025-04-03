@@ -17,22 +17,24 @@
     - [PATCH /api/profile/me](#patch-apiprofileme)
     - [DELETE /api/profile/me](#delete-apiprofileme)
   - [Programs](#programs)
-    - [GET /api/programs](#get-apiprograms)
-    - [GET /api/programs/:id](#get-apiprograms:d)
-    - [POST /api/programs](#post-apiprograms)
-    - [PUT /api/programs/:id](#put-apiprogramsid)
-    - [DELETE /api/programs/:id](#delete-apiprogramsid)
-    - [PUT /api/programs/:id/apply](#put-apiprogramsidapply)
-    - [PUT /api/programs/:id/enroll](#put-apiprogramsidenroll)
+    - [GET /api/program](#get-apiprogram)
+    - [GET /api/program/:id](#get-apiprogramid)
+    - [POST /api/program](#post-apiprogram)
+    - [PATCH /api/program/:id](#patch-apiprogramid)
+    - [DELETE /api/program/:id](#delete-apiprogramid)
+    - [PUT /api/program/:id/apply](#put-apiprogramidapply)
+    - [PUT /api/program/:id/enroll](#put-apiprogramidenroll)
   - [Courses](#courses)
     - [GET /api/courses](#get-apicourses)
     - [GET /api/courses/:id](#get-apicoursesid)
     - [POST /api/courses](#post-apicourses)
-    - [PUT /api/courses/:id](#put-apicoursesid)
+    - [PATCH /api/courses/:id](#patch-apicoursesid)
     - [DELETE /api/courses/:id](#delete-apicoursesid)
   - [Leaderboard](#leaderboard)
     - [GET /api/leaderboard](#get-apileaderboard)
     - [GET /api/leaderboard/weekly](#get-apileaderboardweekly)
+  - [Global](#global)
+    - [paginationMeta](#paginationmeta)
     <!--toc:end-->
 
 ## Usage
@@ -49,8 +51,8 @@ MAIL_SECURE=false
 JWT_SECRET="secret" # a string that encrypts the jwt tokens, longer = more secure
 
 # additional options for npx prisma db seed
-SEED=42 # setting this variable creates reproducible results
-USERS=15 # number of users to create
+SEED=42    # setting this variable creates reproducible results
+USERS=15   # number of users to create
 COURSES=10 # number of courses to create
 PROGRAMS=5 # number of programs to create
 ```
@@ -140,15 +142,13 @@ Response 200 JSON:
 
 ```json
 {
-  "user": {
-    "id": 1,
-    "email": "tet@test.net"
-  },
+  "id": 1,
+  "email": "tet@test.net",
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ0ZXRAdGVzdC5uZXQiLCJpYXQiOjE3NDMwMjY4NTMsImV4cCI6MTc0MzExMzI1M30.MdyIeeyBaMLdJ65F6wfdLnKZVkOwMm8gkWm8ZyX7gQY"
 }
 ```
 
-Response 401 -> Email is not verified \
+Response 403 -> Email is not verified \
 Response 404 -> Invalid email or password
 
 ### GET /api/auth/protected
@@ -172,31 +172,41 @@ Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
 
 Returns all profiles
 
+Request query params:
+
+| key   | example | description                 |
+| ----- | ------- | --------------------------- |
+| page  | 2       | Current page                |
+| limit | 20      | Number of profiles per page |
+
 Response 200 JSON:
 
 ```json
-[
-  {
-    "id": 1,
-    "firstName": "john",
-    "lastName": "doe",
-    "skills": ["markdown"],
-    "education": [],
-    "experience": [],
-    "totalCoins": 0,
-    "pfp": "/pfp/default"
-  },
-  {
-    "id": 17,
-    "firstName": "jane",
-    "lastName": "doe",
-    "skills": ["c++"],
-    "education": [],
-    "experience": [],
-    "totalCoins": 0,
-    "pfp": "/pfp/jane.png"
-  }
-]
+{
+  "data": [
+    {
+      "id": 1,
+      "firstName": "john",
+      "lastName": "doe",
+      "skills": ["markdown"],
+      "education": [],
+      "experience": [],
+      "totalCoins": 0,
+      "pfp": "/pfp/default"
+    },
+    {
+      "id": 17,
+      "firstName": "jane",
+      "lastName": "doe",
+      "skills": ["c++"],
+      "education": [],
+      "experience": [],
+      "totalCoins": 0,
+      "pfp": "/pfp/jane.png"
+    }
+  ],
+  "meta": "(paginationMeta)"
+}
 ```
 
 ### GET /api/profile/:id
@@ -296,38 +306,48 @@ Reponse 404 -> Profile does not exist
 
 ### DELETE /api/profile/me
 
-Deletes own profile (but not the user leading to buggy behaviour currently)
+Deletes own profile
 
 Response 200 -> no response \
 Reponse 404 -> Profile does not exist
 
 ## Programs
 
-Will probably require authorization in the future
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
 
-### GET /api/programs
+### GET /api/program
 
 Fetch all programs
+
+Request query params:
+
+| key   | example | description                 |
+| ----- | ------- | --------------------------- |
+| page  | 2       | Current page                |
+| limit | 20      | Number of profiles per page |
 
 Response 200 JSON:
 
 ```json
-[
-  {
-    "id": 1,
-    "title": "title",
-    "description": "description",
-    "founder": "founder",
-    "durationInDays": 2,
-    "appliedCount": 0,
-    "studentCount": 0,
-    "applicationDeadline": "2025-03-07T16:42:30.000Z",
-    "CreatedAt": "2025-03-27T18:05:56.343Z"
-  }
-]
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "title",
+      "description": "description",
+      "founder": "founder",
+      "durationInDays": 2,
+      "appliedCount": 0,
+      "studentCount": 0,
+      "applicationDeadline": "2025-03-07T16:42:30.000Z",
+      "CreatedAt": "2025-03-27T18:05:56.343Z"
+    }
+  ],
+  "meta": "(paginationMeta)"
+}
 ```
 
-### GET /api/programs/:id
+### GET /api/program/:id
 
 Request query params:
 
@@ -338,24 +358,22 @@ Request query params:
 Response 200 JSON:
 
 ```json
-[
-  {
-    "id": 1,
-    "title": "title",
-    "description": "description",
-    "founder": "founder",
-    "durationInDays": 2,
-    "appliedCount": 0,
-    "studentCount": 0,
-    "applicationDeadline": "2025-03-07T16:42:30.000Z",
-    "CreatedAt": "2025-03-27T18:05:56.343Z"
-  }
-]
+{
+  "id": 1,
+  "title": "title",
+  "description": "description",
+  "founder": "founder",
+  "durationInDays": 2,
+  "appliedCount": 0,
+  "studentCount": 0,
+  "applicationDeadline": "2025-03-07T16:42:30.000Z",
+  "CreatedAt": "2025-03-27T18:05:56.343Z"
+}
 ```
 
-Request 404 -> Program not found (bad ID)
+Request 404 -> Program not found
 
-### POST /api/programs
+### POST /api/program
 
 Create new program
 
@@ -374,26 +392,23 @@ Request JSON:
 Response 200 JSON:
 
 ```json
-[
-  {
-    "id": 1,
-    "title": "title",
-    "description": "description",
-    "founder": "founder",
-    "durationInDays": 2,
-    "appliedCount": 0,
-    "studentCount": 0,
-    "applicationDeadline": "2025-03-07T16:42:30.000Z",
-    "CreatedAt": "2025-03-27T18:05:56.343Z"
-  }
-]
+{
+  "id": 1,
+  "title": "title",
+  "description": "description",
+  "founder": "founder",
+  "durationInDays": 2,
+  "appliedCount": 0,
+  "studentCount": 0,
+  "applicationDeadline": "2025-03-07T16:42:30.000Z",
+  "CreatedAt": "2025-03-27T18:05:56.343Z"
+}
 ```
 
-### PUT /api/programs/:id
+### PATCH /api/program/:id
 
 Update program \
-All of the fields are optional \
-**Subject to change from PUT to PATCH**
+All of the fields are optional
 
 Request query params:
 
@@ -416,25 +431,24 @@ Request JSON:
 Response 200 JSON:
 
 ```json
-[
-  {
-    "id": 1,
-    "title": "title",
-    "description": "description",
-    "founder": "founder",
-    "durationInDays": 2,
-    "appliedCount": 0,
-    "studentCount": 0,
-    "applicationDeadline": "2025-03-07T16:42:30.000Z",
-    "CreatedAt": "2025-03-27T18:05:56.343Z"
-  }
-]
+{
+  "id": 1,
+  "title": "title",
+  "description": "description",
+  "founder": "founder",
+  "durationInDays": 2,
+  "appliedCount": 0,
+  "studentCount": 0,
+  "applicationDeadline": "2025-03-07T16:42:30.000Z",
+  "CreatedAt": "2025-03-27T18:05:56.343Z"
+}
 ```
 
-### DELETE /api/programs/:id
+Request 404 -> Program not found
 
-Deletes a program \
-Crashes the application if program does not exist
+### DELETE /api/program/:id
+
+Deletes a program
 
 Request query params:
 
@@ -443,11 +457,11 @@ Request query params:
 | id  | 2       | ID of the program, positive integer |
 
 Response 200 -> Program deleted
+Request 404 -> Program not found
 
-### PUT /api/programs/:id/apply
+### PUT /api/program/:id/apply
 
-Increments applieadCount by one \
-Crashes the application if program does not exist
+Increments applieadCount by one
 
 Request query params:
 
@@ -456,11 +470,11 @@ Request query params:
 | id  | 2       | ID of the program, positive integer |
 
 Response 200 -> Applied to program
+Request 404 -> Program not found
 
-### PUT /api/programs/:id/enroll
+### PUT /api/program/:id/enroll
 
-Increments studentCount by one \
-Crashes the application if program does not exist
+Increments studentCount by one
 
 Request query params:
 
@@ -469,25 +483,38 @@ Request query params:
 | id  | 2       | ID of the program, positive integer |
 
 Response 200 -> Enrolled into program
+Request 404 -> Program not found
 
 ## Courses
+
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
 
 ### GET /api/courses
 
 Fetch all courses
 
+Request query params:
+
+| key   | example | description                 |
+| ----- | ------- | --------------------------- |
+| page  | 2       | Current page                |
+| limit | 20      | Number of profiles per page |
+
 Response 200 JSON:
 
 ```json
-[
-  {
-    "id": 1,
-    "title": "title",
-    "description": "description",
-    "durationInHours": 2,
-    "numberOfStudents": 0
-  }
-]
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "title",
+      "description": "description",
+      "durationInHours": 2,
+      "numberOfStudents": 0
+    }
+  ],
+  "meta": "paginationMeta"
+}
 ```
 
 ### GET /api/courses/:id
@@ -510,7 +537,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Course not found (bad ID)
+Request 404 -> Course not found
 
 ### POST /api/courses
 
@@ -540,12 +567,12 @@ Response 200 JSON:
 }
 ```
 
-### PUT /api/courses/:id
+Request 404 -> Program not found
+
+### PATCH /api/courses/:id
 
 Update a course \
-All of the fields are optional \
-Crashes the application if course does not exist \
-**Subject to change from PUT to PATCH**
+All of the fields are optional
 
 Request query params:
 
@@ -576,10 +603,11 @@ Response 200 JSON:
 }
 ```
 
+Request 404 -> Program not found
+
 ### DELETE /api/courses/:id
 
-Delete a course \
-Crashes the application if course does not exist
+Delete a course
 
 Request query params:
 
@@ -588,8 +616,11 @@ Request query params:
 | id  | 2       | ID of the course, positive integer |
 
 Response 200 -> Course deleted successfully
+Request 404 -> Program not found
 
 ## Leaderboard
+
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
 
 ### GET /api/leaderboard
 
@@ -601,25 +632,22 @@ Response 200 -> Course deleted successfully
 Response 200 JSON:
 
 ```json
-{
-  "success": true,
-  "leaderboard": [
-    {
-      "id": 1,
-      "firstName": "john",
-      "lastName": "doe",
-      "totalCoins": 1000,
-      "updatedAt": "2025-03-27T18:54:17.460Z"
-    },
-    {
-      "id": 2,
-      "firstName": "jane",
-      "lastName": "doe",
-      "totalCoins": 50,
-      "updatedAt": "2025-03-27T18:54:22.415Z"
-    }
-  ]
-}
+[
+  {
+    "id": 1,
+    "firstName": "john",
+    "lastName": "doe",
+    "totalCoins": 1000,
+    "updatedAt": "2025-03-27T18:54:17.460Z"
+  },
+  {
+    "id": 2,
+    "firstName": "jane",
+    "lastName": "doe",
+    "totalCoins": 50,
+    "updatedAt": "2025-03-27T18:54:22.415Z"
+  }
+]
 ```
 
 ### GET /api/leaderboard/weekly
@@ -627,30 +655,41 @@ Response 200 JSON:
 Only returns profiles which have been updated this week \
 **Prone to change:**
 
-- Directly return leaderboard object
 - Return a max of X profiles
 - Fixing the logic error
 
 Response 200 JSON:
 
 ```json
+[
+  {
+    "id": 1,
+    "firstName": "john",
+    "lastName": "doe",
+    "totalCoins": 1000,
+    "updatedAt": "2025-03-27T18:54:17.460Z"
+  },
+  {
+    "id": 2,
+    "firstName": "jane",
+    "lastName": "doe",
+    "totalCoins": 50,
+    "updatedAt": "2025-03-27T18:54:22.415Z"
+  }
+]
+```
+
+## Global
+
+### paginationMeta
+
+```json
 {
-  "success": true,
-  "leaderboard": [
-    {
-      "id": 1,
-      "firstName": "john",
-      "lastName": "doe",
-      "totalCoins": 1000,
-      "updatedAt": "2025-03-27T18:54:17.460Z"
-    },
-    {
-      "id": 2,
-      "firstName": "jane",
-      "lastName": "doe",
-      "totalCoins": 50,
-      "updatedAt": "2025-03-27T18:54:22.415Z"
-    }
-  ]
+  "page": 1,
+  "limit": 10,
+  "total": 150,
+  "totalPages": 15,
+  "hasNextPage": true,
+  "hasPrevPage": false
 }
 ```

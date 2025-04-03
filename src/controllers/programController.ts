@@ -19,7 +19,7 @@ async function getAllPrograms(req: Request, res: Response) {
 }
 
 async function getProgramById(req: Request, res: Response) {
-  const id = await z.number().positive().int().parseAsync(req.params.id);
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   const program = await repositoryService.findItem(id);
   res.json(program);
 }
@@ -31,26 +31,26 @@ async function createProgram(req: Request, res: Response) {
 }
 
 async function updateProgram(req: Request, res: Response) {
-  const id = await z.number().positive().int().parseAsync(req.params.id);
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   const newProgram = req.body;
   const program = await repositoryService.updateItem(id, newProgram);
   res.json(program);
 }
 
 async function deleteProgram(req: Request, res: Response) {
-  const id = await z.number().positive().int().parseAsync(req.params.id);
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   const program = await repositoryService.deleteItem(id);
   res.json(program);
 }
 
 async function applyToProgram(req: Request, res: Response) {
-  const id = await z.number().positive().int().parseAsync(req.params.id);
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   await applyDeprecated(id);
   res.send();
 }
 
 async function enrollToProgram(req: Request, res: Response) {
-  const id = await z.number().positive().int().parseAsync(req.params.id);
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   await enrollDeprecated(id);
   res.send();
 }
