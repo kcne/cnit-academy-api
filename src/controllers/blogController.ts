@@ -1,45 +1,53 @@
 import { Request, Response } from "express";
-import BlogService from "../services/blogService";
+import { repositoryService, publishBlog } from "../services/blogService";
+import { z } from "zod";
 
-const blogService = new BlogService();
+async function getBlogs(req: Request, res: Response) {
+  const { page, limit } = req.query;
 
-class BlogController {
-  async createBlog(req: Request, res: Response) {
-    const data = req.body;
-    const blog = await blogService.createBlog(data);
-    res.status(201).json({data:blog});
-  }
-
-  async getBlogs(req: Request, res: Response) {
-    const blogs = await blogService.getBlogs();
-    res.json({data:blogs});
-  }
-
-  async getBlog(req: Request, res: Response) {
-    const id = parseInt(req.params.id);
-    const blog = await blogService.getBlog(id);
-    res.json({data:blog});
-  }
-
-  async updateBlog(req: Request, res: Response) {
-    const id = parseInt(req.params.id);
-    const data = req.body;
-    const blog = await blogService.updateBlog(id, data);
-    res.json({data:blog});
-  }
-
-  async deleteBlog(req: Request, res: Response) {
-    const id = parseInt(req.params.id);
-    await blogService.deleteBlog(id);
-    res.json({ message: "Blog deleted successfully" });
-  }
-
-  async togglePublishBlog(req: Request, res: Response) {
-    const id = parseInt(req.params.id);
-    const publish = req.body.publish;
-    const blog = await blogService.updateBlogPublishStatus(id, publish);
-    res.json({data:blog});
-  }
+  const blogs = await repositoryService.getAll({
+    pagination: {
+      page: Number(page ?? 1),
+      limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+    },
+  });
+  res.json(blogs);
 }
 
-export default BlogController;
+async function getBlog(req: Request, res: Response) {
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+  const blog = await repositoryService.findItem(id);
+  res.json(blog);
+}
+
+async function createBlog(req: Request, res: Response) {
+  const blog = await repositoryService.createItem(req.body);
+  res.status(201).json(blog);
+}
+
+async function updateBlog(req: Request, res: Response) {
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+  const blog = await repositoryService.updateItem(id, req.body);
+  res.json(blog);
+}
+
+async function deleteBlog(req: Request, res: Response) {
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+  await repositoryService.deleteItem(id);
+  res.send();
+}
+
+async function togglePublishBlog(req: Request, res: Response) {
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+  await publishBlog(id);
+  res.send();
+}
+
+export {
+  createBlog,
+  getBlogs,
+  getBlog,
+  updateBlog,
+  deleteBlog,
+  togglePublishBlog,
+};

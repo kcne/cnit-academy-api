@@ -1,19 +1,25 @@
-import express from "express";
-import BlogController from "../controllers/blogController";
+import { Router } from "express";
+import {
+  createBlog,
+  getBlogs,
+  getBlog,
+  updateBlog,
+  deleteBlog,
+  togglePublishBlog,
+} from "../controllers/blogController";
+import {
+  validateCreateBlog,
+  validateUpdateBlog,
+} from "../services/blogService";
+import asyncHandler from "../middlewares/asyncHandler";
 
-const router = express.Router();
-const blogController = new BlogController();
+const router = Router();
 
-// GET routes
-
-router.get("/", blogController.getBlogs);
-router.get("/:id", blogController.getBlog);
-
-// POST, PUT, DELETE routes
-
-router.post("/", blogController.createBlog);
-router.put("/:id", blogController.updateBlog);
-router.put("/:id/publish", blogController.togglePublishBlog);
-router.delete("/:id", blogController.deleteBlog);
+router.get("/", asyncHandler(getBlogs));
+router.get("/:id", asyncHandler(getBlog));
+router.post("/", validateCreateBlog, asyncHandler(createBlog));
+router.patch("/:id", validateUpdateBlog, asyncHandler(updateBlog));
+router.put("/:id/publish", asyncHandler(togglePublishBlog));
+router.delete("/:id", asyncHandler(deleteBlog));
 
 export default router;

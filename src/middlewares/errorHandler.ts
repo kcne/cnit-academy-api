@@ -13,7 +13,7 @@ export default async function errorHandler(
     return;
   }
   if (err instanceof ZodError) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: err });
     return;
   }
 
