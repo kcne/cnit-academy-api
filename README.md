@@ -25,14 +25,21 @@
     - [PUT /api/program/:id/apply](#put-apiprogramidapply)
     - [PUT /api/program/:id/enroll](#put-apiprogramidenroll)
   - [Courses](#courses)
-    - [GET /api/courses](#get-apicourses)
-    - [GET /api/courses/:id](#get-apicoursesid)
-    - [POST /api/courses](#post-apicourses)
-    - [PATCH /api/courses/:id](#patch-apicoursesid)
-    - [DELETE /api/courses/:id](#delete-apicoursesid)
+    - [GET /api/course](#get-apicourse)
+    - [GET /api/course/:id](#get-apicourseid)
+    - [POST /api/course](#post-apicourse)
+    - [PATCH /api/course/:id](#patch-apicourseid)
+    - [DELETE /api/course/:id](#delete-apicourseid)
   - [Leaderboard](#leaderboard)
     - [GET /api/leaderboard](#get-apileaderboard)
     - [GET /api/leaderboard/weekly](#get-apileaderboardweekly)
+  - [Blogs](#blogs)
+    - [GET /api/blog](#get-apiblog)
+    - [GET /api/blog/:id](#get-apiblogid)
+    - [POST /api/blog](#post-apiblog)
+    - [PUT /api/blog/:id/publish](#put-apiblogidpublish)
+    - [PATCH /api/blog/:id](#patch-apiblogid)
+    - [DELETE /api/blog/:id](#delete-apiblogid)
   - [Global](#global)
     - [paginationMeta](#paginationmeta)
     <!--toc:end-->
@@ -259,7 +266,7 @@ Request JSON:
 }
 ```
 
-Response 200 JSON: same as above \
+Response 201 JSON: same as above \
 Reponse 404 -> User does not exist (don't use this instead of [/api/auth/register](#post-apiauthregister))
 
 ### PATCH /api/profile/me
@@ -324,7 +331,7 @@ Request query params:
 | key   | example | description                 |
 | ----- | ------- | --------------------------- |
 | page  | 2       | Current page                |
-| limit | 20      | Number of profiles per page |
+| limit | 20      | Number of programs per page |
 
 Response 200 JSON:
 
@@ -389,7 +396,7 @@ Request JSON:
 }
 ```
 
-Response 200 JSON:
+Response 201 JSON:
 
 ```json
 {
@@ -489,16 +496,16 @@ Request 404 -> Program not found
 
 Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
 
-### GET /api/courses
+### GET /api/course
 
-Fetch all courses
+Fetch all course
 
 Request query params:
 
-| key   | example | description                 |
-| ----- | ------- | --------------------------- |
-| page  | 2       | Current page                |
-| limit | 20      | Number of profiles per page |
+| key   | example | description                |
+| ----- | ------- | -------------------------- |
+| page  | 2       | Current page               |
+| limit | 20      | Number of courses per page |
 
 Response 200 JSON:
 
@@ -517,7 +524,7 @@ Response 200 JSON:
 }
 ```
 
-### GET /api/courses/:id
+### GET /api/course/:id
 
 Request query params:
 
@@ -539,10 +546,9 @@ Response 200 JSON:
 
 Request 404 -> Course not found
 
-### POST /api/courses
+### POST /api/course
 
-Create a new course \
-Only the title field is required
+Create a new course
 
 Request JSON:
 
@@ -555,7 +561,7 @@ Request JSON:
 }
 ```
 
-Response 200 JSON:
+Response 201 JSON:
 
 ```json
 {
@@ -567,9 +573,9 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Program not found
+Request 404 -> Course not found
 
-### PATCH /api/courses/:id
+### PATCH /api/course/:id
 
 Update a course \
 All of the fields are optional
@@ -603,9 +609,9 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Program not found
+Request 404 -> Course not found
 
-### DELETE /api/courses/:id
+### DELETE /api/course/:id
 
 Delete a course
 
@@ -616,7 +622,7 @@ Request query params:
 | id  | 2       | ID of the course, positive integer |
 
 Response 200 -> Course deleted successfully
-Request 404 -> Program not found
+Request 404 -> Course not found
 
 ## Leaderboard
 
@@ -626,7 +632,6 @@ Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
 
 **Prone to change:**
 
-- Directly return leaderboard object
 - Return a max of X profiles
 
 Response 200 JSON:
@@ -652,7 +657,7 @@ Response 200 JSON:
 
 ### GET /api/leaderboard/weekly
 
-Only returns profiles which have been updated this week \
+nly returns profiles which have been updated this week \
 **Prone to change:**
 
 - Return a max of X profiles
@@ -678,6 +683,167 @@ Response 200 JSON:
   }
 ]
 ```
+
+## Blogs
+
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
+
+### GET /api/blog
+
+Fetch all **published** blogs \
+If you don't see your blog you may have not published it
+(see [/api/blog/:id/publish](#put-apiblogidpublish) )
+
+Request query params:
+
+| key   | example | description              |
+| ----- | ------- | ------------------------ |
+| page  | 2       | Current page             |
+| limit | 20      | Number of blogs per page |
+
+Response 200 JSON:
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "title",
+      "published": true,
+      "content": "# Markdown",
+      "blogDescription": null,
+      "userId": 5,
+      "createdAt": "2025-04-05T18:34:35.612Z",
+      "updatedAt": "2025-04-05T18:34:35.612Z"
+    }
+  ],
+  "meta": "paginationMeta"
+}
+```
+
+### GET /api/blog/:id
+
+Request query params:
+
+| key | example | description                      |
+| --- | ------- | -------------------------------- |
+| id  | 2       | ID of the blog, positive integer |
+
+Response 200 JSON:
+
+```json
+{
+  "id": 1,
+  "title": "title",
+  "published": true,
+  "content": "# Markdown",
+  "blogDescription": null,
+  "userId": 5,
+  "createdAt": "2025-04-05T18:34:35.612Z",
+  "updatedAt": "2025-04-05T18:34:35.612Z"
+}
+```
+
+Request 404 -> Blog not found
+
+### POST /api/blog
+
+Create a new blog
+
+Request JSON:
+
+```json
+{
+  "userId": 5
+  "title": "title",
+  "published": true,
+  "content": "# Markdown",
+  "blogDescription": null,
+}
+```
+
+Response 201 JSON:
+
+```json
+{
+  "id": 1,
+  "title": "title",
+  "published": true,
+  "content": "# Markdown",
+  "blogDescription": null,
+  "userId": 5,
+  "createdAt": "2025-04-05T18:34:35.612Z",
+  "updatedAt": "2025-04-05T18:34:35.612Z"
+}
+```
+
+Request 404 -> Blog not found
+
+### PUT /api/blog/:id/publish
+
+Publish a blog
+
+Request query params:
+
+| key | example | description                      |
+| --- | ------- | -------------------------------- |
+| id  | 2       | ID of the blog, positive integer |
+
+Response 200 -> Blog published successfully
+Request 404 -> Blog not found
+
+### PATCH /api/blog/:id
+
+Update a blog \
+All of the fields are optional
+
+Request query params:
+
+| key | example | description                      |
+| --- | ------- | -------------------------------- |
+| id  | 2       | ID of the blog, positive integer |
+
+Request JSON:
+
+```json
+{
+  "userId": 5
+  "title": "title",
+  "published": true,
+  "content": "# Markdown",
+  "blogDescription": null,
+}
+```
+
+Response 200 JSON:
+
+```json
+{
+  "id": 1,
+  "title": "title",
+  "published": true,
+  "content": "# Markdown",
+  "blogDescription": null,
+  "userId": 5,
+  "createdAt": "2025-04-05T18:34:35.612Z",
+  "updatedAt": "2025-04-05T18:34:35.612Z"
+}
+```
+
+Request 404 -> Blog not found
+
+### DELETE /api/blog/:id
+
+Delete a blog
+
+Request query params:
+
+| key | example | description                      |
+| --- | ------- | -------------------------------- |
+| id  | 2       | ID of the blog, positive integer |
+
+Response 200 -> Blog deleted successfully
+Request 404 -> Blog not found
 
 ## Global
 
