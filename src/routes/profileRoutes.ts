@@ -7,14 +7,16 @@ import {
   deleteProfile,
 } from "../controllers/profileController";
 import asyncHandler from "../middlewares/asyncHandler";
-import { validateCreateProfile } from "../services/profileService";
-import { validateUpdateProgram } from "../services/programService";
+import {
+  validateCreateProfile,
+  validateUpdateProfile,
+} from "../services/profileService";
 import authMiddleware from "../middlewares/authMiddleware";
 
 const router = Router();
 
 router.get("/", asyncHandler(getAllProfiles));
-router.get("/:id", asyncHandler(getProfileById));
+router.get("/:id", authMiddleware, asyncHandler(getProfileById));
 router.post(
   "/me",
   authMiddleware,
@@ -24,7 +26,7 @@ router.post(
 router.patch(
   "/me",
   authMiddleware,
-  validateUpdateProgram,
+  validateUpdateProfile,
   asyncHandler(updateProfile),
 );
 router.delete("/me", authMiddleware, asyncHandler(deleteProfile));

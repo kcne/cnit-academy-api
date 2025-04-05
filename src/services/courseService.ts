@@ -8,7 +8,7 @@ const CourseSchema = z.object({
   description: z.string().max(1024),
   founder: z.string().max(256),
   durationInDays: z.number().int().min(1).max(1000),
-  applicationDeadline: z.date().min(new Date()),
+  applicationDeadline: z.coerce.date().min(new Date()),
 });
 const validateCreateCourse = validateRequest(CourseSchema);
 const validateUpdateCourse = validateRequest(CourseSchema.partial());

@@ -12,18 +12,17 @@ const EducationExperienceSchema = z.object({
   title: z.string().min(2).max(256),
   description: z.string().min(2).max(1024),
   organization: z.string().min(2).max(256),
-  startPeriod: z.date().max(new Date()),
-  endPeriod: z.date().max(new Date()),
+  startPeriod: z.coerce.date().max(new Date()),
+  endPeriod: z.coerce.date().max(new Date()).optional(),
 });
 
 const UpdateProfileSchema = z.object({
-  id: z.number().positive().int(),
-  firstName: z.string().min(2).max(256),
-  lastName: z.string().min(2).max(256),
-  skills: z.array(z.string().max(64)),
-  education: z.array(EducationExperienceSchema),
-  experience: z.array(EducationExperienceSchema),
-  totalCoins: z.number().positive().int(),
+  firstName: z.string().min(2).max(256).optional(),
+  lastName: z.string().min(2).max(256).optional(),
+  skills: z.array(z.string().max(64)).optional(),
+  education: z.array(EducationExperienceSchema).optional(),
+  experience: z.array(EducationExperienceSchema).optional(),
+  totalCoins: z.number().positive().int().optional(),
   pfp: z
     .string()
     .max(64)
@@ -70,7 +69,7 @@ interface EducationExperience {
   description: string;
   organization: string;
   startPeriod: Date;
-  endPeriod: Date; // TODO: jobs don't need an end date
+  endPeriod: Date | null; // TODO: jobs don't need an end date
 }
 
 function compareEduExp(obj1: EducationExperience, obj2: EducationExperience) {
@@ -188,7 +187,8 @@ async function changeProfile(id: number, profile: Profile) {
 
   const transactions = [];
 
-  if (prisma.education) {
+  console.log(profile);
+  if (profile.education) {
     transactions.push(
       prisma.education.deleteMany({
         where: {
@@ -216,7 +216,7 @@ async function changeProfile(id: number, profile: Profile) {
       );
     });
   }
-  if (prisma.experience) {
+  if (profile.experience) {
     transactions.push(
       prisma.experience.deleteMany({
         where: {

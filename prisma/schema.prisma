@@ -34,24 +34,24 @@ model Profile {
 }
 
 model Education {
-  id           Int      @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   title        String
   description  String
   organization String
   startPeriod  DateTime
-  endPeriod    DateTime
-  profile      Profile  @relation("ProfileEducation", fields: [profileId], references: [id])
+  endPeriod    DateTime?
+  profile      Profile   @relation("ProfileEducation", fields: [profileId], references: [id])
   profileId    Int
 }
 
 model Experience {
-  id           Int      @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   title        String
   description  String
   organization String
   startPeriod  DateTime
-  endPeriod    DateTime
-  profile      Profile  @relation("ProfileExperience", fields: [profileId], references: [id])
+  endPeriod    DateTime?
+  profile      Profile   @relation("ProfileExperience", fields: [profileId], references: [id])
   profileId    Int
 }
 

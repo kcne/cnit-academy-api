@@ -4,7 +4,7 @@ import { PrismaRepositoryService } from "./prismaRepositoryService";
 import { validateRequest } from "../middlewares/validate";
 import createHttpError from "http-errors";
 
-const CourseBlog = z.object({
+const BlogSchema = z.object({
   userId: z.number().int().positive(),
   title: z.string().max(256),
   blogDescription: z.string().max(1024).optional(),
@@ -12,8 +12,8 @@ const CourseBlog = z.object({
   published: z.coerce.boolean().optional(),
 });
 
-const validateCreateBlog = validateRequest(CourseBlog);
-const validateUpdateBlog = validateRequest(CourseBlog.partial());
+const validateCreateBlog = validateRequest(BlogSchema);
+const validateUpdateBlog = validateRequest(BlogSchema.partial());
 
 const repositoryService = new PrismaRepositoryService(prisma, prisma.blog);
 
