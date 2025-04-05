@@ -42,7 +42,7 @@ async function createProfile(req: AuthenticatedRequest, res: Response) {
 
   const profile = await addProfile(id, req.body);
 
-  res.json(profile);
+  res.status(201).json(profile);
 }
 
 async function updateProfile(req: AuthenticatedRequest, res: Response) {

@@ -40,7 +40,7 @@ async function createCourse(req: Request, res: Response) {
   const course = req.body;
   const createdCourse = await repositoryService.createItem(course);
 
-  res.json(createdCourse);
+  res.status(201).json(createdCourse);
 }
 
 export {

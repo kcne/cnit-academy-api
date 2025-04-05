@@ -27,7 +27,7 @@ async function getProgramById(req: Request, res: Response) {
 async function createProgram(req: Request, res: Response) {
   const newProgram = req.body;
   const program = await repositoryService.createItem(newProgram);
-  res.json(program);
+  res.status(201).json(program);
 }
 
 async function updateProgram(req: Request, res: Response) {

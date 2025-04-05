@@ -10,6 +10,13 @@ async function getBlogs(req: Request, res: Response) {
       page: Number(page ?? 1),
       limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
     },
+    filters: [
+      {
+        field: "published",
+        value: true,
+        operator: "equals",
+      },
+    ],
   });
   res.json(blogs);
 }
