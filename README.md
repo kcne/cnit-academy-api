@@ -173,8 +173,6 @@ Response 403 -> Token is invalid or expired
 
 ## Profiles (Users)
 
-Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
-
 ### GET /api/profile
 
 Returns all profiles
@@ -218,6 +216,8 @@ Response 200 JSON:
 
 ### GET /api/profile/:id
 
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
+
 Request query params:
 
 | key | example | description                                           |
@@ -252,6 +252,7 @@ Response 404 -> Profile with :id doesn't exist
 
 ### POST /api/profile/me
 
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
 New profiles are created during registration,
 this route serves as a fallback if a user is created without a profile
 
@@ -271,6 +272,7 @@ Reponse 404 -> User does not exist (don't use this instead of [/api/auth/registe
 
 ### PATCH /api/profile/me
 
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
 Update profile (every field is optional) \
 Changing education/experience:
 
@@ -313,6 +315,7 @@ Reponse 404 -> Profile does not exist
 
 ### DELETE /api/profile/me
 
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
 Deletes own profile
 
 Response 200 -> no response \
@@ -626,8 +629,6 @@ Request 404 -> Course not found
 
 ## Leaderboard
 
-Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
-
 ### GET /api/leaderboard
 
 **Prone to change:**
@@ -685,8 +686,6 @@ Response 200 JSON:
 ```
 
 ## Blogs
-
-Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
 
 ### GET /api/blog
 
@@ -748,6 +747,7 @@ Request 404 -> Blog not found
 
 ### POST /api/blog
 
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
 Create a new blog
 
 Request JSON:
@@ -781,6 +781,7 @@ Request 404 -> Blog not found
 
 ### PUT /api/blog/:id/publish
 
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
 Publish a blog
 
 Request query params:
@@ -794,6 +795,7 @@ Request 404 -> Blog not found
 
 ### PATCH /api/blog/:id
 
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
 Update a blog \
 All of the fields are optional
 
@@ -834,6 +836,7 @@ Request 404 -> Blog not found
 
 ### DELETE /api/blog/:id
 
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
 Delete a blog
 
 Request query params:
