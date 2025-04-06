@@ -17,9 +17,8 @@ const repositoryService = new PrismaRepositoryService(prisma.course, {
   id: true,
   title: true,
   description: true,
-  numberOfStudents: true,
   durationInHours: true,
-  Lecture: {
+  lectures: {
     select: {
       id: true,
       title: true,
@@ -28,6 +27,36 @@ const repositoryService = new PrismaRepositoryService(prisma.course, {
       courseId: true,
     },
   },
+  _count: {
+    select: {
+      UserCourse: { where: { finished: { not: null } } },
+    },
+  },
 });
+
+// prisma.course
+//   .findMany({
+//     select: {
+//       id: true,
+//       title: true,
+//       description: true,
+//       durationInHours: true,
+//       lectures: {
+//         select: {
+//           id: true,
+//           title: true,
+//           content: true,
+//           videoUrl: true,
+//           courseId: true,
+//         },
+//       },
+//       _count: {
+//         select: {
+//           UserCourse: { where: { finished: { not: null } } },
+//         },
+//       },
+//     },
+//   })
+//   .then((res) => console.log(res));
 
 export { repositoryService, validateCreateCourse, validateUpdateCourse };

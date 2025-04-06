@@ -17,21 +17,21 @@ const validateUpdateProgram = validateRequest(programSchema.partial());
 const repositoryService = new PrismaRepositoryService(prisma.program);
 
 async function applyDeprecated(id: number): Promise<void> {
-  await prisma.program.update({
-    where: { id },
-    data: {
-      appliedCount: { increment: 1 },
-    },
-  });
+  // await prisma.program.update({
+  //   where: { id },
+  //   data: {
+  //     appliedCount: { increment: 1 },
+  //   },
+  // });
 }
 
 async function enrollDeprecated(id: number): Promise<void> {
-  await prisma.program.update({
-    where: { id },
-    data: {
-      studentCount: { increment: 1 },
-    },
-  });
+  // await prisma.program.update({
+  //   where: { id },
+  //   data: {
+  //     studentCount: { increment: 1 },
+  //   },
+  // });
 }
 
 export {

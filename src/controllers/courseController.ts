@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import { repositoryService } from "../services/courseService";
 import { z } from "zod";
 
+function renameFields(input: any) {
+  return { ...input, _count: undefined, studentCount: input._count.UserCourse };
+}
+
 async function getAllCourses(req: Request, res: Response) {
   const { page, limit } = req.query;
 
@@ -11,14 +15,32 @@ async function getAllCourses(req: Request, res: Response) {
       limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
     },
   });
-  res.json(courses);
+
+  const { data, meta } = courses;
+  return res.json({
+    data: data.map((old: any) => renameFields(old)),
+    meta,
+  });
 }
 
 async function getCourseById(req: Request, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   const course = await repositoryService.findItem(id);
 
-  res.json(course);
+  res.json(renameFields(course));
+}
+
+async function createCourse(req: Request, res: Response) {
+  const course = await repositoryService.createItem(req.body);
+
+  res.status(201).json(renameFields(course));
+}
+
+async function updateCourseById(req: Request, res: Response) {
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+  const course = await repositoryService.updateItem(id, req.body);
+
+  res.json(renameFields(course));
 }
 
 async function deleteCourseById(req: Request, res: Response) {
@@ -26,21 +48,6 @@ async function deleteCourseById(req: Request, res: Response) {
   await repositoryService.deleteItem(id);
 
   res.send();
-}
-
-async function updateCourseById(req: Request, res: Response) {
-  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  const course = req.body;
-  const updatedCourse = await repositoryService.updateItem(id, course);
-
-  res.json(updatedCourse);
-}
-
-async function createCourse(req: Request, res: Response) {
-  const course = req.body;
-  const createdCourse = await repositoryService.createItem(course);
-
-  res.status(201).json(createdCourse);
 }
 
 export {

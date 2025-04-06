@@ -9,19 +9,22 @@ datasource db {
 }
 
 model User {
-  id               Int       @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   firstName        String
   lastName         String
-  email            String    @unique
+  email            String        @unique
   password         String
-  roles            Role[]    @relation("UserRoles")
-  isEmailVerified  Boolean   @default(false)
+  roles            Role[]        @relation("UserRoles")
+  isEmailVerified  Boolean       @default(false)
   verificationCode String?
   expiresAt        DateTime?
   Profile          Profile?
   Blog             Blog[]
-  updatedAt        DateTime  @updatedAt
-  totalCoins       Int       @default(0)
+  updatedAt        DateTime      @updatedAt
+  totalCoins       Int           @default(0)
+  UserLecture      UserLecture[]
+  UserCourse       UserCourse[]
+  UserProgram      UserProgram[]
 }
 
 model Profile {
@@ -56,12 +59,12 @@ model Experience {
 }
 
 model Course {
-  id               Int       @id @default(autoincrement())
-  title            String
-  description      String?
-  numberOfStudents Int?
-  durationInHours  Float?
-  lectures         Lecture[]
+  id              Int          @id @default(autoincrement())
+  title           String
+  description     String?
+  durationInHours Float?
+  lectures        Lecture[]
+  UserCourse      UserCourse[]
 }
 
 model Role {
@@ -83,22 +86,55 @@ model Blog {
 }
 
 model Program {
-  id                  Int      @id @default(autoincrement())
+  id                  Int           @id @default(autoincrement())
   title               String
   description         String
   founder             String
   durationInDays      Int
-  appliedCount        Int      @default(0)
-  studentCount        Int      @default(0)
   applicationDeadline DateTime
-  CreatedAt           DateTime @default(now())
+  CreatedAt           DateTime      @default(now())
+  UserProgram         UserProgram[]
 }
 
 model Lecture {
-  id       Int     @id @default(autoincrement())
-  title    String
-  content  String
-  videoUrl String?
+  id          Int           @id @default(autoincrement())
+  title       String
+  content     String
+  videoUrl    String?
+  courseId    Int
+  course      Course        @relation(fields: [courseId], references: [id])
+  UserLecture UserLecture[]
+}
+
+model UserLecture {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  lectureId Int
+  user      User      @relation(fields: [userId], references: [id])
+  lecture   Lecture   @relation(fields: [lectureId], references: [id])
+  finished  DateTime?
+
+  @@unique([userId, lectureId])
+}
+
+model UserCourse {
+  id       Int       @id @default(autoincrement())
+  userId   Int
   courseId Int
-  course   Course  @relation(fields: [courseId], references: [id])
+  user     User      @relation(fields: [userId], references: [id])
+  course   Course    @relation(fields: [courseId], references: [id])
+  finished DateTime?
+
+  @@unique([userId, courseId])
+}
+
+model UserProgram {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  programId Int
+  user      User      @relation(fields: [userId], references: [id])
+  program   Program   @relation(fields: [programId], references: [id])
+  finished  DateTime?
+
+  @@unique([userId, programId])
 }

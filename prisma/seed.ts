@@ -69,7 +69,6 @@ function createNewCourse() {
     title: faker.hacker.noun(),
     description: faker.hacker.phrase(),
     durationInHours: faker.number.float({ min: 0, max: 10 }),
-    numberOfStudents: faker.number.int({ min: 0, max: 120 }),
   };
 }
 
