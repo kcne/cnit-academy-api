@@ -12,6 +12,6 @@ const LectureSchema = z.object({
 const validateCreateLecture = validateRequest(LectureSchema);
 const validateUpdateLecture = validateRequest(LectureSchema.partial());
 
-const repositoryService = new PrismaRepositoryService(prisma, prisma.lecture);
+const repositoryService = new PrismaRepositoryService(prisma.lecture);
 
 export { repositoryService, validateCreateLecture, validateUpdateLecture };

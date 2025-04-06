@@ -14,7 +14,7 @@ const programSchema = z.object({
 const validateCreateProgram = validateRequest(programSchema);
 const validateUpdateProgram = validateRequest(programSchema.partial());
 
-const repositoryService = new PrismaRepositoryService(prisma, prisma.program);
+const repositoryService = new PrismaRepositoryService(prisma.program);
 
 async function applyDeprecated(id: number): Promise<void> {
   await prisma.program.update({

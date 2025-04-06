@@ -26,7 +26,6 @@ export interface QueryOptions<T extends string> {
     order: SortOrder;
   };
   filters?: FilterOption[];
-  includeUser?: boolean;
 }
 
 // Generic function to build Prisma where clause
