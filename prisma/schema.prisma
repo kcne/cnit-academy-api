@@ -56,11 +56,12 @@ model Experience {
 }
 
 model Course {
-  id               Int     @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
   title            String
   description      String?
   numberOfStudents Int?
   durationInHours  Float?
+  lectures         Lecture[]
 }
 
 model Role {
@@ -91,4 +92,13 @@ model Program {
   studentCount        Int      @default(0)
   applicationDeadline DateTime
   CreatedAt           DateTime @default(now())
+}
+
+model Lecture {
+  id       Int     @id @default(autoincrement())
+  title    String
+  content  String
+  videoUrl String?
+  courseId Int
+  course   Course  @relation(fields: [courseId], references: [id])
 }
