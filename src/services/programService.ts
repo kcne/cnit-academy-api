@@ -10,6 +10,7 @@ const programSchema = z.object({
   founder: z.string(),
   durationInDays: z.number(),
   applicationDeadline: z.coerce.date(),
+  coins: z.number().int().positive().optional(),
 });
 
 const validateCreateProgram = validateRequest(programSchema);
@@ -22,6 +23,7 @@ const repositoryService = new PrismaRepositoryService(prisma.program, {
   founder: true,
   durationInDays: true,
   applicationDeadline: true,
+  coins: true,
   _count: {
     select: {
       UserProgram: { where: { applied: { not: null } } },

@@ -10,6 +10,7 @@ const CourseSchema = z.object({
   founder: z.string().max(256),
   durationInDays: z.number().int().min(1).max(1000),
   applicationDeadline: z.coerce.date().min(new Date()),
+  coins: z.number().int().positive().optional(),
 });
 const validateCreateCourse = validateRequest(CourseSchema);
 const validateUpdateCourse = validateRequest(CourseSchema.partial());
@@ -19,6 +20,7 @@ const repositoryService = new PrismaRepositoryService(prisma.course, {
   title: true,
   description: true,
   durationInHours: true,
+  coins: true,
   lectures: {
     select: {
       id: true,
@@ -26,6 +28,7 @@ const repositoryService = new PrismaRepositoryService(prisma.course, {
       content: true,
       videoUrl: true,
       courseId: true,
+      coins: true,
     },
   },
   _count: {

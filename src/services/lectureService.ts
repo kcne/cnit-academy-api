@@ -7,8 +7,9 @@ import createHttpError from "http-errors";
 const LectureSchema = z.object({
   title: z.string().max(256),
   content: z.string().max(65535),
-  videoUrl: z.string().max(1024),
-  lectureId: z.number().int().positive(),
+  videoUrl: z.string().max(1024).optional(),
+  courseId: z.number().int().positive(),
+  coins: z.number().int().positive().optional(),
 });
 const validateCreateLecture = validateRequest(LectureSchema);
 const validateUpdateLecture = validateRequest(LectureSchema.partial());
