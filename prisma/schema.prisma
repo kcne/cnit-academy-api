@@ -63,6 +63,7 @@ model Course {
   title           String
   description     String?
   durationInHours Float?
+  coins           Int          @default(0)
   lectures        Lecture[]
   UserCourse      UserCourse[]
 }
@@ -93,6 +94,7 @@ model Program {
   durationInDays      Int
   applicationDeadline DateTime
   CreatedAt           DateTime      @default(now())
+  coins               Int           @default(0)
   UserProgram         UserProgram[]
 }
 
@@ -103,6 +105,7 @@ model Lecture {
   videoUrl    String?
   courseId    Int
   course      Course        @relation(fields: [courseId], references: [id])
+  coins       Int           @default(0)
   UserLecture UserLecture[]
 }
 

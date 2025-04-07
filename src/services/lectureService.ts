@@ -30,9 +30,9 @@ async function changeStatus(
   }
 
   // TODO: this can probably be a single call
-  const id =
-    (await prisma.userLecture.findFirst({ where: { userId, lectureId } }))
-      ?.id || -1;
+  const userLecture = await prisma.userLecture.findFirst({
+    where: { userId, lectureId },
+  });
   await prisma.userLecture.upsert({
     create: {
       userId,
@@ -43,9 +43,20 @@ async function changeStatus(
       finished: finished ? new Date() : undefined,
     },
     where: {
-      id,
+      id: userLecture?.id || -1,
     },
   });
+
+  if (finished && !userLecture?.finished) {
+    await prisma.user.update({
+      data: {
+        totalCoins: { increment: lecture.coins },
+      },
+      where: {
+        id: userId,
+      },
+    });
+  }
 }
 
 export {

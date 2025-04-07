@@ -50,9 +50,9 @@ async function changeStatus(
   }
 
   // TODO: this can probably be a single call
-  const id =
-    (await prisma.userCourse.findFirst({ where: { userId, courseId } }))?.id ||
-    -1;
+  const userCourse = await prisma.userCourse.findFirst({
+    where: { userId, courseId },
+  });
   await prisma.userCourse.upsert({
     create: {
       userId,
@@ -63,9 +63,20 @@ async function changeStatus(
       finished: finished ? new Date() : undefined,
     },
     where: {
-      id,
+      id: userCourse?.id || -1,
     },
   });
+
+  if (finished && !userCourse?.finished) {
+    await prisma.user.update({
+      data: {
+        totalCoins: { increment: course.coins },
+      },
+      where: {
+        id: userId,
+      },
+    });
+  }
 }
 
 // prisma.course

@@ -16,8 +16,8 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/api/auth", authRoutes);
-app.use("/api/course", courseRoutes);
-app.use("/api/lecture", lectureRoutes);
+app.use("/api/course", authMiddleware, courseRoutes);
+app.use("/api/lecture", authMiddleware, lectureRoutes);
 app.use("/api/blog", blogRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/program", authMiddleware, programRoutes);
