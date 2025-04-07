@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import { repositoryService } from "../services/courseService";
+import { changeStatus, repositoryService } from "../services/courseService";
 import { z } from "zod";
+import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 
 function renameFields(input: any) {
   return { ...input, _count: undefined, studentCount: input._count.UserCourse };
@@ -43,6 +44,38 @@ async function updateCourseById(req: Request, res: Response) {
   res.json(renameFields(course));
 }
 
+async function startCourse(req: AuthenticatedRequest, res: Response) {
+  if (!req.user) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  const userId = req.user.id;
+  const courseId = await z.coerce
+    .number()
+    .positive()
+    .int()
+    .parseAsync(req.params.id);
+
+  await changeStatus(userId, courseId, false);
+
+  res.send();
+}
+
+async function finishCourse(req: AuthenticatedRequest, res: Response) {
+  if (!req.user) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  const userId = req.user.id;
+  const courseId = await z.coerce
+    .number()
+    .positive()
+    .int()
+    .parseAsync(req.params.id);
+
+  await changeStatus(userId, courseId, true);
+
+  res.send();
+}
+
 async function deleteCourseById(req: Request, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   await repositoryService.deleteItem(id);
@@ -56,4 +89,6 @@ export {
   deleteCourseById,
   updateCourseById,
   createCourse,
+  startCourse,
+  finishCourse,
 };
