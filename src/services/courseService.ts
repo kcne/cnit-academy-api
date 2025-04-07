@@ -50,10 +50,10 @@ async function changeStatus(
   }
 
   // TODO: this can probably be a single call
-  const id = (
-    await prisma.userCourse.findFirst({ where: { userId, courseId } })
-  )?.id;
-  prisma.userCourse.upsert({
+  const id =
+    (await prisma.userCourse.findFirst({ where: { userId, courseId } }))?.id ||
+    -1;
+  await prisma.userCourse.upsert({
     create: {
       userId,
       courseId,

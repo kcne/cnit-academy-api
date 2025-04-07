@@ -85,7 +85,7 @@ async function enrollToProgram(req: AuthenticatedRequest, res: Response) {
     .int()
     .parseAsync(req.params.id);
 
-  await changeStatus(userId, programId, true, true, false);
+  await changeStatus(userId, programId, false, true, false);
 
   res.send();
 }
@@ -101,7 +101,7 @@ async function finishProgram(req: AuthenticatedRequest, res: Response) {
     .int()
     .parseAsync(req.params.id);
 
-  await changeStatus(userId, programId, true, true, true);
+  await changeStatus(userId, programId, false, false, true);
 
   res.send();
 }

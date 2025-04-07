@@ -20,7 +20,7 @@ app.use("/api/course", courseRoutes);
 app.use("/api/lecture", lectureRoutes);
 app.use("/api/blog", blogRoutes);
 app.use("/api/profile", profileRoutes);
-app.use("/api/program", programRoutes);
+app.use("/api/program", authMiddleware, programRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 
 app.use(errorHandler);

@@ -64,10 +64,10 @@ async function changeStatus(
   }
 
   // TODO: this can probably be a single call
-  const id = (
-    await prisma.userProgram.findFirst({ where: { userId, programId } })
-  )?.id;
-  prisma.userProgram.upsert({
+  const id =
+    (await prisma.userProgram.findFirst({ where: { userId, programId } }))
+      ?.id || -1;
+  await prisma.userProgram.upsert({
     create: {
       userId,
       programId,
