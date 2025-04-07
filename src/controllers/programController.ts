@@ -1,10 +1,7 @@
 import { Request, Response } from "express";
-import {
-  repositoryService,
-  applyDeprecated,
-  enrollDeprecated,
-} from "../services/programService";
+import { changeStatus, repositoryService } from "../services/programService";
 import { z } from "zod";
+import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 
 async function getAllPrograms(req: Request, res: Response) {
   const { page, limit } = req.query;
@@ -43,15 +40,51 @@ async function deleteProgram(req: Request, res: Response) {
   res.json(program);
 }
 
-async function applyToProgram(req: Request, res: Response) {
-  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  await applyDeprecated(id);
+async function applyToProgram(req: AuthenticatedRequest, res: Response) {
+  if (!req.user) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  const userId = req.user.id;
+  const programId = await z.coerce
+    .number()
+    .positive()
+    .int()
+    .parseAsync(req.params.id);
+
+  await changeStatus(userId, programId, true, false, false);
+
   res.send();
 }
 
-async function enrollToProgram(req: Request, res: Response) {
-  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  await enrollDeprecated(id);
+async function enrollToProgram(req: AuthenticatedRequest, res: Response) {
+  if (!req.user) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  const userId = req.user.id;
+  const programId = await z.coerce
+    .number()
+    .positive()
+    .int()
+    .parseAsync(req.params.id);
+
+  await changeStatus(userId, programId, true, true, false);
+
+  res.send();
+}
+
+async function finishProgram(req: AuthenticatedRequest, res: Response) {
+  if (!req.user) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  const userId = req.user.id;
+  const programId = await z.coerce
+    .number()
+    .positive()
+    .int()
+    .parseAsync(req.params.id);
+
+  await changeStatus(userId, programId, true, true, true);
+
   res.send();
 }
 
@@ -63,4 +96,5 @@ export {
   deleteProgram,
   applyToProgram,
   enrollToProgram,
+  finishProgram,
 };
