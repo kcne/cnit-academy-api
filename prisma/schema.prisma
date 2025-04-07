@@ -134,6 +134,8 @@ model UserProgram {
   programId Int
   user      User      @relation(fields: [userId], references: [id])
   program   Program   @relation(fields: [programId], references: [id])
+  applied   DateTime?
+  enrolled  DateTime?
   finished  DateTime?
 
   @@unique([userId, programId])
