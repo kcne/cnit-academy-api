@@ -15,8 +15,38 @@ const programSchema = z.object({
 const validateCreateProgram = validateRequest(programSchema);
 const validateUpdateProgram = validateRequest(programSchema.partial());
 
-const repositoryService = new PrismaRepositoryService(prisma.program);
+const repositoryService = new PrismaRepositoryService(prisma.program, {
+  id: true,
+  title: true,
+  description: true,
+  founder: true,
+  durationInDays: true,
+  applicationDeadline: true,
+  _count: {
+    select: {
+      UserProgram: { where: { applied: { not: null } } },
+    },
+  },
+});
 
+// prisma.program
+//   .findMany({
+//     select: {
+//       id: true,
+//       title: true,
+//       description: true,
+//       founder: true,
+//       durationInDays: true,
+//       applicationDeadline: true,
+//       _count: {
+//         select: {
+//           UserProgram: { where: { applied: { not: null } } },
+//         },
+//       },
+//     },
+//   })
+//   .then((res) => console.log(res));
+//
 async function changeStatus(
   userId: number,
   programId: number,

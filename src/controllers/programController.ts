@@ -3,6 +3,14 @@ import { changeStatus, repositoryService } from "../services/programService";
 import { z } from "zod";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 
+function renameFields(input: any) {
+  return {
+    ...input,
+    _count: undefined,
+    appliedCount: input._count.UserProgram,
+  };
+}
+
 async function getAllPrograms(req: Request, res: Response) {
   const { page, limit } = req.query;
 
@@ -12,32 +20,42 @@ async function getAllPrograms(req: Request, res: Response) {
       limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
     },
   });
-  res.json(programs);
+
+  const { data, meta } = programs;
+  return res.json({
+    data: data.map((old: any) => renameFields(old)),
+    meta,
+  });
 }
 
 async function getProgramById(req: Request, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+
   const program = await repositoryService.findItem(id);
-  res.json(program);
+
+  res.json(renameFields(program));
 }
 
 async function createProgram(req: Request, res: Response) {
-  const newProgram = req.body;
-  const program = await repositoryService.createItem(newProgram);
-  res.status(201).json(program);
+  const program = await repositoryService.createItem(req.body);
+
+  res.status(201).json(renameFields(program));
 }
 
 async function updateProgram(req: Request, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  const newProgram = req.body;
-  const program = await repositoryService.updateItem(id, newProgram);
-  res.json(program);
+
+  const program = await repositoryService.updateItem(id, req.body);
+
+  res.json(renameFields(program));
 }
 
 async function deleteProgram(req: Request, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+
   const program = await repositoryService.deleteItem(id);
-  res.json(program);
+
+  res.json(renameFields(program));
 }
 
 async function applyToProgram(req: AuthenticatedRequest, res: Response) {
