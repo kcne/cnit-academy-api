@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client";
 import {
   QueryOptions,
   buildWhereClause,
@@ -8,12 +7,12 @@ import {
 import createHttpError from "http-errors";
 
 export class PrismaRepositoryService<T, K extends string> {
-  protected prisma: PrismaClient;
   protected model: any;
+  protected select: any | undefined;
 
-  constructor(prisma: PrismaClient, model: any) {
-    this.prisma = prisma;
+  constructor(model: any, select?: any) {
     this.model = model;
+    this.select = select;
   }
 
   async getAll(options: QueryOptions<K>): Promise<PaginatedResult<T>> {
@@ -30,6 +29,7 @@ export class PrismaRepositoryService<T, K extends string> {
         skip,
         take: limit,
         orderBy,
+        select: this.select,
       }),
       this.model.count({ where }),
     ]);
@@ -40,6 +40,7 @@ export class PrismaRepositoryService<T, K extends string> {
   async findItem(id: number): Promise<T> {
     const model = await this.model.findUnique({
       where: { id: id },
+      select: this.select,
     });
     if (!model) {
       throw createHttpError(404, "Not found");
@@ -49,7 +50,7 @@ export class PrismaRepositoryService<T, K extends string> {
   }
 
   async createItem(data: any): Promise<T> {
-    return await this.model.create({ data });
+    return await this.model.create({ data, select: this.select });
   }
 
   async updateItem(id: number, data: any): Promise<T> {
@@ -63,6 +64,7 @@ export class PrismaRepositoryService<T, K extends string> {
     return await this.model.update({
       where: { id: id },
       data,
+      select: this.select,
     });
   }
 
@@ -76,6 +78,7 @@ export class PrismaRepositoryService<T, K extends string> {
 
     return await this.model.delete({
       where: { id: id },
+      select: this.select,
     });
   }
 }

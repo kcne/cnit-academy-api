@@ -348,7 +348,7 @@ Response 200 JSON:
       "founder": "founder",
       "durationInDays": 2,
       "appliedCount": 0,
-      "studentCount": 0,
+      "coins": 50,
       "applicationDeadline": "2025-03-07T16:42:30.000Z",
       "CreatedAt": "2025-03-27T18:05:56.343Z"
     }
@@ -375,7 +375,7 @@ Response 200 JSON:
   "founder": "founder",
   "durationInDays": 2,
   "appliedCount": 0,
-  "studentCount": 0,
+  "coins": 50,
   "applicationDeadline": "2025-03-07T16:42:30.000Z",
   "CreatedAt": "2025-03-27T18:05:56.343Z"
 }
@@ -385,7 +385,8 @@ Request 404 -> Program not found
 
 ### POST /api/program
 
-Create new program
+Create new program \
+The coins field defaults to 0
 
 Request JSON:
 
@@ -395,6 +396,7 @@ Request JSON:
   "description": "description",
   "founder": "founder",
   "durationInDays": 2,
+  "coins": 50,
   "applicationDeadline": "2025-03-07T17:42:30+01:00"
 }
 ```
@@ -409,7 +411,7 @@ Response 201 JSON:
   "founder": "founder",
   "durationInDays": 2,
   "appliedCount": 0,
-  "studentCount": 0,
+  "coins": 50,
   "applicationDeadline": "2025-03-07T16:42:30.000Z",
   "CreatedAt": "2025-03-27T18:05:56.343Z"
 }
@@ -434,6 +436,7 @@ Request JSON:
   "description": "description",
   "founder": "founder",
   "durationInDays": 2,
+  "coins": 50,
   "applicationDeadline": "2025-03-07T17:42:30+01:00"
 }
 ```
@@ -448,7 +451,7 @@ Response 200 JSON:
   "founder": "founder",
   "durationInDays": 2,
   "appliedCount": 0,
-  "studentCount": 0,
+  "coins": 50,
   "applicationDeadline": "2025-03-07T16:42:30.000Z",
   "CreatedAt": "2025-03-27T18:05:56.343Z"
 }
@@ -466,12 +469,12 @@ Request query params:
 | --- | ------- | ----------------------------------- |
 | id  | 2       | ID of the program, positive integer |
 
-Response 200 -> Program deleted
+Response 200 -> Program deleted \
 Request 404 -> Program not found
 
 ### PUT /api/program/:id/apply
 
-Increments applieadCount by one
+Apply to a program
 
 Request query params:
 
@@ -479,12 +482,12 @@ Request query params:
 | --- | ------- | ----------------------------------- |
 | id  | 2       | ID of the program, positive integer |
 
-Response 200 -> Applied to program
+Response 200 -> Applied to program \
 Request 404 -> Program not found
 
 ### PUT /api/program/:id/enroll
 
-Increments studentCount by one
+Enroll to a program
 
 Request query params:
 
@@ -492,7 +495,20 @@ Request query params:
 | --- | ------- | ----------------------------------- |
 | id  | 2       | ID of the program, positive integer |
 
-Response 200 -> Enrolled into program
+Response 200 -> Enrolled into program \
+Request 404 -> Program not found
+
+### PUT /api/program/:id/finish
+
+Finish a program
+
+Request query params:
+
+| key | example | description                         |
+| --- | ------- | ----------------------------------- |
+| id  | 2       | ID of the program, positive integer |
+
+Response 200 -> Finished the program \
 Request 404 -> Program not found
 
 ## Courses
@@ -501,7 +517,7 @@ Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
 
 ### GET /api/course
 
-Fetch all course
+Fetch all courses
 
 Request query params:
 
@@ -520,7 +536,18 @@ Response 200 JSON:
       "title": "title",
       "description": "description",
       "durationInHours": 2,
-      "numberOfStudents": 0
+      "studentCount": 0,
+      "lectures": [
+        {
+          "id": 28,
+          "title": "The Woman in White",
+          "content": "We need to reboot the back-end VGA transmitter!",
+          "videoUrl": "https://fragrant-saloon.name/",
+          "courseId": 10,
+          "coins": 2234
+        }
+      ],
+      "coins": 10
     }
   ],
   "meta": "paginationMeta"
@@ -543,7 +570,18 @@ Response 200 JSON:
   "title": "title",
   "description": "description",
   "durationInHours": 2,
-  "numberOfStudents": 0
+  "coins": 10,
+  "lectures": [
+    {
+      "id": 28,
+      "title": "The Woman in White",
+      "content": "We need to reboot the back-end VGA transmitter!",
+      "videoUrl": "https://fragrant-saloon.name/",
+      "courseId": 10,
+      "coins": 2234
+    }
+  ],
+  "studentCount": 0
 }
 ```
 
@@ -551,7 +589,8 @@ Request 404 -> Course not found
 
 ### POST /api/course
 
-Create a new course
+Create a new course \
+The coins field defaults to 0
 
 Request JSON:
 
@@ -560,7 +599,8 @@ Request JSON:
   "title": "title",
   "description": "description",
   "durationInHours": 2,
-  "numberOfStudents": 0
+  "coins": 10,
+  "studentCount": 0
 }
 ```
 
@@ -571,8 +611,19 @@ Response 201 JSON:
   "id": 1,
   "title": "title",
   "description": "description",
+  "coins": 10,
   "durationInHours": 2,
-  "numberOfStudents": 0
+  "lectures": [
+    {
+      "id": 28,
+      "title": "The Woman in White",
+      "content": "We need to reboot the back-end VGA transmitter!",
+      "videoUrl": "https://fragrant-saloon.name/",
+      "courseId": 10,
+      "coins": 2234
+    }
+  ],
+  "studentCount": 0
 }
 ```
 
@@ -596,7 +647,8 @@ Request JSON:
   "title": "title",
   "description": "description",
   "durationInHours": 2,
-  "numberOfStudents": 0
+  "coins": 10,
+  "studentCount": 0
 }
 ```
 
@@ -608,10 +660,34 @@ Response 200 JSON:
   "title": "title",
   "description": "description",
   "durationInHours": 2,
-  "numberOfStudents": 0
+  "coins": 10,
+  "lectures": [
+    {
+      "id": 28,
+      "title": "The Woman in White",
+      "content": "We need to reboot the back-end VGA transmitter!",
+      "videoUrl": "https://fragrant-saloon.name/",
+      "courseId": 10,
+      "coins": 2234
+    }
+  ],
+  "studentCount": 0
 }
 ```
 
+Request 404 -> Course not found
+
+### PUT /api/course/:id/finish
+
+Finish a course
+
+Request query params:
+
+| key | example | description                        |
+| --- | ------- | ---------------------------------- |
+| id  | 2       | ID of the course, positive integer |
+
+Response 200 -> Finished the course \
 Request 404 -> Course not found
 
 ### DELETE /api/course/:id
@@ -624,8 +700,161 @@ Request query params:
 | --- | ------- | ---------------------------------- |
 | id  | 2       | ID of the course, positive integer |
 
-Response 200 -> Course deleted successfully
+Response 200 -> Course deleted successfully \
 Request 404 -> Course not found
+
+## Lectures
+
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
+
+### GET /api/lecture
+
+Fetch all lectures
+
+Request query params:
+
+| key   | example | description                 |
+| ----- | ------- | --------------------------- |
+| page  | 2       | Current page                |
+| limit | 20      | Number of lectures per page |
+
+Response 200 JSON:
+
+```json
+{
+  "data": [
+    {
+      "id": 28,
+      "title": "The Woman in White",
+      "content": "We need to reboot the back-end VGA transmitter!",
+      "videoUrl": "https://fragrant-saloon.name/",
+      "courseId": 10,
+      "coins": 2234
+    }
+  ],
+  "meta": "paginationMeta"
+}
+```
+
+### GET /api/lecture/:id
+
+Request query params:
+
+| key | example | description                         |
+| --- | ------- | ----------------------------------- |
+| id  | 2       | ID of the lecture, positive integer |
+
+Response 200 JSON:
+
+```json
+{
+  "id": 28,
+  "title": "The Woman in White",
+  "content": "We need to reboot the back-end VGA transmitter!",
+  "videoUrl": "https://fragrant-saloon.name/",
+  "courseId": 10,
+  "coins": 2234
+}
+```
+
+Request 404 -> Lecture not found
+
+### POST /api/lecture
+
+Create a new lecture \
+The coins field defaults to 0 \
+Video url is optional
+
+Request JSON:
+
+```json
+{
+  "title": "The Woman in White",
+  "content": "We need to reboot the back-end VGA transmitter!",
+  "videoUrl": "https://fragrant-saloon.name/",
+  "courseId": 2,
+  "coins": 2234
+}
+```
+
+Response 201 JSON:
+
+```json
+{
+  "id": 28,
+  "title": "The Woman in White",
+  "content": "We need to reboot the back-end VGA transmitter!",
+  "videoUrl": "https://fragrant-saloon.name/",
+  "courseId": 10,
+  "coins": 2234
+}
+```
+
+Request 404 -> Lecture not found
+
+### PATCH /api/lecture/:id
+
+Update a lecture \
+All of the fields are optional
+
+Request query params:
+
+| key | example | description                         |
+| --- | ------- | ----------------------------------- |
+| id  | 2       | ID of the lecture, positive integer |
+
+Request JSON:
+
+```json
+{
+  "title": "The Woman in White",
+  "content": "We need to reboot the back-end VGA transmitter!",
+  "videoUrl": "https://fragrant-saloon.name/",
+  "courseId": 2,
+  "coins": 2234
+}
+```
+
+Response 200 JSON:
+
+```json
+{
+  "id": 28,
+  "title": "The Woman in White",
+  "content": "We need to reboot the back-end VGA transmitter!",
+  "videoUrl": "https://fragrant-saloon.name/",
+  "courseId": 10,
+  "coins": 2234
+}
+```
+
+Request 404 -> Lecture not found
+
+### PUT /api/lecture/:id/finish
+
+Finish a lecture
+
+Request query params:
+
+| key | example | description                         |
+| --- | ------- | ----------------------------------- |
+| id  | 2       | ID of the lecture, positive integer |
+
+Response 200 -> Finished the lecture \
+Request 404 -> Lecture not found
+
+### DELETE /api/lecture/:id
+
+Delete a lecture
+
+Request query params:
+
+| key | example | description                         |
+| --- | ------- | ----------------------------------- |
+| id  | 2       | ID of the lecture, positive integer |
+
+Response 200 -> Lecture deleted successfully \
+Request 404 -> Lecture not found
 
 ## Leaderboard
 

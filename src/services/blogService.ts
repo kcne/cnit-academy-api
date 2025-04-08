@@ -15,7 +15,7 @@ const BlogSchema = z.object({
 const validateCreateBlog = validateRequest(BlogSchema);
 const validateUpdateBlog = validateRequest(BlogSchema.partial());
 
-const repositoryService = new PrismaRepositoryService(prisma, prisma.blog);
+const repositoryService = new PrismaRepositoryService(prisma.blog);
 
 async function publishBlog(id: number) {
   const blog = await prisma.blog.update({

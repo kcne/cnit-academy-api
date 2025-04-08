@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import authRoutes from "./routes/authRoutes";
 import courseRoutes from "./routes/courseRoutes";
+import lectureRoutes from "./routes/lectureRoutes";
 import profileRoutes from "./routes/profileRoutes";
 import programRoutes from "./routes/programRoutes";
 import leaderboardRoutes from "./routes/leaderboardRoutes";
@@ -16,6 +17,7 @@ app.use(cors());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/course", authMiddleware, courseRoutes);
+app.use("/api/lecture", authMiddleware, lectureRoutes);
 app.use("/api/blog", blogRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/program", authMiddleware, programRoutes);

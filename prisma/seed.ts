@@ -69,7 +69,6 @@ function createNewCourse() {
     title: faker.hacker.noun(),
     description: faker.hacker.phrase(),
     durationInHours: faker.number.float({ min: 0, max: 10 }),
-    numberOfStudents: faker.number.int({ min: 0, max: 120 }),
   };
 }
 
@@ -83,6 +82,14 @@ function createNewProgram() {
   };
 }
 
+function createNewLecture() {
+  return {
+    title: faker.book.title(),
+    content: faker.hacker.phrase(),
+    videoUrl: faker.internet.url(),
+  };
+}
+
 async function main() {
   if (process.env.SEED) {
     faker.seed(Number(process.env.SEED));
@@ -90,6 +97,7 @@ async function main() {
   const users = Number(process.env.USERS || 15);
   const courses = Number(process.env.COURSES || 10);
   const programs = Number(process.env.PROGRAMS || 5);
+  const lectures = Number(process.env.LECTURES || 3);
 
   const transactions: any[] = [];
 
@@ -103,11 +111,19 @@ async function main() {
   }
   for (let i = 0; i < courses; i++) {
     const course = createNewCourse();
-    transactions.push(
-      prisma.course.create({
+    const id = (
+      await prisma.course.create({
         data: course,
-      }),
-    );
+      })
+    ).id;
+    for (let j = 0; j < lectures; j++) {
+      const lecture = createNewLecture();
+      transactions.push(
+        prisma.lecture.create({
+          data: { ...lecture, courseId: id },
+        }),
+      );
+    }
   }
   for (let i = 0; i < programs; i++) {
     const program = createNewProgram();
@@ -123,6 +139,7 @@ async function main() {
   console.log("Seeding completed with " + users + " users!");
   console.log("Seeding completed with " + courses + " courses!");
   console.log("Seeding completed with " + programs + " programs!");
+  console.log("Seeding completed with " + lectures + " lectures!");
 }
 
 main()

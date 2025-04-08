@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
-import { repositoryService } from "../services/courseService";
+import { changeStatus, repositoryService } from "../services/courseService";
 import { z } from "zod";
+import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+
+function renameFields(input: any) {
+  return { ...input, _count: undefined, studentCount: input._count.UserCourse };
+}
 
 async function getAllCourses(req: Request, res: Response) {
   const { page, limit } = req.query;
@@ -11,14 +16,64 @@ async function getAllCourses(req: Request, res: Response) {
       limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
     },
   });
-  res.json(courses);
+
+  const { data, meta } = courses;
+  return res.json({
+    data: data.map((old: any) => renameFields(old)),
+    meta,
+  });
 }
 
 async function getCourseById(req: Request, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   const course = await repositoryService.findItem(id);
 
-  res.json(course);
+  res.json(renameFields(course));
+}
+
+async function createCourse(req: Request, res: Response) {
+  const course = await repositoryService.createItem(req.body);
+
+  res.status(201).json(renameFields(course));
+}
+
+async function updateCourseById(req: Request, res: Response) {
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+  const course = await repositoryService.updateItem(id, req.body);
+
+  res.json(renameFields(course));
+}
+
+async function startCourse(req: AuthenticatedRequest, res: Response) {
+  if (!req.user) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  const userId = req.user.id;
+  const courseId = await z.coerce
+    .number()
+    .positive()
+    .int()
+    .parseAsync(req.params.id);
+
+  await changeStatus(userId, courseId, false);
+
+  res.send();
+}
+
+async function finishCourse(req: AuthenticatedRequest, res: Response) {
+  if (!req.user) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  const userId = req.user.id;
+  const courseId = await z.coerce
+    .number()
+    .positive()
+    .int()
+    .parseAsync(req.params.id);
+
+  await changeStatus(userId, courseId, true);
+
+  res.send();
 }
 
 async function deleteCourseById(req: Request, res: Response) {
@@ -28,25 +83,12 @@ async function deleteCourseById(req: Request, res: Response) {
   res.send();
 }
 
-async function updateCourseById(req: Request, res: Response) {
-  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  const course = req.body;
-  const updatedCourse = await repositoryService.updateItem(id, course);
-
-  res.json(updatedCourse);
-}
-
-async function createCourse(req: Request, res: Response) {
-  const course = req.body;
-  const createdCourse = await repositoryService.createItem(course);
-
-  res.status(201).json(createdCourse);
-}
-
 export {
   getAllCourses,
   getCourseById,
   deleteCourseById,
   updateCourseById,
   createCourse,
+  startCourse,
+  finishCourse,
 };
