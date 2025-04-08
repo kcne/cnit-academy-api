@@ -1,36 +1,18 @@
-import { PrismaClient } from '@prisma/client';
-import { Course } from '@prisma/client';
+import { z } from "zod";
+import prisma from "../prisma";
+import { PrismaRepositoryService } from "./prismaRepositoryService";
+import { validateRequest } from "../middlewares/validate";
 
-const prisma = new PrismaClient();
+const CourseSchema = z.object({
+  title: z.string().max(256),
+  description: z.string().max(1024),
+  founder: z.string().max(256),
+  durationInDays: z.number().int().min(1).max(1000),
+  applicationDeadline: z.coerce.date().min(new Date()),
+});
+const validateCreateCourse = validateRequest(CourseSchema);
+const validateUpdateCourse = validateRequest(CourseSchema.partial());
 
-interface ICourseService {
-  getAllCourses(): Promise<Course[]>;
-  getCourseById(id: number): Promise<Course | null>;
-  deleteCourseById(id: number): Promise<void>;
-  updateCourseById(id: number, course: Course): Promise<Course>;
-  createCourse(course: Course): Promise<Course>;
-}
+const repositoryService = new PrismaRepositoryService(prisma, prisma.course);
 
-class CourseService implements ICourseService {
-  async getAllCourses(): Promise<Course[]> {
-    return prisma.course.findMany();
-  }
-
-  async getCourseById(id: number): Promise<Course | null> {
-    return prisma.course.findUnique({ where: { id } });
-  }
-
-  async deleteCourseById(id: number): Promise<void> {
-    await prisma.course.delete({ where: { id } });
-  }
-
-  async updateCourseById(id: number, course: Course): Promise<Course> {
-    return prisma.course.update({ where: { id }, data: course });
-  }
-
-  async createCourse(course: Course): Promise<Course> {
-    return prisma.course.create({ data: course });
-  }
-}
-
-export default CourseService;
+export { repositoryService, validateCreateCourse, validateUpdateCourse };

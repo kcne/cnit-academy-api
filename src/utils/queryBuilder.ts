@@ -10,7 +10,7 @@ export interface SortOption {
 
 export interface FilterOption {
   field: string;
-  value: string | number;
+  value: string | number | boolean;
   operator: "equals" | "contains" | "gt" | "lt" | "gte" | "lte";
 }
 
@@ -74,7 +74,7 @@ export interface PaginatedResult<T> {
 export function createPaginatedResponse<T>(
   data: T[],
   total: number,
-  options: PaginationOptions
+  options: PaginationOptions,
 ): PaginatedResult<T> {
   const totalPages = Math.ceil(total / options.limit);
   return {

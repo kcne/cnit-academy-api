@@ -1,5 +1,4 @@
 import { Router } from "express";
-import authMiddleware from "../middlewares/authMiddleware";
 import {
   createProfile,
   getAllProfiles,
@@ -7,13 +6,29 @@ import {
   updateProfile,
   deleteProfile,
 } from "../controllers/profileController";
+import asyncHandler from "../middlewares/asyncHandler";
+import {
+  validateCreateProfile,
+  validateUpdateProfile,
+} from "../services/profileService";
+import authMiddleware from "../middlewares/authMiddleware";
 
 const router = Router();
 
-router.get("/", authMiddleware, getAllProfiles);
-router.get("/:id", authMiddleware, getProfileById);
-router.post("/:id", authMiddleware, createProfile);
-router.patch("/:id", authMiddleware, updateProfile);
-router.delete("/:id", authMiddleware, deleteProfile);
+router.get("/", asyncHandler(getAllProfiles));
+router.get("/:id", authMiddleware, asyncHandler(getProfileById));
+router.post(
+  "/me",
+  authMiddleware,
+  validateCreateProfile,
+  asyncHandler(createProfile),
+);
+router.patch(
+  "/me",
+  authMiddleware,
+  validateUpdateProfile,
+  asyncHandler(updateProfile),
+);
+router.delete("/me", authMiddleware, asyncHandler(deleteProfile));
 
 export default router;

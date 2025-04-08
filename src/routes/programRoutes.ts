@@ -1,25 +1,27 @@
-import {Router} from "express";
+import { Router } from "express";
 import {
-    getAllPrograms,
-    getProgramById,
-    createProgram,
-    updateProgram,
-    deleteProgram,
-    ApplyToProgram,
-    EnrollToProgram
+  getAllPrograms,
+  getProgramById,
+  createProgram,
+  updateProgram,
+  deleteProgram,
+  applyToProgram,
+  enrollToProgram,
 } from "../controllers/programController";
-import { validateUpdateProgram } from "../services/programService";
-import { validateCreateProgram } from "../services/programService";
+import {
+  validateCreateProgram,
+  validateUpdateProgram,
+} from "../services/programService";
+import asyncHandler from "../middlewares/asyncHandler";
 
 const router = Router();
 
-
-router.get("/", getAllPrograms);
-router.get("/:id", getProgramById);
-router.post("/", validateCreateProgram, createProgram);
-router.put("/:id", validateUpdateProgram,  updateProgram);
-router.delete("/:id", deleteProgram);
-router.put("/:id/apply", ApplyToProgram);
-router.put("/:id/enroll", EnrollToProgram);
+router.get("/", asyncHandler(getAllPrograms));
+router.get("/:id", asyncHandler(getProgramById));
+router.post("/", validateCreateProgram, asyncHandler(createProgram));
+router.patch("/:id", validateUpdateProgram, asyncHandler(updateProgram));
+router.delete("/:id", asyncHandler(deleteProgram));
+router.put("/:id/apply", asyncHandler(applyToProgram));
+router.put("/:id/enroll", asyncHandler(enrollToProgram));
 
 export default router;

@@ -1,44 +1,32 @@
-import dotenv from "dotenv";
 import nodemailer from "nodemailer";
-
-dotenv.config();
-
+import prisma from "../prisma";
+import createHttpError from "http-errors";
+import crypto from "crypto";
+import { z } from "zod";
 
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  secure: false,
+  host: process.env.MAIL_HOST,
+  port: Number(process.env.MAIL_PORT),
+  secure: process.env.MAIL_SECURE === "true",
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
   },
-} as nodemailer.TransportOptions);
+});
 
-export const sendVerificationCode = async (
+const sendVerificationCode = async (
   email: string,
   code: string,
   firstName: string,
 ) => {
-  try {
-    const formattedFirstName =
-      firstName.charAt(0).toUpperCase() + firstName.slice(1);
+  const name = firstName[0].toUpperCase() + firstName.slice(1);
 
-    const transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST,
-      port: Number(process.env.MAIL_PORT),
-      secure: process.env.MAIL_SECURE === "true",
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
-      },
-    });
-
-    const info = await transporter.sendMail({
-      from: `"Verification, CentarNIT Academy" <${process.env.MAIL_USER}>`,
-      to: email,
-      subject: "Verification Code",
-      html: `
-      <p>Dear ${formattedFirstName},</p>
+  await transporter.sendMail({
+    from: `"Verification, CentarNIT Academy" <${process.env.MAIL_USER}>`,
+    to: email,
+    subject: "Verification Code",
+    html: `
+      <p>Dear ${name},</p>
       <p>Thank you for registering with us!</p>
       <p>Please use the following verification code to complete your registration process:</p>
       <p><strong>Verification Code: ${code}</strong></p>
@@ -47,10 +35,76 @@ export const sendVerificationCode = async (
       <p>Best regards,</p>
       <p>The CentarNit Academy Team</p>
       `,
-    });
+  });
+};
 
-    return { message: "Code sent successfully!" };
-  } catch (error) {
-    throw new Error("Failed to send verification code. Please try again.");
+async function generateVerificationCode(email: string) {
+  await z.string().email().parseAsync(email);
+
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  if (!user) {
+    throw createHttpError(404, "User not found");
   }
+  if (user.isEmailVerified) {
+    throw createHttpError(400, "Email is already verified");
+  }
+
+  const verificationCode = crypto.randomInt(100000, 999999).toString();
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+  await prisma.user.update({
+    where: { email },
+    data: { verificationCode, expiresAt },
+  });
+
+  return verificationCode;
+}
+
+async function verifyCode(code: string, email: string) {
+  await z.string().email().parseAsync(email);
+  await z.coerce.number().int().min(100000).max(999999).parseAsync(code);
+
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  if (!user) {
+    throw createHttpError(404, "User not found");
+  }
+
+  if (
+    user.verificationCode === code &&
+    user.expiresAt &&
+    user.expiresAt > new Date()
+  ) {
+    await prisma.user.update({
+      where: { email },
+      data: {
+        isEmailVerified: true,
+      },
+    });
+    return;
+  }
+
+  throw createHttpError(400, "Invalid code");
+}
+
+async function resendVerificationCode(email: string) {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { firstName: true },
+  });
+
+  if (!user) {
+    throw createHttpError(404, "User not found");
+  }
+
+  const verificationCode = await generateVerificationCode(email);
+  await sendVerificationCode(email, verificationCode, user.firstName);
+}
+
+export {
+  generateVerificationCode,
+  verifyCode,
+  resendVerificationCode,
+  sendVerificationCode,
 };

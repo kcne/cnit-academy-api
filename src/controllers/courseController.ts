@@ -1,32 +1,52 @@
 import { Request, Response } from "express";
-import CourseService from "../services/courseService";
+import { repositoryService } from "../services/courseService";
+import { z } from "zod";
 
-const courseService = new CourseService();
+async function getAllCourses(req: Request, res: Response) {
+  const { page, limit } = req.query;
 
-export const getAllCourses = async (req: Request, res: Response) => {
-  const courses = await courseService.getAllCourses();
+  const courses = await repositoryService.getAll({
+    pagination: {
+      page: Number(page ?? 1),
+      limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+    },
+  });
   res.json(courses);
-};
+}
 
-export const getCourseById = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-  const course = await courseService.getCourseById(id);
-  if (!course) {
-    res.status(404).json({ message: "Course not found" });
-  } else {
-    res.json(course);
-  }
-};
+async function getCourseById(req: Request, res: Response) {
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+  const course = await repositoryService.findItem(id);
 
-export const deleteCourseById = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-  await courseService.deleteCourseById(id);
-  res.json({ message: "Course deleted successfully" });
-};
+  res.json(course);
+}
 
-export const updateCourseById = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+async function deleteCourseById(req: Request, res: Response) {
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+  await repositoryService.deleteItem(id);
+
+  res.send();
+}
+
+async function updateCourseById(req: Request, res: Response) {
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   const course = req.body;
-  const updatedCourse = await courseService.updateCourseById(id, course);
+  const updatedCourse = await repositoryService.updateItem(id, course);
+
   res.json(updatedCourse);
+}
+
+async function createCourse(req: Request, res: Response) {
+  const course = req.body;
+  const createdCourse = await repositoryService.createItem(course);
+
+  res.status(201).json(createdCourse);
+}
+
+export {
+  getAllCourses,
+  getCourseById,
+  deleteCourseById,
+  updateCourseById,
+  createCourse,
 };

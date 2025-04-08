@@ -1,8 +1,13 @@
 import { Router } from "express";
-import { getLeaderboard } from "../controllers/leaderboardController"; 
+import {
+  getLeaderboard,
+  getLeaderboardWeekly,
+} from "../controllers/leaderboardController";
+import asyncHandler from "../middlewares/asyncHandler";
 
 const router = Router();
 
-router.get("/", getLeaderboard);
+router.get("/", asyncHandler(getLeaderboard));
+router.get("/weekly", asyncHandler(getLeaderboardWeekly));
 
 export default router;

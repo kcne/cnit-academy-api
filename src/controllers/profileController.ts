@@ -7,96 +7,63 @@ import {
   changeProfile,
   removeProfile,
 } from "../services/profileService";
+import { z } from "zod";
 
-async function getAllProfiles(_req: AuthenticatedRequest, res: Response) {
-  const profiles = await getProfiles();
+async function getAllProfiles(req: AuthenticatedRequest, res: Response) {
+  const { page, limit } = req.query;
 
-  res.status(200).json(profiles);
+  const profiles = await getProfiles({
+    page: Number(page ?? 1),
+    limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+  });
+
+  res.json(profiles);
 }
+
 async function getProfileById(req: AuthenticatedRequest, res: Response) {
-  const id = req.params.id === "me" ? req.user?.id : Number(req.params.id);
-  if (id === undefined) {
+  if (!req.user) {
     throw new Error("AuthenticatedRequest.user is undefined");
   }
-  if (Number.isNaN(id)) {
-    res.status(400).json({
-      error: 'Query paramater id must be a number larger than 0 or "me"',
-    });
-    return;
-  }
+  const id =
+    req.params.id === "me"
+      ? req.user.id
+      : await z.coerce.number().positive().int().parseAsync(req.params.id);
 
   const profile = await getProfile(id);
-  if (!profile) {
-    res.status(404).json({ error: "Profile not found" });
-    return;
-  }
 
-  res.status(200).json(profile);
+  res.json(profile);
 }
 
 async function createProfile(req: AuthenticatedRequest, res: Response) {
-  const id = req.user?.id;
-  if (id === undefined) {
+  if (!req.user) {
     throw new Error("AuthenticatedRequest.user is undefined");
   }
-  if (req.params.id !== "me") {
-    res.status(403).json({
-      error:
-        'Modifying foreign profiles is forbidden for now. Query paramater id must be "me"',
-    });
-    return;
-  }
+  const id = req.user.id;
 
   const profile = await addProfile(id, req.body);
-  if (!profile) {
-    res.status(404).json({ error: "User not found" });
-  }
 
   res.status(201).json(profile);
 }
 
 async function updateProfile(req: AuthenticatedRequest, res: Response) {
-  const id = req.user?.id;
-  if (id === undefined) {
+  if (!req.user) {
     throw new Error("AuthenticatedRequest.user is undefined");
   }
-  if (req.params.id !== "me") {
-    res.status(403).json({
-      error:
-        'Modifying foreign profiles is forbidden for now. Query paramater id must be "me"',
-    });
-    return;
-  }
+  const id = req.user.id;
 
   const profile = await changeProfile(id, req.body);
-  if (!profile) {
-    res.status(404).json({ error: "Profile not found" });
-    return;
-  }
 
-  res.status(200).json(profile);
+  res.json(profile);
 }
 
 async function deleteProfile(req: AuthenticatedRequest, res: Response) {
-  const id = req.user?.id;
-  if (id === undefined) {
+  if (!req.user) {
     throw new Error("AuthenticatedRequest.user is undefined");
   }
-  if (req.params.id !== "me") {
-    res.status(403).json({
-      error:
-        'Modifying foreign profiles is forbidden for now. Query paramater id must be "me"',
-    });
-    return;
-  }
+  const id = req.user.id;
 
-  try {
-    await removeProfile(id);
-    res.status(200).send();
-  } catch (error) {
-    console.error(error);
-    res.status(404).json({ error: "Profile not found" });
-  }
+  await removeProfile(id);
+  res.send();
 }
 
 export {

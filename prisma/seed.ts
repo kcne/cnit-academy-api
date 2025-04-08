@@ -1,74 +1,128 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
+import { faker } from "@faker-js/faker";
+import argon2 from "argon2";
 
 const prisma = new PrismaClient();
 
-async function main() {
-  const userRole = await prisma.role.upsert({
-    where: { name: "USER" },
-    update: {},
-    create: { name: "USER" },
-  });
+interface EducationExperience {
+  id?: number;
+  title: string;
+  description: string;
+  organization: string;
+  startPeriod: Date;
+  endPeriod: Date;
+}
 
-  const users = [
-    { firstName: "Marko", lastName: "Marković", email: "marko@gmail.com" },
-    { firstName: "Jovana", lastName: "Jovanović", email: "jovana@gmail.com" },
-    { firstName: "Nikola", lastName: "Nikolić", email: "nikola@gmail.com" },
-    { firstName: "Ana", lastName: "Anić", email: "ana@gmail.com" },
-    { firstName: "Petar", lastName: "Petrović", email: "petar@gmail.com" },
-    { firstName: "Ivana", lastName: "Ivić", email: "ivana@gmail.com" },
-    { firstName: "Stefan", lastName: "Stefanović", email: "stefan@gmail.com" },
-    { firstName: "Maja", lastName: "Majić", email: "maja@gmail.com" },
-    { firstName: "Luka", lastName: "Lukić", email: "luka@gmail.com" },
-    { firstName: "Jelena", lastName: "Jelendić", email: "jelena@gmail.com" },
-    { firstName: "Sanja", lastName: "Sanjković", email: "sanja@gmail.com" },
-    { firstName: "Vladimir", lastName: "Vuković", email: "vladimir@gmail.com" },
-    { firstName: "Tamara", lastName: "Todorović", email: "tamara@gmail.com" },
-    { firstName: "Bojan", lastName: "Bojković", email: "bojan@gmail.com" },
-    { firstName: "Marija", lastName: "Marić", email: "marija@gmail.com" },
-  ];
+async function createNewUser() {
+  const skills: string[] = [];
+  for (let i = 0; i < faker.number.int({ min: 0, max: 5 }); i++) {
+    skills.push(faker.hacker.noun());
+  }
 
-  for (const userData of users) {
-    const hashedPassword = await bcrypt.hash("password123", 10);
-
-    await prisma.user.create({
-      data: {
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        email: userData.email,
-        password: hashedPassword,
-        totalCoins: 100,
-        roles: {
-          connect: [{ id: userRole.id }],
-        },
-        Profile: {
-          create: {
-            skills: "JavaScript, TypeScript, React",
-            education: {
-              create: {
-                title: "Software Engineering",
-                description: "Bachelor's degree in Software Engineering",
-                organization: "State University of Novi Pazar",
-                startPeriod: new Date("2020-09-01"),
-                endPeriod: new Date("2024-06-30"),
-              },
-            },
-            experience: {
-              create: {
-                title: "Frontend Developer",
-                description: "Worked on various frontend projects",
-                organization: "Tech Company",
-                startPeriod: new Date("2023-01-01"),
-                endPeriod: new Date("2024-03-01"),
-              },
-            },
-          },
-        },
-      },
+  const education: EducationExperience[] = [];
+  for (let i = 0; i < faker.number.int({ min: 0, max: 2 }); i++) {
+    education.push({
+      title: faker.person.jobTitle(),
+      description: faker.company.catchPhrase(),
+      organization: faker.company.name(),
+      startPeriod: faker.date.past({ years: 20 }),
+      endPeriod: faker.date.past({ years: 2 }),
+    });
+  }
+  const experience: EducationExperience[] = [];
+  for (let i = 0; i < faker.number.int({ min: 0, max: 4 }); i++) {
+    experience.push({
+      title: faker.person.jobTitle(),
+      description: faker.company.catchPhrase(),
+      organization: faker.company.name(),
+      startPeriod: faker.date.past({ years: 20 }),
+      endPeriod: faker.date.past({ years: 2 }),
     });
   }
 
-  console.log("Seeding completed with 15 users!");
+  return {
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
+    email: faker.internet.email(),
+    password: await argon2.hash(faker.internet.password()),
+    isEmailVerified: true,
+    verificationCode: null,
+    expiresAt: null,
+    Profile: {
+      create: {
+        skills: skills.join(","),
+        pfp: "/pfp/default",
+        education: {
+          create: education,
+        },
+        experience: {
+          create: experience,
+        },
+      },
+    },
+    totalCoins: faker.number.int({ min: 0, max: 9999 }),
+  };
+}
+
+function createNewCourse() {
+  return {
+    title: faker.hacker.noun(),
+    description: faker.hacker.phrase(),
+    durationInHours: faker.number.float({ min: 0, max: 10 }),
+    numberOfStudents: faker.number.int({ min: 0, max: 120 }),
+  };
+}
+
+function createNewProgram() {
+  return {
+    title: faker.book.title(),
+    description: faker.hacker.phrase(),
+    founder: faker.person.fullName(),
+    durationInDays: faker.number.int({ min: 2, max: 365 }),
+    applicationDeadline: faker.date.soon({ days: 30 }),
+  };
+}
+
+async function main() {
+  if (process.env.SEED) {
+    faker.seed(Number(process.env.SEED));
+  }
+  const users = Number(process.env.USERS || 15);
+  const courses = Number(process.env.COURSES || 10);
+  const programs = Number(process.env.PROGRAMS || 5);
+
+  const transactions: any[] = [];
+
+  for (let i = 0; i < users; i++) {
+    const user = await createNewUser();
+    transactions.push(
+      prisma.user.create({
+        data: user,
+      }),
+    );
+  }
+  for (let i = 0; i < courses; i++) {
+    const course = createNewCourse();
+    transactions.push(
+      prisma.course.create({
+        data: course,
+      }),
+    );
+  }
+  for (let i = 0; i < programs; i++) {
+    const program = createNewProgram();
+    transactions.push(
+      prisma.program.create({
+        data: program,
+      }),
+    );
+  }
+
+  await prisma.$transaction(transactions);
+
+  console.log("Seeding completed with " + users + " users!");
+  console.log("Seeding completed with " + courses + " courses!");
+  console.log("Seeding completed with " + programs + " programs!");
 }
 
 main()

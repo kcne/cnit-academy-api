@@ -1,29 +1,27 @@
+import cors from "cors";
 import express from "express";
-import userRoutes from "./routes/userRoutes";
 import authRoutes from "./routes/authRoutes";
 import courseRoutes from "./routes/courseRoutes";
 import profileRoutes from "./routes/profileRoutes";
-import cors from "cors";
 import programRoutes from "./routes/programRoutes";
 import leaderboardRoutes from "./routes/leaderboardRoutes";
-import blogRoutes from './routes/blogRoutes';
-
+import errorHandler from "./middlewares/errorHandler";
+import authMiddleware from "./middlewares/authMiddleware";
+import blogRoutes from "./routes/blogRoutes";
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-app.use("/api", authRoutes);
-app.use("/api", courseRoutes);
-app.use("/api",blogRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/course", authMiddleware, courseRoutes);
+app.use("/api/blog", blogRoutes);
 app.use("/api/profile", profileRoutes);
-app.use("/api", courseRoutes);
-app.use("/api/programs", programRoutes);
+app.use("/api/program", authMiddleware, programRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 
-
+app.use(errorHandler);
 app.use((_, res) => {
   res.status(404).json({ error: "Route not found" });
 });

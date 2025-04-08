@@ -5,6 +5,7 @@ import {
   createPaginatedResponse,
   PaginatedResult,
 } from "../utils/queryBuilder";
+import createHttpError from "http-errors";
 
 export class PrismaRepositoryService<T, K extends string> {
   protected prisma: PrismaClient;
@@ -15,8 +16,8 @@ export class PrismaRepositoryService<T, K extends string> {
     this.model = model;
   }
 
-  async findAll(options: QueryOptions<K>): Promise<PaginatedResult<T>> {
-    const { pagination, sort, filters, includeUser } = options;
+  async getAll(options: QueryOptions<K>): Promise<PaginatedResult<T>> {
+    const { pagination, sort, filters } = options;
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
 
@@ -36,26 +37,45 @@ export class PrismaRepositoryService<T, K extends string> {
     return createPaginatedResponse(items, total, pagination);
   }
 
-  async findById(id: number): Promise<T | null> {
-    return this.model.findUnique({
-      where: { id: Number(id) },
+  async findItem(id: number): Promise<T> {
+    const model = await this.model.findUnique({
+      where: { id: id },
     });
+    if (!model) {
+      throw createHttpError(404, "Not found");
+    }
+
+    return model;
   }
 
-  async create(data: any): Promise<T> {
-    return this.model.create({ data });
+  async createItem(data: any): Promise<T> {
+    return await this.model.create({ data });
   }
 
-  async update(id: number, data: any): Promise<T> {
-    return this.model.update({
-      where: { id: Number(id) },
+  async updateItem(id: number, data: any): Promise<T> {
+    const model = await this.model.findUnique({
+      where: { id: id },
+    });
+    if (!model) {
+      throw createHttpError(404, "Not found");
+    }
+
+    return await this.model.update({
+      where: { id: id },
       data,
     });
   }
 
-  async delete(id: number): Promise<T> {
-    return this.model.delete({
-      where: { id: Number(id) },
+  async deleteItem(id: number): Promise<T> {
+    const model = await this.model.findUnique({
+      where: { id: id },
+    });
+    if (!model) {
+      throw createHttpError(404, "Not found");
+    }
+
+    return await this.model.delete({
+      where: { id: id },
     });
   }
 }

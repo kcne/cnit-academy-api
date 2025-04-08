@@ -1,15 +1,16 @@
 import { Request, Response } from "express";
-import { getLeaderboardData } from "../services/leaderboardService"; 
+import { getLeaderboardData } from "../services/leaderboardService";
 
-export const getLeaderboard = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { domain } = req.query; 
+async function getLeaderboard(_req: Request, res: Response) {
+  const leaderboard = await getLeaderboardData(false);
 
-    const leaderboard = await getLeaderboardData(domain as string | undefined); 
+  res.json(leaderboard);
+}
 
-    res.json({ success: true, leaderboard });
-  } catch (error) {
-    console.error("Error fetching leaderboard:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-};
+async function getLeaderboardWeekly(_req: Request, res: Response) {
+  const leaderboard = await getLeaderboardData(true);
+
+  res.json(leaderboard);
+}
+
+export { getLeaderboard, getLeaderboardWeekly };

@@ -1,55 +1,35 @@
-import { PrismaClient } from "@prisma/client";
-import { ErrorResponse } from "../middlewares/errorHandlerMiddleware";
+import { z } from "zod";
+import prisma from "../prisma";
+import { PrismaRepositoryService } from "./prismaRepositoryService";
+import { validateRequest } from "../middlewares/validate";
+import createHttpError from "http-errors";
 
-const prisma = new PrismaClient();
+const BlogSchema = z.object({
+  userId: z.number().int().positive(),
+  title: z.string().max(256),
+  blogDescription: z.string().max(1024).optional(),
+  content: z.string().max(65535),
+  published: z.coerce.boolean().optional(),
+});
 
-class BlogService {
-  async createBlog(data: any) {
-    if (!data.title || !data.content) {
-      throw new ErrorResponse("Invalid input data", 400);
-    }
-    return await prisma.blog.create({ data });
-  }
+const validateCreateBlog = validateRequest(BlogSchema);
+const validateUpdateBlog = validateRequest(BlogSchema.partial());
 
-  async getBlogs() {
-    return await prisma.blog.findMany();
-  }
+const repositoryService = new PrismaRepositoryService(prisma, prisma.blog);
 
-  async getBlog(id: number) {
-    const blog = await prisma.blog.findUnique({ where: { id } });
-    if (!blog) {
-      throw new ErrorResponse("Blog not found", 404);
-    }
-    return blog;
-  }
-
-  async updateBlog(id: number, data: any) {
-    if (!data.title || !data.content) {
-      throw new ErrorResponse("Invalid input data", 400);
-    }
-    return await prisma.blog.update({ where: { id }, data });
-  }
-
-  async deleteBlog(id: number) {
-    const blog = await prisma.blog.findUnique({ where: { id } });
-    if (!blog) {
-      throw new ErrorResponse("Blog not found", 404);
-    }
-
-    await prisma.blog.delete({ where: { id } });
-    return { message: "Blog deleted successfully" };
-  }
-
-  async updateBlogPublishStatus(blogId: number, isPublished: boolean) {
-    if (typeof isPublished !== "boolean") {
-      throw new ErrorResponse("Invalid publish status", 400);
-    }
-
-    return prisma.blog.update({
-      where: { id: blogId },
-      data: { published: isPublished },
-    });
+async function publishBlog(id: number) {
+  const blog = await prisma.blog.update({
+    where: { id },
+    data: { published: true },
+  });
+  if (!blog) {
+    throw createHttpError(404, "Blog not found");
   }
 }
 
-export default BlogService;
+export {
+  repositoryService,
+  validateCreateBlog,
+  validateUpdateBlog,
+  publishBlog,
+};
