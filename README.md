@@ -536,7 +536,7 @@ Response 200 JSON:
       "title": "title",
       "description": "description",
       "durationInHours": 2,
-      "numberOfStudents": 0,
+      "studentCount": 0,
       "lectures": [
         {
           "id": 28,
@@ -581,7 +581,7 @@ Response 200 JSON:
       "coins": 2234
     }
   ],
-  "numberOfStudents": 0
+  "studentCount": 0
 }
 ```
 
@@ -600,7 +600,7 @@ Request JSON:
   "description": "description",
   "durationInHours": 2,
   "coins": 10,
-  "numberOfStudents": 0
+  "studentCount": 0
 }
 ```
 
@@ -623,7 +623,7 @@ Response 201 JSON:
       "coins": 2234
     }
   ],
-  "numberOfStudents": 0
+  "studentCount": 0
 }
 ```
 
@@ -648,7 +648,7 @@ Request JSON:
   "description": "description",
   "durationInHours": 2,
   "coins": 10,
-  "numberOfStudents": 0
+  "studentCount": 0
 }
 ```
 
@@ -671,7 +671,7 @@ Response 200 JSON:
       "coins": 2234
     }
   ],
-  "numberOfStudents": 0
+  "studentCount": 0
 }
 ```
 
