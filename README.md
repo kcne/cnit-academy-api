@@ -517,7 +517,7 @@ Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
 
 ### GET /api/course
 
-Fetch all course
+Fetch all courses
 
 Request query params:
 
@@ -537,6 +537,16 @@ Response 200 JSON:
       "description": "description",
       "durationInHours": 2,
       "numberOfStudents": 0,
+      "lectures": [
+        {
+          "id": 28,
+          "title": "The Woman in White",
+          "content": "We need to reboot the back-end VGA transmitter!",
+          "videoUrl": "https://fragrant-saloon.name/",
+          "courseId": 10,
+          "coins": 2234
+        }
+      ],
       "coins": 10
     }
   ],
@@ -561,6 +571,16 @@ Response 200 JSON:
   "description": "description",
   "durationInHours": 2,
   "coins": 10,
+  "lectures": [
+    {
+      "id": 28,
+      "title": "The Woman in White",
+      "content": "We need to reboot the back-end VGA transmitter!",
+      "videoUrl": "https://fragrant-saloon.name/",
+      "courseId": 10,
+      "coins": 2234
+    }
+  ],
   "numberOfStudents": 0
 }
 ```
@@ -593,6 +613,16 @@ Response 201 JSON:
   "description": "description",
   "coins": 10,
   "durationInHours": 2,
+  "lectures": [
+    {
+      "id": 28,
+      "title": "The Woman in White",
+      "content": "We need to reboot the back-end VGA transmitter!",
+      "videoUrl": "https://fragrant-saloon.name/",
+      "courseId": 10,
+      "coins": 2234
+    }
+  ],
   "numberOfStudents": 0
 }
 ```
@@ -631,6 +661,16 @@ Response 200 JSON:
   "description": "description",
   "durationInHours": 2,
   "coins": 10,
+  "lectures": [
+    {
+      "id": 28,
+      "title": "The Woman in White",
+      "content": "We need to reboot the back-end VGA transmitter!",
+      "videoUrl": "https://fragrant-saloon.name/",
+      "courseId": 10,
+      "coins": 2234
+    }
+  ],
   "numberOfStudents": 0
 }
 ```
