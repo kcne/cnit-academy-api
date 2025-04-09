@@ -3,7 +3,9 @@ import prisma from "../prisma";
 import createHttpError from "http-errors";
 import crypto from "crypto";
 import { z } from "zod";
+import dotenv from "dotenv";
 
+dotenv.config();
 const transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST,
   port: Number(process.env.MAIL_PORT),

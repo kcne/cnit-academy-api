@@ -19,11 +19,13 @@ const router = Router();
 
 router.get("/", asyncHandler(getAllPrograms));
 router.get("/:id", asyncHandler(getProgramById));
-router.post("/", validateCreateProgram, asyncHandler(createProgram));
-router.patch("/:id", validateUpdateProgram, asyncHandler(updateProgram));
 router.put("/:id/apply", asyncHandler(applyToProgram));
-router.put("/:id/enroll", asyncHandler(enrollToProgram));
-router.put("/:id/finish", asyncHandler(finishProgram));
-router.delete("/:id", asyncHandler(deleteProgram));
+
+// admin routes
+router.post("/admin", validateCreateProgram, asyncHandler(createProgram));
+router.patch("/admin/:id", validateUpdateProgram, asyncHandler(updateProgram));
+router.put("/admin/:id/enroll", asyncHandler(enrollToProgram));
+router.put("/admin/:id/finish", asyncHandler(finishProgram));
+router.delete("/admin/:id", asyncHandler(deleteProgram));
 
 export default router;

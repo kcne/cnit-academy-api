@@ -17,12 +17,6 @@ const router = Router();
 
 router.get("/", asyncHandler(getAllProfiles));
 router.get("/:id", authMiddleware, asyncHandler(getProfileById));
-router.post(
-  "/me",
-  authMiddleware,
-  validateCreateProfile,
-  asyncHandler(createProfile),
-);
 router.patch(
   "/me",
   authMiddleware,
@@ -30,5 +24,21 @@ router.patch(
   asyncHandler(updateProfile),
 );
 router.delete("/me", authMiddleware, asyncHandler(deleteProfile));
+
+// admin routes
+// createProfile probably has no practical use
+router.post(
+  "/admin/:id",
+  authMiddleware,
+  validateCreateProfile,
+  asyncHandler(createProfile),
+);
+router.patch(
+  "/admin/:id",
+  authMiddleware,
+  validateUpdateProfile,
+  asyncHandler(updateProfile),
+);
+router.delete("/admin/:id", authMiddleware, asyncHandler(deleteProfile));
 
 export default router;

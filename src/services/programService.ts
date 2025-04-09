@@ -49,13 +49,7 @@ const repositoryService = new PrismaRepositoryService(prisma.program, {
 //   })
 //   .then((res) => console.log(res));
 //
-async function changeStatus(
-  userId: number,
-  programId: number,
-  applied: boolean,
-  enrolled: boolean,
-  finished: boolean,
-) {
+async function apply(userId: number, programId: number) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   const program = await prisma.program.findUnique({ where: { id: programId } });
   if (!user) {
@@ -73,35 +67,74 @@ async function changeStatus(
     create: {
       userId,
       programId,
-      applied: applied ? new Date() : undefined,
-      enrolled: enrolled ? new Date() : undefined,
-      finished: finished ? new Date() : undefined,
+      applied: new Date(),
     },
     update: {
-      applied: applied ? new Date() : undefined,
-      enrolled: enrolled ? new Date() : undefined,
-      finished: finished ? new Date() : undefined,
+      applied: new Date(),
     },
     where: {
       id: userProgram?.id || -1,
     },
   });
+}
 
-  if (finished && !userProgram?.finished) {
-    await prisma.user.update({
-      data: {
-        totalCoins: { increment: program.coins },
+async function enroll(userIds: number[], programId: number) {
+  await prisma.userProgram.updateMany({
+    where: {
+      programId,
+      applied: { not: null },
+      userId: { in: userIds },
+    },
+    data: {
+      enrolled: new Date(),
+    },
+  });
+}
+
+async function finish(programId: number) {
+  const now = new Date();
+
+  const [
+    {
+      program: { coins },
+    },
+  ] = await prisma.userProgram.updateManyAndReturn({
+    where: {
+      programId,
+      enrolled: { not: null },
+      finished: null,
+    },
+    data: {
+      finished: now,
+    },
+    select: {
+      program: {
+        select: {
+          coins: true,
+        },
       },
-      where: {
-        id: userId,
+    },
+  });
+
+  await prisma.user.updateMany({
+    where: {
+      UserProgram: {
+        some: {
+          finished: now,
+        },
       },
-    });
-  }
+    },
+    data: {
+      totalCoins: { increment: coins },
+    },
+  });
 }
 
 export {
   repositoryService,
   validateCreateProgram,
   validateUpdateProgram,
-  changeStatus,
+  apply,
+  enroll,
+  finish,
 };

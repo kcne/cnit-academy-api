@@ -1,5 +1,10 @@
 import { Request, Response } from "express";
-import { changeStatus, repositoryService } from "../services/programService";
+import {
+  apply,
+  enroll,
+  finish,
+  repositoryService,
+} from "../services/programService";
 import { z } from "zod";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 
@@ -69,39 +74,37 @@ async function applyToProgram(req: AuthenticatedRequest, res: Response) {
     .int()
     .parseAsync(req.params.id);
 
-  await changeStatus(userId, programId, true, false, false);
+  await apply(userId, programId);
 
   res.send();
 }
 
 async function enrollToProgram(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
-  const userId = req.user.id;
+  const userIds = await z.coerce
+    .number()
+    .positive()
+    .int()
+    .array()
+    .parseAsync(req.body);
   const programId = await z.coerce
     .number()
     .positive()
     .int()
     .parseAsync(req.params.id);
 
-  await changeStatus(userId, programId, false, true, false);
+  await enroll(userIds, programId);
 
   res.send();
 }
 
 async function finishProgram(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
-  const userId = req.user.id;
   const programId = await z.coerce
     .number()
     .positive()
     .int()
     .parseAsync(req.params.id);
 
-  await changeStatus(userId, programId, false, false, true);
+  await finish(programId);
 
   res.send();
 }

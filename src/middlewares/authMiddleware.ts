@@ -15,14 +15,17 @@ interface User {
 
 const authMiddleware = async (
   req: AuthenticatedRequest,
-  _res: Response,
+  res: Response,
   next: NextFunction,
 ) => {
   const authHeader = req.headers.authorization || "";
   const token = authHeader.split(" ")[1];
 
   if (!token) {
-    throw createHttpError(401, "Authentication token is missing or malformed");
+    res
+      .status(401)
+      .json({ error: "Authentication token is missing or malformed" });
+    return;
   }
 
   let decoded;
@@ -32,7 +35,8 @@ const authMiddleware = async (
       process.env.JWT_SECRET || "fallback secret",
     ) as User;
   } catch (error) {
-    throw createHttpError(403, "Invalid or expired token");
+    res.status(403).json({ error: "Invalid or expired token" });
+    return;
   }
 
   const user = await prisma.user.findUnique({
@@ -40,7 +44,8 @@ const authMiddleware = async (
     select: { id: true, email: true, roles: { select: { name: true } } },
   });
   if (!user) {
-    throw createHttpError(403, "Invalid or expired token");
+    res.status(403).json({ error: "Invalid or expired token" });
+    return;
   }
 
   req.user = { ...user, roles: user.roles.map((obj) => obj.name) };
