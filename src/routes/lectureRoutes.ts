@@ -18,10 +18,16 @@ const router = Router();
 
 router.get("/", asyncHandler(getAllLectures));
 router.get("/:id", asyncHandler(getLectureById));
-router.post("/", validateCreateLecture, asyncHandler(createLecture));
-router.patch("/:id", validateUpdateLecture, asyncHandler(updateLectureById));
 router.put("/:id/start", asyncHandler(startLecture));
 router.put("/:id/finish", asyncHandler(finishLecture));
-router.delete("/:id", asyncHandler(deleteLectureById));
+
+// admin routes
+router.post("/admin", validateCreateLecture, asyncHandler(createLecture));
+router.patch(
+  "/admin/:id",
+  validateUpdateLecture,
+  asyncHandler(updateLectureById),
+);
+router.delete("/admin/:id", asyncHandler(deleteLectureById));
 
 export default router;

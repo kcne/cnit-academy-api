@@ -18,10 +18,16 @@ const router = Router();
 
 router.get("/", asyncHandler(getAllCourses));
 router.get("/:id", asyncHandler(getCourseById));
-router.post("/", validateCreateCourse, asyncHandler(createCourse));
-router.patch("/:id", validateUpdateCourse, asyncHandler(updateCourseById));
 router.put("/:id/start", asyncHandler(startCourse));
 router.put("/:id/finish", asyncHandler(finishCourse));
-router.delete("/:id", asyncHandler(deleteCourseById));
+
+// admin routes
+router.post("/admin", validateCreateCourse, asyncHandler(createCourse));
+router.patch(
+  "/admin/:id",
+  validateUpdateCourse,
+  asyncHandler(updateCourseById),
+);
+router.delete("/admin/:id", asyncHandler(deleteCourseById));
 
 export default router;

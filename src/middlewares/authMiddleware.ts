@@ -10,9 +10,10 @@ export interface AuthenticatedRequest extends Request {
 interface User {
   id: number;
   email: string;
+  roles: string[];
 }
 
-const authMiddleware = (
+const authMiddleware = async (
   req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction,
@@ -34,15 +35,15 @@ const authMiddleware = (
     throw createHttpError(403, "Invalid or expired token");
   }
 
-  const user = prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: decoded.id, email: decoded.email, isEmailVerified: true },
-    select: { id: true, email: true },
+    select: { id: true, email: true, roles: { select: { name: true } } },
   });
   if (!user) {
     throw createHttpError(403, "Invalid or expired token");
   }
 
-  req.user = decoded;
+  req.user = { ...user, roles: user.roles.map((obj) => obj.name) };
   next();
 };
 
