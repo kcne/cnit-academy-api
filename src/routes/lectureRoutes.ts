@@ -13,6 +13,7 @@ import {
   validateCreateLecture,
   validateUpdateLecture,
 } from "../services/lectureService";
+import authMiddleware from "../middlewares/authMiddleware";
 
 const router = Router();
 
@@ -22,12 +23,22 @@ router.put("/:id/start", asyncHandler(startLecture));
 router.put("/:id/finish", asyncHandler(finishLecture));
 
 // admin routes
-router.post("/admin", validateCreateLecture, asyncHandler(createLecture));
+router.post(
+  "/admin",
+  authMiddleware("Admin"),
+  validateCreateLecture,
+  asyncHandler(createLecture),
+);
 router.patch(
   "/admin/:id",
+  authMiddleware("Admin"),
   validateUpdateLecture,
   asyncHandler(updateLectureById),
 );
-router.delete("/admin/:id", asyncHandler(deleteLectureById));
+router.delete(
+  "/admin/:id",
+  authMiddleware("Admin"),
+  asyncHandler(deleteLectureById),
+);
 
 export default router;

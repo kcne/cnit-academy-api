@@ -13,6 +13,7 @@ import {
   validateCreateCourse,
   validateUpdateCourse,
 } from "../services/courseService";
+import authMiddleware from "../middlewares/authMiddleware";
 
 const router = Router();
 
@@ -22,12 +23,22 @@ router.put("/:id/start", asyncHandler(startCourse));
 router.put("/:id/finish", asyncHandler(finishCourse));
 
 // admin routes
-router.post("/admin", validateCreateCourse, asyncHandler(createCourse));
+router.post(
+  "/admin",
+  authMiddleware("Admin"),
+  validateCreateCourse,
+  asyncHandler(createCourse),
+);
 router.patch(
   "/admin/:id",
+  authMiddleware("Admin"),
   validateUpdateCourse,
   asyncHandler(updateCourseById),
 );
-router.delete("/admin/:id", asyncHandler(deleteCourseById));
+router.delete(
+  "/admin/:id",
+  authMiddleware("Admin"),
+  asyncHandler(deleteCourseById),
+);
 
 export default router;

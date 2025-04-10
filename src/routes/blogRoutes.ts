@@ -22,21 +22,21 @@ router.get("/:id", asyncHandler(getBlog));
 // admin routes
 router.post(
   "/admin",
-  authMiddleware,
+  authMiddleware("Admin"),
   validateCreateBlog,
   asyncHandler(createBlog),
 );
 router.patch(
   "/admin/:id",
-  authMiddleware,
+  authMiddleware("Admin"),
   validateUpdateBlog,
   asyncHandler(updateBlog),
 );
 router.put(
   "/admin/:id/publish",
-  authMiddleware,
+  authMiddleware("Admin"),
   asyncHandler(togglePublishBlog),
 );
-router.delete("/admin/:id", authMiddleware, asyncHandler(deleteBlog));
+router.delete("/admin/:id", authMiddleware("Admin"), asyncHandler(deleteBlog));
 
 export default router;
