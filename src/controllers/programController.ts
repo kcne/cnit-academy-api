@@ -4,6 +4,8 @@ import {
   enroll,
   finish,
   repositoryService,
+  customGetAll,
+  customFindItem,
 } from "../services/programService";
 import { z } from "zod";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
@@ -12,33 +14,29 @@ function renameFields(input: any) {
   return {
     ...input,
     _count: undefined,
-    appliedCount: input._count.UserProgram,
+    applied: input._count.UserProgram,
   };
 }
 
 async function getAllPrograms(req: Request, res: Response) {
   const { page, limit } = req.query;
 
-  const programs = await repositoryService.getAll({
+  const programs = await customGetAll({
     pagination: {
       page: Number(page ?? 1),
       limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
     },
   });
 
-  const { data, meta } = programs;
-  return res.json({
-    data: data.map((old: any) => renameFields(old)),
-    meta,
-  });
+  return res.json(programs);
 }
 
 async function getProgramById(req: Request, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
 
-  const program = await repositoryService.findItem(id);
+  const program = await customFindItem(id);
 
-  res.json(renameFields(program));
+  res.json(program);
 }
 
 async function createProgram(req: Request, res: Response) {

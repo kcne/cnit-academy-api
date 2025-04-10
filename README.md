@@ -405,7 +405,9 @@ Response 200 JSON:
       "description": "description",
       "founder": "founder",
       "durationInDays": 2,
-      "appliedCount": 0,
+      "applied": 10,
+      "enrolled": 2,
+      "finished": 1,
       "coins": 50,
       "applicationDeadline": "2025-03-07T16:42:30.000Z",
       "CreatedAt": "2025-03-27T18:05:56.343Z"
@@ -432,7 +434,9 @@ Response 200 JSON:
   "description": "description",
   "founder": "founder",
   "durationInDays": 2,
-  "appliedCount": 0,
+  "applied": 10,
+  "enrolled": 2,
+  "finished": 1,
   "coins": 50,
   "applicationDeadline": "2025-03-07T16:42:30.000Z",
   "CreatedAt": "2025-03-27T18:05:56.343Z"
@@ -470,7 +474,7 @@ Response 201 JSON:
   "description": "description",
   "founder": "founder",
   "durationInDays": 2,
-  "appliedCount": 0,
+  "applied": 0,
   "coins": 50,
   "applicationDeadline": "2025-03-07T16:42:30.000Z",
   "CreatedAt": "2025-03-27T18:05:56.343Z"
@@ -512,7 +516,7 @@ Response 200 JSON:
   "description": "description",
   "founder": "founder",
   "durationInDays": 2,
-  "appliedCount": 0,
+  "applied": 0,
   "coins": 50,
   "applicationDeadline": "2025-03-07T16:42:30.000Z",
   "CreatedAt": "2025-03-27T18:05:56.343Z"

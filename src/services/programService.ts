@@ -3,6 +3,11 @@ import prisma from "../prisma";
 import { PrismaRepositoryService } from "./prismaRepositoryService";
 import { validateRequest } from "../middlewares/validate";
 import createHttpError from "http-errors";
+import {
+  createPaginatedResponse,
+  PaginationOptions,
+  QueryOptions,
+} from "../utils/queryBuilder";
 
 const programSchema = z.object({
   title: z.string(),
@@ -30,6 +35,105 @@ const repositoryService = new PrismaRepositoryService(prisma.program, {
     },
   },
 });
+
+async function customGetAll(opts: QueryOptions<string>) {
+  const { pagination } = opts;
+
+  const programs = await prisma.program.findMany({
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      founder: true,
+      durationInDays: true,
+      applicationDeadline: true,
+      coins: true,
+    },
+    orderBy: {
+      id: "asc",
+    },
+    skip: (pagination.page - 1) * pagination.limit,
+    take: pagination.limit,
+  });
+  const total = await prisma.program.count();
+  const counts = await prisma.userProgram.groupBy({
+    by: "programId",
+    _count: {
+      applied: true,
+      enrolled: true,
+      finished: true,
+    },
+    orderBy: {
+      programId: "asc",
+    },
+  });
+
+  let i = 0;
+  let j = 0;
+  const res = [];
+  // O(N)
+  while (i < programs.length && j < counts.length) {
+    // this clause is impossible (?) to be true
+    if (programs[i].id > counts[j].programId) {
+      j++;
+      continue;
+    } else if (programs[i].id < counts[j].programId) {
+      i++;
+      res.push({
+        ...programs[i],
+        applied: 0,
+        enrolled: 0,
+        finished: 0,
+      });
+      continue;
+    }
+
+    res.push({
+      ...programs[i],
+      ...counts[j]._count,
+    });
+    i++;
+    j++;
+  }
+
+  return createPaginatedResponse(res, total, opts.pagination);
+}
+async function customFindItem(id: number) {
+  const program = await prisma.program.findUnique({
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      founder: true,
+      durationInDays: true,
+      applicationDeadline: true,
+      coins: true,
+    },
+    where: {
+      id,
+    },
+  });
+  const counts = await prisma.userProgram.groupBy({
+    by: "programId",
+    _count: {
+      applied: true,
+      enrolled: true,
+      finished: true,
+    },
+    where: {
+      programId: id,
+    },
+  });
+
+  const res = {
+    ...program,
+    applied: counts[0]?._count.applied || 0,
+    enrolled: counts[0]?._count.enrolled || 0,
+    finished: counts[0]?._count.finished || 0,
+  };
+
+  return res;
+}
 
 // prisma.program
 //   .findMany({
@@ -137,4 +241,6 @@ export {
   apply,
   enroll,
   finish,
+  customGetAll,
+  customFindItem,
 };
