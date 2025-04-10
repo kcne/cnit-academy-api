@@ -17,5 +17,12 @@ router.post("/login", asyncHandler(login));
 router.post("/protected", authMiddleware(), (_req: Request, res: Response) => {
   res.json("great");
 });
+router.post(
+  "/admin",
+  authMiddleware("Admin"),
+  (_req: Request, res: Response) => {
+    res.json("great");
+  },
+);
 
 export default router;
