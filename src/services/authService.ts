@@ -15,7 +15,7 @@ const NewUserSchema = z.object({
     .max(64)
     .refine(
       (str) => str.match(/^(\/pfp\/\d+\.)(png|webp|jpg)$/),
-      "Pfp string is invalid",
+      "Pfp string is invalid"
     )
     .optional(),
 });
@@ -87,10 +87,22 @@ async function getUser(data: z.infer<typeof GetUserSchema>): Promise<{
     process.env.JWT_SECRET || "fallback secret",
     {
       expiresIn: "3d",
-    },
+    }
   );
 
   return { id: user.id, email: user.email, token };
 }
 
 export { createUser, getUser };
+
+// GET api/role-request/ -> Uzimanje svih requestova (all, aproved, declined, pending)
+// POST api/role-request/ -> slanje requesta (proveri da li postoji request)
+// POST api/role-request/:request-id -> {action: approve/decline} (u ovoj ruti samo pristupaju admini)
+// Nova tabela "role-requests"
+// Protected rute za admina - middleware
+// Tabela role-request:
+// userId, bio, age, photoURL, [social-links], cover letter, status {pending || aproved/declined}, adminId (ako je odbijen ne moze da posalje request godinu dana)
+// Nova tabela "professor"
+// Tabela professor:
+// userId, bio, age, photoURL, [social-links], cover letter, content
+// linkedIn, GitHub, Portfolio, Instagram,

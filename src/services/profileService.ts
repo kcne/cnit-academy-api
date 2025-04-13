@@ -28,7 +28,7 @@ const UpdateProfileSchema = z.object({
     .max(64)
     .refine(
       (str) => str.match(/^(\/pfp\/\d+\.)(png|webp|jpg)$/),
-      "Pfp string is invalid",
+      "Pfp string is invalid"
     )
     .optional(),
 });
@@ -42,7 +42,7 @@ const CreateProfileSchema = z.object({
     .max(64)
     .refine(
       (str) => str.match(/^(\/pfp\/\d+\.)(png|webp|jpg)$/),
-      "Pfp string is invalid",
+      "Pfp string is invalid"
     )
     .optional(),
 });
@@ -149,7 +149,7 @@ async function getProfile(id: number) {
 async function addProfile(id: number, profile: Profile) {
   if (typeof profile.skills === "string") {
     throw new Error(
-      "internal validation error: profile.skills was string instead of string[]",
+      "internal validation error: profile.skills was string instead of string[]"
     );
   }
   if (!(await prisma.user.findUnique({ where: { id } }))) {
@@ -177,7 +177,7 @@ async function addProfile(id: number, profile: Profile) {
 async function changeProfile(id: number, profile: Profile) {
   if (typeof profile.skills === "string") {
     throw new Error(
-      "internal validation error: profile.skills was string instead of string[]",
+      "internal validation error: profile.skills was string instead of string[]"
     );
   }
 
@@ -195,14 +195,12 @@ async function changeProfile(id: number, profile: Profile) {
           id: {
             in: (await prisma.education.findMany({ where: { profileId: id } }))
               .filter((oldEl) =>
-                profile.education.every(
-                  (newEl) => !compareEduExp(oldEl, newEl),
-                ),
+                profile.education.every((newEl) => !compareEduExp(oldEl, newEl))
               )
               .map((el) => el.id),
           },
         },
-      }),
+      })
     );
     profile.education.forEach((education) => {
       transactions.push(
@@ -212,7 +210,7 @@ async function changeProfile(id: number, profile: Profile) {
           where: {
             id: education.id || -1,
           },
-        }),
+        })
       );
     });
   }
@@ -224,13 +222,13 @@ async function changeProfile(id: number, profile: Profile) {
             in: (await prisma.experience.findMany({ where: { profileId: id } }))
               .filter((oldEl) =>
                 profile.experience.every(
-                  (newEl) => !compareEduExp(oldEl, newEl),
-                ),
+                  (newEl) => !compareEduExp(oldEl, newEl)
+                )
               )
               .map((el) => el.id),
           },
         },
-      }),
+      })
     );
     profile.experience.forEach((experience) => {
       transactions.push(
@@ -240,7 +238,7 @@ async function changeProfile(id: number, profile: Profile) {
           where: {
             id: experience.id || -1,
           },
-        }),
+        })
       );
     });
   }

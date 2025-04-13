@@ -1,4 +1,3 @@
-// Object Relational Mapper
 generator client {
   provider = "prisma-client-js"
 }
@@ -25,6 +24,9 @@ model User {
   UserLecture      UserLecture[]
   UserCourse       UserCourse[]
   UserProgram      UserProgram[]
+  links Links[]
+  roleRequests     RoleRequest[]
+  professor Professor? 
 }
 
 model Profile {
@@ -142,4 +144,44 @@ model UserProgram {
   finished  DateTime?
 
   @@unique([userId, programId])
+}
+
+model RoleRequest {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+  bio          String
+  age          String
+  photoURL     String
+  coverLetter  String
+  status       String   @default("pending")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  links Links[]
+}
+
+model Professor {
+  id           Int      @id @default(autoincrement())
+  userId Int @unique
+  user   User @relation(fields: [userId], references: [id])
+  bio          String
+  age          String
+  photoURL     String
+  coverLetter  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  links Links[]
+}
+
+model Links {
+  key         String
+  value       String
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  roleRequestId Int
+  roleRequest RoleRequest @relation(fields: [roleRequestId], references: [id])
+  professorId Int?
+  professor Professor? @relation(fields: [professorId], references: [id])
+
+  @@id([key, value, userId, roleRequestId], name: "key_value_userId_roleRequestId")
 }
