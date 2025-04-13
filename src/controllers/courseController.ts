@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
-import { changeStatus, repositoryService } from "../services/courseService";
+import {
+  changeStatus,
+  customGetCourse,
+  repositoryService,
+} from "../services/courseService";
 import { z } from "zod";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 
@@ -24,9 +28,14 @@ async function getAllCourses(req: Request, res: Response) {
   });
 }
 
-async function getCourseById(req: Request, res: Response) {
+async function getCourseById(req: AuthenticatedRequest, res: Response) {
+  if (!req.user) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  const userId = req.user.id;
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  const course = await repositoryService.findItem(id);
+
+  const course = await customGetCourse(id, userId);
 
   res.json(renameFields(course));
 }

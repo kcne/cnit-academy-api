@@ -3,6 +3,7 @@ import prisma from "../prisma";
 import { PrismaRepositoryService } from "./prismaRepositoryService";
 import { validateRequest } from "../middlewares/validate";
 import createHttpError from "http-errors";
+import { create } from "domain";
 
 const CourseSchema = z.object({
   title: z.string().max(256),
@@ -37,6 +38,60 @@ const repositoryService = new PrismaRepositoryService(prisma.course, {
     },
   },
 });
+
+async function customGetCourse(id: number, userId: number) {
+  const course = await prisma.course.findUnique({
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      durationInHours: true,
+      coins: true,
+      lectures: {
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          videoUrl: true,
+          courseId: true,
+          coins: true,
+          UserLecture: {
+            where: {
+              userId,
+            },
+            select: {
+              finished: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          UserCourse: { where: { finished: { not: null } } },
+        },
+      },
+    },
+    where: {
+      id,
+    },
+  });
+
+  if (!course) {
+    createHttpError(404, "Course not found");
+  }
+
+  const res = {
+    ...course,
+    lectures: course?.lectures.map((el) => {
+      const started = Boolean(el.UserLecture.length);
+      const finished = started ? Boolean(el.UserLecture[0].finished) : false;
+      return { ...el, UserLecture: undefined, started, finished };
+    }),
+  };
+
+  console.log(res);
+  return res;
+}
 
 async function changeStatus(
   userId: number,
@@ -112,4 +167,5 @@ export {
   validateCreateCourse,
   validateUpdateCourse,
   changeStatus,
+  customGetCourse,
 };
