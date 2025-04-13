@@ -6,7 +6,6 @@
 
 **/.classpath
 **/.dockerignore
-**/.env
 **/.git
 **/.gitignore
 **/.project
@@ -32,3 +31,5 @@
 **/dist
 LICENSE
 README.md
+prisma/dev.db
+prisma/dev.db-journal
