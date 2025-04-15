@@ -3,7 +3,6 @@ import prisma from "../prisma";
 import { PrismaRepositoryService } from "./prismaRepositoryService";
 import { validateRequest } from "../middlewares/validate";
 import createHttpError from "http-errors";
-import { create } from "domain";
 
 const CourseSchema = z.object({
   title: z.string().max(256),
@@ -21,6 +20,7 @@ const repositoryService = new PrismaRepositoryService(prisma.course, {
   title: true,
   description: true,
   durationInHours: true,
+  createdAt: true,
   coins: true,
   lectures: {
     select: {
@@ -29,6 +29,7 @@ const repositoryService = new PrismaRepositoryService(prisma.course, {
       content: true,
       videoUrl: true,
       courseId: true,
+      createdAt: true,
       coins: true,
     },
   },
@@ -46,6 +47,7 @@ async function customGetCourse(id: number, userId: number) {
       title: true,
       description: true,
       durationInHours: true,
+      createdAt: true,
       coins: true,
       lectures: {
         select: {
@@ -54,6 +56,7 @@ async function customGetCourse(id: number, userId: number) {
           content: true,
           videoUrl: true,
           courseId: true,
+          createdAt: true,
           coins: true,
           UserLecture: {
             where: {

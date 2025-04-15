@@ -112,6 +112,7 @@ async function getProfiles(pagination: PaginationOptions) {
           lastName: true,
           totalCoins: true,
           email: true,
+          createdAt: true,
         },
       },
     },
@@ -132,6 +133,7 @@ async function getProfile(id: number) {
           lastName: true,
           totalCoins: true,
           email: true,
+          createdAt: true,
           isEmailVerified: true,
         },
       },
@@ -167,7 +169,14 @@ async function addProfile(id: number, profile: Profile) {
     include: {
       education: true,
       experience: true,
-      user: { select: { firstName: true, lastName: true, totalCoins: true } },
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+          totalCoins: true,
+          createdAt: true,
+        },
+      },
     },
   });
 
@@ -265,6 +274,7 @@ async function changeProfile(id: number, profile: Profile) {
       totalCoins: true,
       email: true,
       isEmailVerified: true,
+      createdAt: true,
     },
   });
   return rawToProfile({ ...newProfile, user: newUser });

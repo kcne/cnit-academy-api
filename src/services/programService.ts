@@ -23,6 +23,7 @@ const repositoryService = new PrismaRepositoryService(prisma.program, {
   founder: true,
   durationInDays: true,
   applicationDeadline: true,
+  createdAt: true,
   coins: true,
   _count: {
     select: {
