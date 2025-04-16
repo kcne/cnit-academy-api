@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { repositoryService, publishBlog, getBlogsByUserId } from "../services/blogService";
+import { repositoryService, publishBlog, getBlogsByUserId, getBlogBySlug } from "../services/blogService";
 import { z } from "zod";
 
 async function getBlogs(req: Request, res: Response) {
@@ -56,6 +56,12 @@ async function handleGetBlogsByUserId(req: Request, res: Response) {
   res.json(blogs);
 }
 
+async function handleGetBlogBySlug(req: Request, res: Response) {
+  const { slug } = req.params;
+  const blog = await getBlogBySlug(slug);
+  res.json(blog);
+}
+
 export {
   createBlog,
   getBlogs,
@@ -64,4 +70,5 @@ export {
   deleteBlog,
   togglePublishBlog,
   handleGetBlogsByUserId,
+  handleGetBlogBySlug,
 };

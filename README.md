@@ -41,6 +41,7 @@
     - [PATCH /api/blog/:id](#patch-apiblogid)
     - [DELETE /api/blog/:id](#delete-apiblogid)
     - [GET /api/blog/user/:userId](#get-apibloguserid)
+    - [GET /api/blog/slug/:slug](#get-apiblogslugslug)
   - [Global](#global)
     - [paginationMeta](#paginationmeta)
     <!--toc:end-->
@@ -1109,6 +1110,34 @@ Response 200 JSON:
 ```
 
 Request 404 -> User not found
+
+### GET /api/blog/slug/:slug
+
+Get a blog by its URL-friendly slug
+
+Request query params:
+
+| key  | example        | description                      |
+| ---- | ------------- | -------------------------------- |
+| slug | my-blog-title | URL-friendly slug of the blog    |
+
+Response 200 JSON:
+
+```json
+{
+  "id": 1,
+  "title": "title",
+  "published": true,
+  "content": "# Markdown",
+  "blogDescription": null,
+  "slug": "my-blog-title",
+  "userId": 5,
+  "createdAt": "2025-04-05T18:34:35.612Z",
+  "updatedAt": "2025-04-05T18:34:35.612Z"
+}
+```
+
+Request 404 -> Blog not found
 
 ## Global
 
