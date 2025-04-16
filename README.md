@@ -40,6 +40,7 @@
     - [PUT /api/blog/:id/publish](#put-apiblogidpublish)
     - [PATCH /api/blog/:id](#patch-apiblogid)
     - [DELETE /api/blog/:id](#delete-apiblogid)
+    - [GET /api/blog/user/:userId](#get-apibloguserid)
   - [Global](#global)
     - [paginationMeta](#paginationmeta)
     <!--toc:end-->
@@ -1076,6 +1077,38 @@ Request query params:
 
 Response 200 -> Blog deleted successfully
 Request 404 -> Blog not found
+
+### GET /api/blog/user/:userId
+
+Get all blogs belonging to a specific user
+
+Request query params:
+
+| key    | example | description                      |
+| ------ | ------- | -------------------------------- |
+| userId | 2       | ID of the user, positive integer |
+
+Response 200 JSON:
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "title",
+      "published": true,
+      "content": "# Markdown",
+      "blogDescription": null,
+      "userId": 5,
+      "createdAt": "2025-04-05T18:34:35.612Z",
+      "updatedAt": "2025-04-05T18:34:35.612Z"
+    }
+  ],
+  "meta": "paginationMeta"
+}
+```
+
+Request 404 -> User not found
 
 ## Global
 

@@ -27,9 +27,27 @@ async function publishBlog(id: number) {
   }
 }
 
+async function getBlogsByUserId(userId: number) {
+  const blogs = await repositoryService.getAll({
+    pagination: {
+      page: 1,
+      limit: Number.MAX_SAFE_INTEGER,
+    },
+    filters: [
+      {
+        field: "userId",
+        value: userId,
+        operator: "equals",
+      },
+    ],
+  });
+  return blogs;
+}
+
 export {
   repositoryService,
   validateCreateBlog,
   validateUpdateBlog,
   publishBlog,
+  getBlogsByUserId,
 };

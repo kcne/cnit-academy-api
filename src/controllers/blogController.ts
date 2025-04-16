@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { repositoryService, publishBlog } from "../services/blogService";
+import { repositoryService, publishBlog, getBlogsByUserId } from "../services/blogService";
 import { z } from "zod";
 
 async function getBlogs(req: Request, res: Response) {
@@ -50,6 +50,12 @@ async function togglePublishBlog(req: Request, res: Response) {
   res.send();
 }
 
+async function handleGetBlogsByUserId(req: Request, res: Response) {
+  const userId = await z.coerce.number().positive().int().parseAsync(req.params.userId);
+  const blogs = await getBlogsByUserId(userId);
+  res.json(blogs);
+}
+
 export {
   createBlog,
   getBlogs,
@@ -57,4 +63,5 @@ export {
   updateBlog,
   deleteBlog,
   togglePublishBlog,
+  handleGetBlogsByUserId,
 };

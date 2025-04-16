@@ -6,6 +6,7 @@ import {
   updateBlog,
   deleteBlog,
   togglePublishBlog,
+  handleGetBlogsByUserId,
 } from "../controllers/blogController";
 import {
   validateCreateBlog,
@@ -27,5 +28,6 @@ router.patch(
 );
 router.put("/:id/publish", authMiddleware, asyncHandler(togglePublishBlog));
 router.delete("/:id", authMiddleware, asyncHandler(deleteBlog));
+router.get("/user/:userId", asyncHandler(handleGetBlogsByUserId));
 
 export default router;
