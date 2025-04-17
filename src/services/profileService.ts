@@ -135,6 +135,35 @@ async function getProfile(id: number) {
           email: true,
           createdAt: true,
           isEmailVerified: true,
+          UserProgram: {
+            where: {
+              userId: id,
+            },
+            select: {
+              applied: true,
+              enrolled: true,
+              finished: true,
+              program: true,
+            },
+          },
+          UserCourse: {
+            where: {
+              userId: id,
+            },
+            select: {
+              finished: true,
+              course: true,
+            },
+          },
+          UserLecture: {
+            where: {
+              userId: id,
+            },
+            select: {
+              finished: true,
+              lecture: true,
+            },
+          },
         },
       },
     },
@@ -145,7 +174,23 @@ async function getProfile(id: number) {
     throw createHttpError(404, "Profile not found");
   }
 
-  return rawToProfile(profile);
+  return {
+    ...rawToProfile(profile),
+    programs: profile.user.UserProgram.map((el) => ({
+      ...el.program,
+      applied: el.applied ?? false,
+      enrolled: el.enrolled ?? false,
+      finished: el.finished ?? false,
+    })),
+    courses: profile.user.UserCourse.map((el) => ({
+      ...el.course,
+      finished: el.finished ?? false,
+    })),
+    lectures: profile.user.UserLecture.map((el) => ({
+      ...el.lecture,
+      finished: el.finished ?? false,
+    })),
+  };
 }
 
 async function addProfile(id: number, profile: Profile) {

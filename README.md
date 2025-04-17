@@ -271,7 +271,34 @@ Response 200 JSON:
     "endPeriod": "2025-03-14T17:38:29+01:00"
   ],
   "totalCoins": 0,
-  "pfp": "/pfp/2.png"
+  "pfp": "/pfp/2.png",
+  "programs": [
+    {
+      "id": 1,
+      "title": "The Adventures of Tom Sawyer",
+      "description": "The IB microchip is down, compress the solid state transmitter so we can parse the DNS bandwidth!",
+      "founder": "Paul Windler",
+      "durationInDays": 164,
+      "applicationDeadline": "2025-05-13T01:28:56.901Z",
+      "createdAt": "2025-04-17T12:16:44.928Z",
+      "coins": 0,
+      "applied": "2025-04-17T12:19:44.956Z",
+      "enrolled": false,
+      "finished": false
+    }
+  ],
+  "courses": [
+    {
+      "id": 1,
+      "title": "transmitter",
+      "description": "Try to copy the EXE pixel, maybe it will connect the optical card!",
+      "durationInHours": 5.509553508813935,
+      "createdAt": "2025-04-17T12:16:44.901Z",
+      "coins": 0,
+      "finished": false
+    }
+  ],
+  "lectures": []
 }
 ```
 
