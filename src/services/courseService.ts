@@ -40,7 +40,7 @@ const repositoryService = new PrismaRepositoryService(prisma.course, {
   },
 });
 
-async function customGetCourse(id: number, userId: number) {
+async function customFindItem(id: number, userId: number) {
   const course = await prisma.course.findUnique({
     select: {
       id: true,
@@ -60,12 +60,22 @@ async function customGetCourse(id: number, userId: number) {
           coins: true,
           UserLecture: {
             where: {
+              id,
               userId,
             },
             select: {
               finished: true,
             },
           },
+        },
+      },
+      UserCourse: {
+        select: {
+          finished: true,
+        },
+        where: {
+          id,
+          userId,
         },
       },
       _count: {
@@ -80,16 +90,22 @@ async function customGetCourse(id: number, userId: number) {
   });
 
   if (!course) {
-    createHttpError(404, "Course not found");
+    throw createHttpError(404, "Course not found");
   }
 
   const res = {
     ...course,
-    lectures: course?.lectures.map((el) => {
-      const started = Boolean(el.UserLecture.length);
-      const finished = started ? Boolean(el.UserLecture[0].finished) : false;
-      return { ...el, UserLecture: undefined, started, finished };
+    lectures: course.lectures.map((el) => {
+      return {
+        ...el,
+        started: Boolean(el.UserLecture.length),
+        finished: el.UserLecture[0]?.finished ?? false,
+        UserLecture: undefined,
+      };
     }),
+    started: Boolean(course.UserCourse.length),
+    finished: course.UserCourse[0]?.finished ?? false,
+    UserCourse: undefined,
   };
 
   console.log(res);
@@ -170,5 +186,5 @@ export {
   validateCreateCourse,
   validateUpdateCourse,
   changeStatus,
-  customGetCourse,
+  customFindItem,
 };

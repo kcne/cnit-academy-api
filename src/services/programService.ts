@@ -99,7 +99,7 @@ async function customGetAll(opts: QueryOptions<string>) {
 
   return createPaginatedResponse(res, total, opts.pagination);
 }
-async function customFindItem(id: number) {
+async function customFindItem(id: number, userId: number) {
   const program = await prisma.program.findUnique({
     select: {
       id: true,
@@ -109,11 +109,27 @@ async function customFindItem(id: number) {
       durationInDays: true,
       applicationDeadline: true,
       coins: true,
+      UserProgram: {
+        where: {
+          id,
+          userId,
+        },
+        select: {
+          applied: true,
+          enrolled: true,
+          finished: true,
+        },
+      },
     },
     where: {
       id,
     },
   });
+
+  if (!program) {
+    throw createHttpError(404, "Program not found");
+  }
+
   const counts = await prisma.userProgram.groupBy({
     by: "programId",
     _count: {
@@ -128,32 +144,18 @@ async function customFindItem(id: number) {
 
   const res = {
     ...program,
-    applied: counts[0]?._count.applied || 0,
-    enrolled: counts[0]?._count.enrolled || 0,
-    finished: counts[0]?._count.finished || 0,
+    appliedCount: counts[0]?._count.applied || 0,
+    enrolledCount: counts[0]?._count.enrolled || 0,
+    finishedCount: counts[0]?._count.finished || 0,
+    applied: program.UserProgram[0]?.applied ?? false,
+    enrolled: program.UserProgram[0]?.enrolled ?? false,
+    finished: program.UserProgram[0]?.finished ?? false,
+    UserProgram: undefined,
   };
 
   return res;
 }
 
-// prisma.program
-//   .findMany({
-//     select: {
-//       id: true,
-//       title: true,
-//       description: true,
-//       founder: true,
-//       durationInDays: true,
-//       applicationDeadline: true,
-//       _count: {
-//         select: {
-//           UserProgram: { where: { applied: { not: null } } },
-//         },
-//       },
-//     },
-//   })
-//   .then((res) => console.log(res));
-//
 async function apply(userId: number, programId: number) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   const program = await prisma.program.findUnique({ where: { id: programId } });

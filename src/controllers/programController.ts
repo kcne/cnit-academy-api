@@ -31,10 +31,14 @@ async function getAllPrograms(req: Request, res: Response) {
   return res.json(programs);
 }
 
-async function getProgramById(req: Request, res: Response) {
+async function getProgramById(req: AuthenticatedRequest, res: Response) {
+  if (!req.user) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  const userId = req.user.id;
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
 
-  const program = await customFindItem(id);
+  const program = await customFindItem(id, userId);
 
   res.json(program);
 }

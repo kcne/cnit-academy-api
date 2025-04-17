@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import {
   changeStatus,
-  customGetCourse,
+  customFindItem,
   repositoryService,
 } from "../services/courseService";
 import { z } from "zod";
@@ -35,7 +35,7 @@ async function getCourseById(req: AuthenticatedRequest, res: Response) {
   const userId = req.user.id;
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
 
-  const course = await customGetCourse(id, userId);
+  const course = await customFindItem(id, userId);
 
   res.json(renameFields(course));
 }

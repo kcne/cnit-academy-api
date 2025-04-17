@@ -405,9 +405,9 @@ Response 200 JSON:
       "description": "description",
       "founder": "founder",
       "durationInDays": 2,
-      "applied": 10,
-      "enrolled": 2,
-      "finished": 1,
+      "appliedCount": 10,
+      "enrolledCount": 2,
+      "finishedCount": 1,
       "coins": 50,
       "applicationDeadline": "2025-03-07T16:42:30.000Z",
       "CreatedAt": "2025-03-27T18:05:56.343Z"
@@ -434,9 +434,12 @@ Response 200 JSON:
   "description": "description",
   "founder": "founder",
   "durationInDays": 2,
-  "applied": 10,
-  "enrolled": 2,
-  "finished": 1,
+  "appliedCount": 10,
+  "enrolledCount": 2,
+  "finishedCount": 1,
+  "applied": false,
+  "enrolled": false,
+  "finished": false,
   "coins": 50,
   "applicationDeadline": "2025-03-07T16:42:30.000Z",
   "CreatedAt": "2025-03-27T18:05:56.343Z"
@@ -474,7 +477,7 @@ Response 201 JSON:
   "description": "description",
   "founder": "founder",
   "durationInDays": 2,
-  "applied": 0,
+  "appliedCount": 0,
   "coins": 50,
   "applicationDeadline": "2025-03-07T16:42:30.000Z",
   "CreatedAt": "2025-03-27T18:05:56.343Z"
@@ -516,7 +519,7 @@ Response 200 JSON:
   "description": "description",
   "founder": "founder",
   "durationInDays": 2,
-  "applied": 0,
+  "appliedCount": 0,
   "coins": 50,
   "applicationDeadline": "2025-03-07T16:42:30.000Z",
   "CreatedAt": "2025-03-27T18:05:56.343Z"
@@ -656,9 +659,13 @@ Response 200 JSON:
       "content": "We need to reboot the back-end VGA transmitter!",
       "videoUrl": "https://fragrant-saloon.name/",
       "courseId": 10,
-      "coins": 2234
+      "coins": 2234,
+      "started": true,
+      "finished": false
     }
   ],
+  "started": true,
+  "finished": false,
   "studentCount": 0
 }
 ```
@@ -850,6 +857,8 @@ Response 200 JSON:
   "content": "We need to reboot the back-end VGA transmitter!",
   "videoUrl": "https://fragrant-saloon.name/",
   "courseId": 10,
+  "started": true,
+  "finished": false,
   "coins": 2234
 }
 ```

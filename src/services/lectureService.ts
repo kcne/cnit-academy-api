@@ -16,6 +16,36 @@ const validateUpdateLecture = validateRequest(LectureSchema.partial());
 
 const repositoryService = new PrismaRepositoryService(prisma.lecture);
 
+async function customFindItem(id: number, userId: number) {
+  const lecture = await prisma.lecture.findUnique({
+    where: { id },
+    include: {
+      UserLecture: {
+        where: {
+          id,
+          userId,
+        },
+        select: {
+          finished: true,
+        },
+      },
+    },
+  });
+
+  if (!lecture) {
+    throw createHttpError(404, "Lecture not found");
+  }
+
+  const res = {
+    ...lecture,
+    started: Boolean(lecture.UserLecture.length),
+    finished: lecture.UserLecture[0]?.finished ?? false,
+    UserLecture: undefined,
+  };
+
+  return res;
+}
+
 async function changeStatus(
   userId: number,
   lectureId: number,
@@ -65,4 +95,5 @@ export {
   validateCreateLecture,
   validateUpdateLecture,
   changeStatus,
+  customFindItem,
 };
