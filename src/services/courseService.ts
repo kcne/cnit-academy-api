@@ -99,12 +99,12 @@ async function customFindItem(id: number, userId: number) {
       return {
         ...el,
         started: Boolean(el.UserLecture.length),
-        finished: el.UserLecture[0]?.finished ?? false,
+        finished: Boolean(el.UserLecture[0]?.finished),
         UserLecture: undefined,
       };
     }),
     started: Boolean(course.UserCourse.length),
-    finished: course.UserCourse[0]?.finished ?? false,
+    finished: Boolean(course.UserCourse[0]?.finished),
     UserCourse: undefined,
   };
 

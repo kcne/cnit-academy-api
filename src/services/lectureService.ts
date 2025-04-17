@@ -39,7 +39,7 @@ async function customFindItem(id: number, userId: number) {
   const res = {
     ...lecture,
     started: Boolean(lecture.UserLecture.length),
-    finished: lecture.UserLecture[0]?.finished ?? false,
+    finished: Boolean(lecture.UserLecture[0]?.finished),
     UserLecture: undefined,
   };
 

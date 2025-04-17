@@ -173,9 +173,9 @@ async function customFindItem(id: number, userId: number) {
     appliedCount: counts[0]?._count.applied || 0,
     enrolledCount: counts[0]?._count.enrolled || 0,
     finishedCount: counts[0]?._count.finished || 0,
-    applied: program.UserProgram[0]?.applied ?? false,
-    enrolled: program.UserProgram[0]?.enrolled ?? false,
-    finished: program.UserProgram[0]?.finished ?? false,
+    applied: Boolean(program.UserProgram[0]?.applied),
+    enrolled: Boolean(program.UserProgram[0]?.enrolled),
+    finished: Boolean(program.UserProgram[0]?.finished),
     UserProgram: undefined,
   };
 
