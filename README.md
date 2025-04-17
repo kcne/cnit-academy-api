@@ -10,36 +10,49 @@
     - [POST /api/auth/resend-email](#post-apiauthresend-email)
     - [POST /api/auth/login](#post-apiauthlogin)
     - [GET /api/auth/protected](#get-apiauthprotected)
+    - [GET /api/auth/admin](#get-apiauthadmin)
   - [Profiles (Users)](#profiles-users)
     - [GET /api/profile](#get-apiprofile)
     - [GET /api/profile/:id](#get-apiprofileid)
-    - [POST /api/profile/me](#post-apiprofileme)
     - [PATCH /api/profile/me](#patch-apiprofileme)
     - [DELETE /api/profile/me](#delete-apiprofileme)
+    - [PATCH /api/profile/admin/:id](#patch-apiprofileadminid)
+    - [DELETE /api/profile/admin/:id](#delete-apiprofileadminid)
   - [Programs](#programs)
     - [GET /api/program](#get-apiprogram)
     - [GET /api/program/:id](#get-apiprogramid)
-    - [POST /api/program](#post-apiprogram)
-    - [PATCH /api/program/:id](#patch-apiprogramid)
-    - [DELETE /api/program/:id](#delete-apiprogramid)
+    - [POST /api/program/admin](#post-apiprogramadmin)
+    - [PATCH /api/program/admin/:id](#patch-apiprogramadminid)
+    - [DELETE /api/program/admin/:id](#delete-apiprogramadminid)
     - [PUT /api/program/:id/apply](#put-apiprogramidapply)
-    - [PUT /api/program/:id/enroll](#put-apiprogramidenroll)
+    - [PUT /api/program/admin/:id/enroll](#put-apiprogramadminidenroll)
+    - [PUT /api/program/admin/:id/finish](#put-apiprogramadminidfinish)
   - [Courses](#courses)
     - [GET /api/course](#get-apicourse)
     - [GET /api/course/:id](#get-apicourseid)
-    - [POST /api/course](#post-apicourse)
-    - [PATCH /api/course/:id](#patch-apicourseid)
-    - [DELETE /api/course/:id](#delete-apicourseid)
+    - [POST /api/course/admin](#post-apicourseadmin)
+    - [PATCH /api/course/admin/:id](#patch-apicourseadminid)
+    - [PUT /api/course/:id/start](#put-apicourseidstart)
+    - [PUT /api/course/:id/finish](#put-apicourseidfinish)
+    - [DELETE /api/course/admin/:id](#delete-apicourseadminid)
+  - [Lectures](#lectures)
+    - [GET /api/lecture](#get-apilecture)
+    - [GET /api/lecture/:id](#get-apilectureid)
+    - [POST /api/lecture/admin](#post-apilectureadmin)
+    - [PATCH /api/lecture/admin/:id](#patch-apilectureadminid)
+    - [PUT /api/lecture/:id/start](#put-apilectureidstart)
+    - [PUT /api/lecture/:id/finish](#put-apilectureidfinish)
+    - [DELETE /api/lecture/admin/:id](#delete-apilectureadminid)
   - [Leaderboard](#leaderboard)
     - [GET /api/leaderboard](#get-apileaderboard)
     - [GET /api/leaderboard/weekly](#get-apileaderboardweekly)
   - [Blogs](#blogs)
     - [GET /api/blog](#get-apiblog)
     - [GET /api/blog/:id](#get-apiblogid)
-    - [POST /api/blog](#post-apiblog)
-    - [PUT /api/blog/:id/publish](#put-apiblogidpublish)
-    - [PATCH /api/blog/:id](#patch-apiblogid)
-    - [DELETE /api/blog/:id](#delete-apiblogid)
+    - [POST /api/blog/admin](#post-apiblogadmin)
+    - [PUT /api/blog/admin/:id/publish](#put-apiblogadminidpublish)
+    - [PATCH /api/blog/admin/:id](#patch-apiblogadminid)
+    - [DELETE /api/blog/admin/:id](#delete-apiblogadminid)
   - [Global](#global)
     - [paginationMeta](#paginationmeta)
     <!--toc:end-->
@@ -62,6 +75,7 @@ SEED=42    # setting this variable creates reproducible results
 USERS=15   # number of users to create
 COURSES=10 # number of courses to create
 PROGRAMS=5 # number of programs to create
+LECTURES=3 # number of lectures per course to create
 ```
 
 A popular email service for testing is [ethereal](ethereal.email),
@@ -171,6 +185,19 @@ Request headers:
 Response 401 -> Authorization header is missing or malformed \
 Response 403 -> Token is invalid or expired
 
+### GET /api/auth/admin
+
+Route to test admin authorization
+
+Request headers:
+
+| key           | example        | description                            |
+| ------------- | -------------- | -------------------------------------- |
+| Authorization | "Bearer TOKEN" | TOKEN is the string you get from login |
+
+Response 401 -> Authorization header is missing or malformed \
+Response 403 -> Token is invalid or expired or you do not have the admin role
+
 ## Profiles (Users)
 
 ### GET /api/profile
@@ -250,26 +277,6 @@ Response 200 JSON:
 
 Response 404 -> Profile with :id doesn't exist
 
-### POST /api/profile/me
-
-Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
-New profiles are created during registration,
-this route serves as a fallback if a user is created without a profile
-
-Request JSON:
-
-```json
-{
-  "skills": ["haskell"],
-  "education": [],
-  "experience": [],
-  "pfp": "/pfp/2.png"
-}
-```
-
-Response 201 JSON: same as above \
-Reponse 404 -> User does not exist (don't use this instead of [/api/auth/register](#post-apiauthregister))
-
 ### PATCH /api/profile/me
 
 Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
@@ -321,6 +328,57 @@ Deletes own profile
 Response 200 -> no response \
 Reponse 404 -> Profile does not exist
 
+### PATCH /api/profile/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
+Update profile (every field is optional) \
+Changing education/experience:
+
+- Including id modifies an existing object it if it's already in the database
+- Omitting id creates a new object
+- Omitting an object that is in the database deletes it
+- Not passing an argument at all (or undefined) doesn't change anything
+
+Request JSON:
+
+```jsonp
+{
+  "firstName": "jans",
+  "lastName": "doe",
+  "skills": ["none", "all", "great at table tennis"],
+  "pfp": "/pfp/aaa2023-12-15_01-23.png",
+  "education": [
+    {
+      "title": "school",
+      "description": "primary",
+      "organization": "the state",
+      "startPeriod": "2024-12-04T17:40:50+01:00",
+      "endPeriod": "2025-03-14T17:38:29+01:00"
+    },
+    {
+      "id": 2,
+      "title": "school",
+      "description": "secondary",
+      "organization": "private",
+      "startPeriod": "2024-12-04T17:40:50+01:00",
+      "endPeriod": "2025-03-14T17:38:29+01:00"
+    }
+  ],
+  "experience": []
+}
+```
+
+Response 200 JSON: same as above \
+Reponse 404 -> Profile does not exist
+
+### DELETE /api/profile/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
+Deletes profile
+
+Response 200 -> no response \
+Reponse 404 -> Profile does not exist
+
 ## Programs
 
 Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
@@ -347,7 +405,9 @@ Response 200 JSON:
       "description": "description",
       "founder": "founder",
       "durationInDays": 2,
-      "appliedCount": 0,
+      "applied": 10,
+      "enrolled": 2,
+      "finished": 1,
       "coins": 50,
       "applicationDeadline": "2025-03-07T16:42:30.000Z",
       "CreatedAt": "2025-03-27T18:05:56.343Z"
@@ -374,7 +434,9 @@ Response 200 JSON:
   "description": "description",
   "founder": "founder",
   "durationInDays": 2,
-  "appliedCount": 0,
+  "applied": 10,
+  "enrolled": 2,
+  "finished": 1,
   "coins": 50,
   "applicationDeadline": "2025-03-07T16:42:30.000Z",
   "CreatedAt": "2025-03-27T18:05:56.343Z"
@@ -383,7 +445,9 @@ Response 200 JSON:
 
 Request 404 -> Program not found
 
-### POST /api/program
+### POST /api/program/admin
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
 
 Create new program \
 The coins field defaults to 0
@@ -410,14 +474,16 @@ Response 201 JSON:
   "description": "description",
   "founder": "founder",
   "durationInDays": 2,
-  "appliedCount": 0,
+  "applied": 0,
   "coins": 50,
   "applicationDeadline": "2025-03-07T16:42:30.000Z",
   "CreatedAt": "2025-03-27T18:05:56.343Z"
 }
 ```
 
-### PATCH /api/program/:id
+### PATCH /api/program/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
 
 Update program \
 All of the fields are optional
@@ -450,7 +516,7 @@ Response 200 JSON:
   "description": "description",
   "founder": "founder",
   "durationInDays": 2,
-  "appliedCount": 0,
+  "applied": 0,
   "coins": 50,
   "applicationDeadline": "2025-03-07T16:42:30.000Z",
   "CreatedAt": "2025-03-27T18:05:56.343Z"
@@ -459,7 +525,9 @@ Response 200 JSON:
 
 Request 404 -> Program not found
 
-### DELETE /api/program/:id
+### DELETE /api/program/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
 
 Deletes a program
 
@@ -485,9 +553,11 @@ Request query params:
 Response 200 -> Applied to program \
 Request 404 -> Program not found
 
-### PUT /api/program/:id/enroll
+### PUT /api/program/admin/:id/enroll
 
-Enroll to a program
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
+
+Enroll given users into a program
 
 Request query params:
 
@@ -495,12 +565,20 @@ Request query params:
 | --- | ------- | ----------------------------------- |
 | id  | 2       | ID of the program, positive integer |
 
+Request JSON:
+
+```json
+[1, 3, 4, 17, 2, 5]
+```
+
 Response 200 -> Enrolled into program \
 Request 404 -> Program not found
 
-### PUT /api/program/:id/finish
+### PUT /api/program/admin/:id/finish
 
-Finish a program
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
+
+Finishes the program for all currently enrolled users
 
 Request query params:
 
@@ -587,7 +665,9 @@ Response 200 JSON:
 
 Request 404 -> Course not found
 
-### POST /api/course
+### POST /api/course/admin
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
 
 Create a new course \
 The coins field defaults to 0
@@ -629,7 +709,9 @@ Response 201 JSON:
 
 Request 404 -> Course not found
 
-### PATCH /api/course/:id
+### PATCH /api/course/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
 
 Update a course \
 All of the fields are optional
@@ -677,6 +759,19 @@ Response 200 JSON:
 
 Request 404 -> Course not found
 
+### PUT /api/course/:id/start
+
+Start a course
+
+Request query params:
+
+| key | example | description                        |
+| --- | ------- | ---------------------------------- |
+| id  | 2       | ID of the course, positive integer |
+
+Response 200 -> Started the course \
+Request 404 -> Course not found
+
 ### PUT /api/course/:id/finish
 
 Finish a course
@@ -690,7 +785,9 @@ Request query params:
 Response 200 -> Finished the course \
 Request 404 -> Course not found
 
-### DELETE /api/course/:id
+### DELETE /api/course/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
 
 Delete a course
 
@@ -759,7 +856,9 @@ Response 200 JSON:
 
 Request 404 -> Lecture not found
 
-### POST /api/lecture
+### POST /api/lecture/admin
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
 
 Create a new lecture \
 The coins field defaults to 0 \
@@ -792,7 +891,9 @@ Response 201 JSON:
 
 Request 404 -> Lecture not found
 
-### PATCH /api/lecture/:id
+### PATCH /api/lecture/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
 
 Update a lecture \
 All of the fields are optional
@@ -830,6 +931,19 @@ Response 200 JSON:
 
 Request 404 -> Lecture not found
 
+### PUT /api/lecture/:id/start
+
+Start a lecture
+
+Request query params:
+
+| key | example | description                         |
+| --- | ------- | ----------------------------------- |
+| id  | 2       | ID of the lecture, positive integer |
+
+Response 200 -> Started the lecture \
+Request 404 -> Lecture not found
+
 ### PUT /api/lecture/:id/finish
 
 Finish a lecture
@@ -843,7 +957,9 @@ Request query params:
 Response 200 -> Finished the lecture \
 Request 404 -> Lecture not found
 
-### DELETE /api/lecture/:id
+### DELETE /api/lecture/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
 
 Delete a lecture
 
@@ -974,7 +1090,9 @@ Response 200 JSON:
 
 Request 404 -> Blog not found
 
-### POST /api/blog
+### POST /api/blog/admin
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
 
 Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
 Create a new blog
@@ -1008,7 +1126,9 @@ Response 201 JSON:
 
 Request 404 -> Blog not found
 
-### PUT /api/blog/:id/publish
+### PUT /api/blog/admin/:id/publish
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
 
 Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
 Publish a blog
@@ -1022,7 +1142,9 @@ Request query params:
 Response 200 -> Blog published successfully
 Request 404 -> Blog not found
 
-### PATCH /api/blog/:id
+### PATCH /api/blog/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
 
 Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
 Update a blog \
@@ -1063,7 +1185,9 @@ Response 200 JSON:
 
 Request 404 -> Blog not found
 
-### DELETE /api/blog/:id
+### DELETE /api/blog/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
 
 Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
 Delete a blog

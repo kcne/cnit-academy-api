@@ -18,14 +18,25 @@ const router = Router();
 
 router.get("/", asyncHandler(getBlogs));
 router.get("/:id", asyncHandler(getBlog));
-router.post("/", authMiddleware, validateCreateBlog, asyncHandler(createBlog));
+
+// admin routes
+router.post(
+  "/admin",
+  authMiddleware("Admin"),
+  validateCreateBlog,
+  asyncHandler(createBlog),
+);
 router.patch(
-  "/:id",
-  authMiddleware,
+  "/admin/:id",
+  authMiddleware("Admin"),
   validateUpdateBlog,
   asyncHandler(updateBlog),
 );
-router.put("/:id/publish", authMiddleware, asyncHandler(togglePublishBlog));
-router.delete("/:id", authMiddleware, asyncHandler(deleteBlog));
+router.put(
+  "/admin/:id/publish",
+  authMiddleware("Admin"),
+  asyncHandler(togglePublishBlog),
+);
+router.delete("/admin/:id", authMiddleware("Admin"), asyncHandler(deleteBlog));
 
 export default router;

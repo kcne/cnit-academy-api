@@ -14,16 +14,41 @@ import {
   validateUpdateProgram,
 } from "../services/programService";
 import asyncHandler from "../middlewares/asyncHandler";
+import authMiddleware from "../middlewares/authMiddleware";
 
 const router = Router();
 
 router.get("/", asyncHandler(getAllPrograms));
 router.get("/:id", asyncHandler(getProgramById));
-router.post("/", validateCreateProgram, asyncHandler(createProgram));
-router.patch("/:id", validateUpdateProgram, asyncHandler(updateProgram));
 router.put("/:id/apply", asyncHandler(applyToProgram));
-router.put("/:id/enroll", asyncHandler(enrollToProgram));
-router.put("/:id/finish", asyncHandler(finishProgram));
-router.delete("/:id", asyncHandler(deleteProgram));
+
+// admin routes
+router.post(
+  "/admin",
+  authMiddleware("Admin"),
+  validateCreateProgram,
+  asyncHandler(createProgram),
+);
+router.patch(
+  "/admin/:id",
+  authMiddleware("Admin"),
+  validateUpdateProgram,
+  asyncHandler(updateProgram),
+);
+router.put(
+  "/admin/:id/enroll",
+  authMiddleware("Admin"),
+  asyncHandler(enrollToProgram),
+);
+router.put(
+  "/admin/:id/finish",
+  authMiddleware("Admin"),
+  asyncHandler(finishProgram),
+);
+router.delete(
+  "/admin/:id",
+  authMiddleware("Admin"),
+  asyncHandler(deleteProgram),
+);
 
 export default router;
