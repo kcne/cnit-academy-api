@@ -5,6 +5,7 @@ import {
   finishCourse,
   getAllCourses,
   getCourseById,
+  getMyCourses,
   startCourse,
   updateCourseById,
 } from "../controllers/courseController";
@@ -18,6 +19,7 @@ import authMiddleware from "../middlewares/authMiddleware";
 const router = Router();
 
 router.get("/", asyncHandler(getAllCourses));
+router.get("/my", asyncHandler(getMyCourses));
 router.get("/:id", asyncHandler(getCourseById));
 router.put("/:id/start", asyncHandler(startCourse));
 router.put("/:id/finish", asyncHandler(finishCourse));

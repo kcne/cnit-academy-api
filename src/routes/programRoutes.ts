@@ -8,6 +8,7 @@ import {
   applyToProgram,
   enrollToProgram,
   finishProgram,
+  getMyPrograms,
 } from "../controllers/programController";
 import {
   validateCreateProgram,
@@ -19,6 +20,7 @@ import authMiddleware from "../middlewares/authMiddleware";
 const router = Router();
 
 router.get("/", asyncHandler(getAllPrograms));
+router.get("/my", asyncHandler(getMyPrograms));
 router.get("/:id", asyncHandler(getProgramById));
 router.put("/:id/apply", asyncHandler(applyToProgram));
 

@@ -6,6 +6,7 @@ import {
   repositoryService,
   customGetAll,
   customFindItem,
+  findMyPrograms,
 } from "../services/programService";
 import { z } from "zod";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
@@ -29,6 +30,17 @@ async function getAllPrograms(req: Request, res: Response) {
   });
 
   return res.json(programs);
+}
+
+async function getMyPrograms(req: AuthenticatedRequest, res: Response) {
+  if (!req.user) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  const userId = req.user.id;
+
+  const courses = await findMyPrograms(userId);
+
+  return res.json(courses.map((old: any) => renameFields(old)));
 }
 
 async function getProgramById(req: AuthenticatedRequest, res: Response) {
@@ -120,4 +132,5 @@ export {
   applyToProgram,
   enrollToProgram,
   finishProgram,
+  getMyPrograms,
 };

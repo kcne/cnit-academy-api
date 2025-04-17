@@ -3,11 +3,7 @@ import prisma from "../prisma";
 import { PrismaRepositoryService } from "./prismaRepositoryService";
 import { validateRequest } from "../middlewares/validate";
 import createHttpError from "http-errors";
-import {
-  createPaginatedResponse,
-  PaginationOptions,
-  QueryOptions,
-} from "../utils/queryBuilder";
+import { createPaginatedResponse, QueryOptions } from "../utils/queryBuilder";
 
 const programSchema = z.object({
   title: z.string(),
@@ -99,6 +95,36 @@ async function customGetAll(opts: QueryOptions<string>) {
 
   return createPaginatedResponse(res, total, opts.pagination);
 }
+
+async function findMyPrograms(userId: number) {
+  const courses = await prisma.program.findMany({
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      founder: true,
+      durationInDays: true,
+      applicationDeadline: true,
+      createdAt: true,
+      coins: true,
+      _count: {
+        select: {
+          UserProgram: { where: { applied: { not: null } } },
+        },
+      },
+    },
+    where: {
+      UserProgram: {
+        some: {
+          userId,
+        },
+      },
+    },
+  });
+
+  return courses;
+}
+
 async function customFindItem(id: number, userId: number) {
   const program = await prisma.program.findUnique({
     select: {
@@ -246,4 +272,5 @@ export {
   finish,
   customGetAll,
   customFindItem,
+  findMyPrograms,
 };

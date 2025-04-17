@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   changeStatus,
   customFindItem,
+  findMyCourses,
   repositoryService,
 } from "../services/courseService";
 import { z } from "zod";
@@ -26,6 +27,17 @@ async function getAllCourses(req: Request, res: Response) {
     data: data.map((old: any) => renameFields(old)),
     meta,
   });
+}
+
+async function getMyCourses(req: AuthenticatedRequest, res: Response) {
+  if (!req.user) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  const userId = req.user.id;
+
+  const courses = await findMyCourses(userId);
+
+  return res.json(courses.map((old: any) => renameFields(old)));
 }
 
 async function getCourseById(req: AuthenticatedRequest, res: Response) {
@@ -100,4 +112,5 @@ export {
   createCourse,
   startCourse,
   finishCourse,
+  getMyCourses,
 };

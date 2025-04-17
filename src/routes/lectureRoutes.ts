@@ -5,6 +5,7 @@ import {
   finishLecture,
   getAllLectures,
   getLectureById,
+  getMyLectures,
   startLecture,
   updateLectureById,
 } from "../controllers/lectureController";
@@ -18,6 +19,7 @@ import authMiddleware from "../middlewares/authMiddleware";
 const router = Router();
 
 router.get("/", asyncHandler(getAllLectures));
+router.get("/my", asyncHandler(getMyLectures));
 router.get("/:id", asyncHandler(getLectureById));
 router.put("/:id/start", asyncHandler(startLecture));
 router.put("/:id/finish", asyncHandler(finishLecture));
