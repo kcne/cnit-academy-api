@@ -53,9 +53,10 @@
     - [PUT /api/blog/admin/:id/publish](#put-apiblogadminidpublish)
     - [PATCH /api/blog/admin/:id](#patch-apiblogadminid)
     - [DELETE /api/blog/admin/:id](#delete-apiblogadminid)
-  - [Global](#global)
-    - [paginationMeta](#paginationmeta)
-    <!--toc:end-->
+    - [GET /api/blog/user/:userId](#get-apibloguseruserid)
+    - [GET /api/blog/slug/:slug](#get-apiblogslugslug)
+  - [Global](#global) - [paginationMeta](#paginationmeta)
+  <!--toc:end-->
 
 ## Usage
 
@@ -1199,6 +1200,66 @@ Request query params:
 | id  | 2       | ID of the blog, positive integer |
 
 Response 200 -> Blog deleted successfully
+Request 404 -> Blog not found
+
+### GET /api/blog/user/:userId
+
+Get all blogs belonging to a specific user
+
+Request query params:
+
+| key    | example | description                      |
+| ------ | ------- | -------------------------------- |
+| userId | 2       | ID of the user, positive integer |
+
+Response 200 JSON:
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "title",
+      "published": true,
+      "content": "# Markdown",
+      "blogDescription": null,
+      "userId": 5,
+      "createdAt": "2025-04-05T18:34:35.612Z",
+      "updatedAt": "2025-04-05T18:34:35.612Z"
+    }
+  ],
+  "meta": "paginationMeta"
+}
+```
+
+Request 404 -> User not found
+
+### GET /api/blog/slug/:slug
+
+Get a blog by its URL-friendly slug
+
+Request query params:
+
+| key  | example       | description                   |
+| ---- | ------------- | ----------------------------- |
+| slug | my-blog-title | URL-friendly slug of the blog |
+
+Response 200 JSON:
+
+```json
+{
+  "id": 1,
+  "title": "title",
+  "published": true,
+  "content": "# Markdown",
+  "blogDescription": null,
+  "slug": "my-blog-title",
+  "userId": 5,
+  "createdAt": "2025-04-05T18:34:35.612Z",
+  "updatedAt": "2025-04-05T18:34:35.612Z"
+}
+```
+
 Request 404 -> Blog not found
 
 ## Global
