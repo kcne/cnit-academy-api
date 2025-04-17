@@ -10,6 +10,7 @@ const BlogSchema = z.object({
   blogDescription: z.string().max(1024).optional(),
   content: z.string().max(65535),
   published: z.coerce.boolean().optional(),
+  slug: z.string().min(1).max(256).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be URL-friendly (lowercase letters, numbers, and hyphens)"),
 });
 
 const validateCreateBlog = validateRequest(BlogSchema);
@@ -27,9 +28,38 @@ async function publishBlog(id: number) {
   }
 }
 
+async function getBlogsByUserId(userId: number) {
+  const blogs = await repositoryService.getAll({
+    pagination: {
+      page: 1,
+      limit: Number.MAX_SAFE_INTEGER,
+    },
+    filters: [
+      {
+        field: "userId",
+        value: userId,
+        operator: "equals",
+      },
+    ],
+  });
+  return blogs;
+}
+
+async function getBlogBySlug(slug: string) {
+  const blog = await prisma.blog.findUnique({
+    where: { slug },
+  });
+  if (!blog) {
+    throw createHttpError(404, "Blog not found");
+  }
+  return blog;
+}
+
 export {
   repositoryService,
   validateCreateBlog,
   validateUpdateBlog,
   publishBlog,
+  getBlogsByUserId,
+  getBlogBySlug,
 };

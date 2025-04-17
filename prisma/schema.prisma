@@ -82,6 +82,7 @@ model Blog {
   published       Boolean  @default(false)
   content         String
   blogDescription String?
+  slug            String   @unique
   createdBy       User     @relation(fields: [userId], references: [id])
   userId          Int
   createdAt       DateTime @default(now())
