@@ -108,7 +108,6 @@ async function customFindItem(id: number, userId: number) {
     UserCourse: undefined,
   };
 
-  console.log(res);
   return res;
 }
 
@@ -155,31 +154,6 @@ async function changeStatus(
     });
   }
 }
-
-// prisma.course
-//   .findMany({
-//     select: {
-//       id: true,
-//       title: true,
-//       description: true,
-//       durationInHours: true,
-//       lectures: {
-//         select: {
-//           id: true,
-//           title: true,
-//           content: true,
-//           videoUrl: true,
-//           courseId: true,
-//         },
-//       },
-//       _count: {
-//         select: {
-//           UserCourse: { where: { finished: { not: null } } },
-//         },
-//       },
-//     },
-//   })
-//   .then((res) => console.log(res));
 
 export {
   repositoryService,

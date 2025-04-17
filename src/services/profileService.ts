@@ -241,7 +241,6 @@ async function changeProfile(id: number, profile: Profile) {
 
   const transactions = [];
 
-  console.log(profile);
   if (profile.education) {
     transactions.push(
       prisma.education.deleteMany({
