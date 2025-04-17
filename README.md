@@ -20,6 +20,7 @@
     - [DELETE /api/profile/admin/:id](#delete-apiprofileadminid)
   - [Programs](#programs)
     - [GET /api/program](#get-apiprogram)
+    - [GET /api/program/my](#get-apiprogrammy)
     - [GET /api/program/:id](#get-apiprogramid)
     - [POST /api/program/admin](#post-apiprogramadmin)
     - [PATCH /api/program/admin/:id](#patch-apiprogramadminid)
@@ -29,6 +30,7 @@
     - [PUT /api/program/admin/:id/finish](#put-apiprogramadminidfinish)
   - [Courses](#courses)
     - [GET /api/course](#get-apicourse)
+    - [GET /api/course/my](#get-apicoursemy)
     - [GET /api/course/:id](#get-apicourseid)
     - [POST /api/course/admin](#post-apicourseadmin)
     - [PATCH /api/course/admin/:id](#patch-apicourseadminid)
@@ -37,6 +39,7 @@
     - [DELETE /api/course/admin/:id](#delete-apicourseadminid)
   - [Lectures](#lectures)
     - [GET /api/lecture](#get-apilecture)
+    - [GET /api/lecture/my](#get-apilecturemy)
     - [GET /api/lecture/:id](#get-apilectureid)
     - [POST /api/lecture/admin](#post-apilectureadmin)
     - [PATCH /api/lecture/admin/:id](#patch-apilectureadminid)
@@ -437,11 +440,38 @@ Response 200 JSON:
       "finishedCount": 1,
       "coins": 50,
       "applicationDeadline": "2025-03-07T16:42:30.000Z",
-      "CreatedAt": "2025-03-27T18:05:56.343Z"
+      "createdAt": "2025-03-27T18:05:56.343Z"
     }
   ],
   "meta": "(paginationMeta)"
 }
+```
+
+### GET /api/program/my
+
+Return applied to programs
+
+Response 200 JSON:
+
+```json
+[
+  {
+    "id": 1,
+    "title": "title",
+    "description": "description",
+    "founder": "founder",
+    "durationInDays": 2,
+    "appliedCount": 10,
+    "enrolledCount": 2,
+    "finishedCount": 1,
+    "applied": false,
+    "enrolled": false,
+    "finished": false,
+    "coins": 50,
+    "applicationDeadline": "2025-03-07T16:42:30.000Z",
+    "createdAt": "2025-03-27T18:05:56.343Z"
+  }
+]
 ```
 
 ### GET /api/program/:id
@@ -469,7 +499,7 @@ Response 200 JSON:
   "finished": false,
   "coins": 50,
   "applicationDeadline": "2025-03-07T16:42:30.000Z",
-  "CreatedAt": "2025-03-27T18:05:56.343Z"
+  "createdAt": "2025-03-27T18:05:56.343Z"
 }
 ```
 
@@ -507,7 +537,7 @@ Response 201 JSON:
   "appliedCount": 0,
   "coins": 50,
   "applicationDeadline": "2025-03-07T16:42:30.000Z",
-  "CreatedAt": "2025-03-27T18:05:56.343Z"
+  "createdAt": "2025-03-27T18:05:56.343Z"
 }
 ```
 
@@ -549,7 +579,7 @@ Response 200 JSON:
   "appliedCount": 0,
   "coins": 50,
   "applicationDeadline": "2025-03-07T16:42:30.000Z",
-  "CreatedAt": "2025-03-27T18:05:56.343Z"
+  "createdAt": "2025-03-27T18:05:56.343Z"
 }
 ```
 
@@ -660,6 +690,25 @@ Response 200 JSON:
   ],
   "meta": "paginationMeta"
 }
+```
+
+### GET /api/course/my
+
+Return applied to courses
+
+Response 200 JSON:
+
+```json
+[
+  {
+    "id": 1,
+    "title": "title",
+    "description": "description",
+    "durationInHours": 2,
+    "studentCount": 0,
+    "coins": 10
+  }
+]
 ```
 
 ### GET /api/course/:id
@@ -865,6 +914,25 @@ Response 200 JSON:
   ],
   "meta": "paginationMeta"
 }
+```
+
+### GET /api/lecture/my
+
+Return applied to lectures
+
+Response 200 JSON:
+
+```json
+[
+  {
+    "id": 28,
+    "title": "The Woman in White",
+    "content": "We need to reboot the back-end VGA transmitter!",
+    "videoUrl": "https://fragrant-saloon.name/",
+    "courseId": 10,
+    "coins": 2234
+  }
+]
 ```
 
 ### GET /api/lecture/:id
