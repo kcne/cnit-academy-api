@@ -29,20 +29,16 @@ router.delete("/me", authMiddleware(), asyncHandler(deleteProfile));
 // createProfile probably has no practical use
 router.post(
   "/admin/:id",
-  authMiddleware(["INSTRUCTOR"]),
+  authMiddleware([]), // empty brackets mean "ADMIN"
   validateCreateProfile,
   asyncHandler(createProfile),
 );
 router.patch(
   "/admin/:id",
-  authMiddleware(["INSTRUCTOR"]),
+  authMiddleware([]),
   validateUpdateProfile,
   asyncHandler(updateProfile),
 );
-router.delete(
-  "/admin/:id",
-  authMiddleware(["INSTRUCTOR"]),
-  asyncHandler(deleteProfile),
-);
+router.delete("/admin/:id", authMiddleware([]), asyncHandler(deleteProfile));
 
 export default router;
