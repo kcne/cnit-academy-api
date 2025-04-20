@@ -29,19 +29,19 @@ router.delete("/me", authMiddleware(), asyncHandler(deleteProfile));
 // createProfile probably has no practical use
 router.post(
   "/admin/:id",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   validateCreateProfile,
   asyncHandler(createProfile),
 );
 router.patch(
   "/admin/:id",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   validateUpdateProfile,
   asyncHandler(updateProfile),
 );
 router.delete(
   "/admin/:id",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   asyncHandler(deleteProfile),
 );
 

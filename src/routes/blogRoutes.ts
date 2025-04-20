@@ -24,22 +24,26 @@ router.get("/:id", asyncHandler(getBlog));
 // admin routes
 router.post(
   "/admin",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   validateCreateBlog,
   asyncHandler(createBlog),
 );
 router.patch(
   "/admin/:id",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   validateUpdateBlog,
   asyncHandler(updateBlog),
 );
 router.put(
   "/admin/:id/publish",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   asyncHandler(togglePublishBlog),
 );
-router.delete("/admin/:id", authMiddleware("Admin"), asyncHandler(deleteBlog));
+router.delete(
+  "/admin/:id",
+  authMiddleware(["INSTRUCTOR"]),
+  asyncHandler(deleteBlog),
+);
 router.get("/user/:userId", asyncHandler(handleGetBlogsByUserId));
 router.get("/slug/:slug", asyncHandler(handleGetBlogBySlug));
 

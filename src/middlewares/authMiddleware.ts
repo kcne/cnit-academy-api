@@ -9,11 +9,12 @@ export interface AuthenticatedRequest extends Request {
 interface User {
   id: number;
   email: string;
-  roles: string[];
+  role: string;
 }
 
-function authMiddleware(requiredRole?: string) {
-  const role = requiredRole ?? "User";
+function authMiddleware(requiredRole?: string[]) {
+  const roles = requiredRole ?? ["USER", "INSTRUCTOR"];
+  roles.push("ADMIN");
 
   return async function (
     req: AuthenticatedRequest,
@@ -41,20 +42,19 @@ function authMiddleware(requiredRole?: string) {
       return;
     }
 
-    const rawUser = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id: decoded.id, email: decoded.email, isEmailVerified: true },
-      select: { id: true, email: true, roles: { select: { name: true } } },
+      select: { id: true, email: true, role: true },
     });
-    if (!rawUser) {
+    if (!user) {
       res.status(403).json({ error: "Invalid or expired token" });
       return;
     }
 
-    const user = { ...rawUser, roles: rawUser.roles.map((obj) => obj.name) };
-    if (!user.roles.includes(role)) {
+    if (!roles.includes(user.role)) {
       res
         .status(403)
-        .json({ error: "This route requires the " + role + " role" });
+        .json({ error: "This route requires the " + roles + " role" });
       return;
     }
 

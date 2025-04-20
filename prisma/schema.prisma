@@ -14,7 +14,7 @@ model User {
   lastName         String
   email            String        @unique
   password         String
-  roles            Role[]        @relation("UserRoles")
+  role             Role
   isEmailVerified  Boolean       @default(false)
   verificationCode String?
   expiresAt        DateTime?
@@ -25,6 +25,12 @@ model User {
   UserLecture      UserLecture[]
   UserCourse       UserCourse[]
   UserProgram      UserProgram[]
+}
+
+enum Role {
+  USER
+  INSTRUCTOR
+  ADMIN
 }
 
 model Profile {
@@ -66,12 +72,6 @@ model Course {
   coins           Int          @default(0)
   lectures        Lecture[]
   UserCourse      UserCourse[]
-}
-
-model Role {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  users User[] @relation("UserRoles")
 }
 
 model Blog {

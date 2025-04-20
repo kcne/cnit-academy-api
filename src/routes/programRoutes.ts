@@ -25,29 +25,29 @@ router.put("/:id/apply", asyncHandler(applyToProgram));
 // admin routes
 router.post(
   "/admin",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   validateCreateProgram,
   asyncHandler(createProgram),
 );
 router.patch(
   "/admin/:id",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   validateUpdateProgram,
   asyncHandler(updateProgram),
 );
 router.put(
   "/admin/:id/enroll",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   asyncHandler(enrollToProgram),
 );
 router.put(
   "/admin/:id/finish",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   asyncHandler(finishProgram),
 );
 router.delete(
   "/admin/:id",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   asyncHandler(deleteProgram),
 );
 

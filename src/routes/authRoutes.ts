@@ -19,7 +19,7 @@ router.post("/protected", authMiddleware(), (_req: Request, res: Response) => {
 });
 router.post(
   "/admin",
-  authMiddleware("Admin"),
+  authMiddleware(["ADMIN"]),
   (_req: Request, res: Response) => {
     res.json("great");
   },

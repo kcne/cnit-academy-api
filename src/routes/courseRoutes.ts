@@ -25,19 +25,19 @@ router.put("/:id/finish", asyncHandler(finishCourse));
 // admin routes
 router.post(
   "/admin",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   validateCreateCourse,
   asyncHandler(createCourse),
 );
 router.patch(
   "/admin/:id",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   validateUpdateCourse,
   asyncHandler(updateCourseById),
 );
 router.delete(
   "/admin/:id",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   asyncHandler(deleteCourseById),
 );
 

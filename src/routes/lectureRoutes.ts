@@ -25,19 +25,19 @@ router.put("/:id/finish", asyncHandler(finishLecture));
 // admin routes
 router.post(
   "/admin",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   validateCreateLecture,
   asyncHandler(createLecture),
 );
 router.patch(
   "/admin/:id",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   validateUpdateLecture,
   asyncHandler(updateLectureById),
 );
 router.delete(
   "/admin/:id",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   asyncHandler(deleteLectureById),
 );
 
