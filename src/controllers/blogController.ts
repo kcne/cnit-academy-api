@@ -1,6 +1,12 @@
 import { Request, Response } from "express";
-import { repositoryService, publishBlog, getBlogsByUserId, getBlogBySlug } from "../services/blogService";
+import {
+  repositoryService,
+  publishBlog,
+  getBlogsByUserId,
+  getBlogBySlug,
+} from "../services/blogService";
 import { z } from "zod";
+import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 
 async function getBlogs(req: Request, res: Response) {
   const { page, limit } = req.query;
@@ -32,26 +38,40 @@ async function createBlog(req: Request, res: Response) {
   res.status(201).json(blog);
 }
 
-async function updateBlog(req: Request, res: Response) {
+async function updateBlog(req: AuthenticatedRequest, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  const blog = await repositoryService.updateItem(id, req.body);
+  const blog = await repositoryService.updateItem(
+    id,
+    req.body,
+    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+  );
   res.json(blog);
 }
 
-async function deleteBlog(req: Request, res: Response) {
+async function deleteBlog(req: AuthenticatedRequest, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  await repositoryService.deleteItem(id);
+  await repositoryService.deleteItem(
+    id,
+    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+  );
   res.send();
 }
 
-async function togglePublishBlog(req: Request, res: Response) {
+async function togglePublishBlog(req: AuthenticatedRequest, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  await publishBlog(id);
+  await publishBlog(
+    id,
+    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+  );
   res.send();
 }
 
 async function handleGetBlogsByUserId(req: Request, res: Response) {
-  const userId = await z.coerce.number().positive().int().parseAsync(req.params.userId);
+  const userId = await z.coerce
+    .number()
+    .positive()
+    .int()
+    .parseAsync(req.params.userId);
   const blogs = await getBlogsByUserId(userId);
   res.json(blogs);
 }

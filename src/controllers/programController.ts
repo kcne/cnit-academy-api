@@ -45,18 +45,25 @@ async function createProgram(req: Request, res: Response) {
   res.status(201).json(renameFields(program));
 }
 
-async function updateProgram(req: Request, res: Response) {
+async function updateProgram(req: AuthenticatedRequest, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
 
-  const program = await repositoryService.updateItem(id, req.body);
+  const program = await repositoryService.updateItem(
+    id,
+    req.body,
+    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+  );
 
   res.json(renameFields(program));
 }
 
-async function deleteProgram(req: Request, res: Response) {
+async function deleteProgram(req: AuthenticatedRequest, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
 
-  const program = await repositoryService.deleteItem(id);
+  const program = await repositoryService.deleteItem(
+    id,
+    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+  );
 
   res.json(renameFields(program));
 }

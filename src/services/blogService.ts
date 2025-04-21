@@ -10,7 +10,14 @@ const BlogSchema = z.object({
   blogDescription: z.string().max(1024).optional(),
   content: z.string().max(65535),
   published: z.coerce.boolean().optional(),
-  slug: z.string().min(1).max(256).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be URL-friendly (lowercase letters, numbers, and hyphens)"),
+  slug: z
+    .string()
+    .min(1)
+    .max(256)
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "Slug must be URL-friendly (lowercase letters, numbers, and hyphens)",
+    ),
 });
 
 const validateCreateBlog = validateRequest(BlogSchema);
@@ -18,13 +25,16 @@ const validateUpdateBlog = validateRequest(BlogSchema.partial());
 
 const repositoryService = new PrismaRepositoryService(prisma.blog);
 
-async function publishBlog(id: number) {
+async function publishBlog(id: number, userId?: number) {
   const blog = await prisma.blog.update({
     where: { id },
     data: { published: true },
   });
   if (!blog) {
     throw createHttpError(404, "Blog not found");
+  }
+  if (userId ? userId !== blog.userId : false) {
+    throw createHttpError(403, "Only admins can edit foreign blogs");
   }
 }
 

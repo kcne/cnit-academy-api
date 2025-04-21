@@ -28,9 +28,13 @@ async function createLecture(req: Request, res: Response) {
   res.status(201).json(lecture);
 }
 
-async function updateLectureById(req: Request, res: Response) {
+async function updateLectureById(req: AuthenticatedRequest, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  const lecture = await repositoryService.updateItem(id, req.body);
+  const lecture = await repositoryService.updateItem(
+    id,
+    req.body,
+    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+  );
 
   res.json(lecture);
 }
@@ -67,9 +71,12 @@ async function finishLecture(req: AuthenticatedRequest, res: Response) {
   res.send();
 }
 
-async function deleteLectureById(req: Request, res: Response) {
+async function deleteLectureById(req: AuthenticatedRequest, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  await repositoryService.deleteItem(id);
+  await repositoryService.deleteItem(
+    id,
+    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+  );
 
   res.send();
 }
