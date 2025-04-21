@@ -115,6 +115,11 @@ async function finish(userId: number, lectureId: number) {
         id: "asc", // count only the first attempt
       },
     });
+    if (!userQuizAttempt) {
+      if (await prisma.quiz.findUnique({ where: { id: lectureId } })) {
+        throw createHttpError(400, "This lecture has an unfinished quiz");
+      }
+    }
     await prisma.user.update({
       data: {
         totalCoins: {
