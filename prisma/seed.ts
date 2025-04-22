@@ -101,11 +101,13 @@ async function main() {
 
   const transactions: any[] = [];
 
+  transactions.push(prisma.role.create({ data: { name: "User" } }));
+
   for (let i = 0; i < users; i++) {
     const user = await createNewUser();
     transactions.push(
       prisma.user.create({
-        data: user,
+        data: { ...user, roles: { connect: { name: "User" } } },
       }),
     );
   }
@@ -139,7 +141,7 @@ async function main() {
   console.log("Seeding completed with " + users + " users!");
   console.log("Seeding completed with " + courses + " courses!");
   console.log("Seeding completed with " + programs + " programs!");
-  console.log("Seeding completed with " + lectures + " lectures!");
+  console.log("Seeding completed with " + lectures * courses + " lectures!");
 }
 
 main()

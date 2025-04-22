@@ -35,10 +35,7 @@ async function getProfileById(req: AuthenticatedRequest, res: Response) {
 }
 
 async function createProfile(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
-  const id = req.user.id;
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
 
   const profile = await addProfile(id, req.body);
 
@@ -49,7 +46,13 @@ async function updateProfile(req: AuthenticatedRequest, res: Response) {
   if (!req.user) {
     throw new Error("AuthenticatedRequest.user is undefined");
   }
-  const id = req.user.id;
+  const id =
+    (await z.coerce
+      .number()
+      .positive()
+      .int()
+      .optional()
+      .parseAsync(req.params.id)) ?? req.user.id;
 
   const profile = await changeProfile(id, req.body);
 
@@ -60,9 +63,16 @@ async function deleteProfile(req: AuthenticatedRequest, res: Response) {
   if (!req.user) {
     throw new Error("AuthenticatedRequest.user is undefined");
   }
-  const id = req.user.id;
+  const id =
+    (await z.coerce
+      .number()
+      .positive()
+      .int()
+      .optional()
+      .parseAsync(req.params.id)) ?? req.user.id;
 
   await removeProfile(id);
+
   res.send();
 }
 

@@ -5,6 +5,7 @@ import {
   finishCourse,
   getAllCourses,
   getCourseById,
+  getMyCourses,
   startCourse,
   updateCourseById,
 } from "../controllers/courseController";
@@ -13,15 +14,33 @@ import {
   validateCreateCourse,
   validateUpdateCourse,
 } from "../services/courseService";
+import authMiddleware from "../middlewares/authMiddleware";
 
 const router = Router();
 
 router.get("/", asyncHandler(getAllCourses));
+router.get("/my", asyncHandler(getMyCourses));
 router.get("/:id", asyncHandler(getCourseById));
-router.post("/", validateCreateCourse, asyncHandler(createCourse));
-router.patch("/:id", validateUpdateCourse, asyncHandler(updateCourseById));
 router.put("/:id/start", asyncHandler(startCourse));
 router.put("/:id/finish", asyncHandler(finishCourse));
-router.delete("/:id", asyncHandler(deleteCourseById));
+
+// admin routes
+router.post(
+  "/admin",
+  authMiddleware("Admin"),
+  validateCreateCourse,
+  asyncHandler(createCourse),
+);
+router.patch(
+  "/admin/:id",
+  authMiddleware("Admin"),
+  validateUpdateCourse,
+  asyncHandler(updateCourseById),
+);
+router.delete(
+  "/admin/:id",
+  authMiddleware("Admin"),
+  asyncHandler(deleteCourseById),
+);
 
 export default router;
