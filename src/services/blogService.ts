@@ -78,13 +78,15 @@ async function getAllComments(blogId: number) {
   return comments.map((el) => el.comment);
 }
 
-async function createComment(commentData: any, blogId: number) {
+async function createComment(commentData: any, blogId: number, userId: number) {
   const blog = prisma.blog.findUnique({ where: { id: blogId } });
   if (!blog) {
     throw createHttpError(404, "Blog not found");
   }
 
-  const comment = await prisma.comment.create({ data: commentData });
+  const comment = await prisma.comment.create({
+    data: { ...commentData, userId },
+  });
   await prisma.commentBlog.create({
     data: {
       commentId: comment.id,

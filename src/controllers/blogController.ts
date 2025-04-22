@@ -9,6 +9,7 @@ import {
   deleteComment,
 } from "../services/blogService";
 import { z } from "zod";
+import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 
 async function getBlogs(req: Request, res: Response) {
   const { page, limit } = req.query;
@@ -82,10 +83,14 @@ async function getComments(req: Request, res: Response) {
   res.json(comments);
 }
 
-async function postComment(req: Request, res: Response) {
+async function postComment(req: AuthenticatedRequest, res: Response) {
+  if (!req.user) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  const userId = req.user.id;
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
 
-  await createComment(req.body, id);
+  await createComment(req.body, id, userId);
 
   res.send();
 }

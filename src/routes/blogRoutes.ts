@@ -46,8 +46,12 @@ router.delete("/admin/:id", authMiddleware("Admin"), asyncHandler(deleteBlog));
 router.get("/user/:userId", asyncHandler(handleGetBlogsByUserId));
 router.get("/slug/:slug", asyncHandler(handleGetBlogBySlug));
 
-router.get("/:id/comment", asyncHandler(getComments));
-router.post("/:id/comment", asyncHandler(postComment));
-router.delete("/:id/comment/:commentId", asyncHandler(deleteCommentById));
+router.get("/:id/comment", authMiddleware(), asyncHandler(getComments));
+router.post("/:id/comment", authMiddleware(), asyncHandler(postComment));
+router.delete(
+  "/:id/comment/:commentId",
+  authMiddleware("Admin"),
+  asyncHandler(deleteCommentById),
+);
 
 export default router;
