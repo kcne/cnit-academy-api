@@ -1,5 +1,13 @@
 import { Request, Response } from "express";
-import { repositoryService, publishBlog, getBlogsByUserId, getBlogBySlug } from "../services/blogService";
+import {
+  repositoryService,
+  publishBlog,
+  getBlogsByUserId,
+  getBlogBySlug,
+  getAllComments,
+  createComment,
+  deleteComment,
+} from "../services/blogService";
 import { z } from "zod";
 
 async function getBlogs(req: Request, res: Response) {
@@ -51,7 +59,11 @@ async function togglePublishBlog(req: Request, res: Response) {
 }
 
 async function handleGetBlogsByUserId(req: Request, res: Response) {
-  const userId = await z.coerce.number().positive().int().parseAsync(req.params.userId);
+  const userId = await z.coerce
+    .number()
+    .positive()
+    .int()
+    .parseAsync(req.params.userId);
   const blogs = await getBlogsByUserId(userId);
   res.json(blogs);
 }
@@ -60,6 +72,35 @@ async function handleGetBlogBySlug(req: Request, res: Response) {
   const { slug } = req.params;
   const blog = await getBlogBySlug(slug);
   res.json(blog);
+}
+
+async function getComments(req: Request, res: Response) {
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+
+  const comments = await getAllComments(id);
+
+  res.json(comments);
+}
+
+async function postComment(req: Request, res: Response) {
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+
+  await createComment(req.body, id);
+
+  res.send();
+}
+
+async function deleteCommentById(req: Request, res: Response) {
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+  const commentId = await z.coerce
+    .number()
+    .positive()
+    .int()
+    .parseAsync(req.params.commentId);
+
+  await deleteComment(id, commentId);
+
+  res.send();
 }
 
 export {
@@ -71,4 +112,7 @@ export {
   togglePublishBlog,
   handleGetBlogsByUserId,
   handleGetBlogBySlug,
+  getComments,
+  postComment,
+  deleteCommentById,
 };
