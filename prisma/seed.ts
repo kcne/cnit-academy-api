@@ -106,7 +106,7 @@ async function main() {
     transactions.push(
       prisma.user.create({
         data: user,
-      }),
+      })
     );
   }
   for (let i = 0; i < courses; i++) {
@@ -121,7 +121,7 @@ async function main() {
       transactions.push(
         prisma.lecture.create({
           data: { ...lecture, courseId: id },
-        }),
+        })
       );
     }
   }
@@ -130,7 +130,7 @@ async function main() {
     transactions.push(
       prisma.program.create({
         data: program,
-      }),
+      })
     );
   }
 

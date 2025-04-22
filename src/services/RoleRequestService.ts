@@ -3,10 +3,29 @@ import createHttpError from "http-errors";
 
 export const getRoleRequests = async () => {
   try {
-    const requests = await prisma.roleRequest.findMany();
-    return requests;
+    const requests = await prisma.roleRequest.findMany({
+      where: {
+        status: "pending",
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const otherRequests = await prisma.roleRequest.findMany({
+      where: {
+        status: {},
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const allRequests = [...requests, ...otherRequests];
+
+    return allRequests;
   } catch (error) {
-    throw createHttpError(500, "Failed to fetch");
+    throw createHttpError(500, "Failed to fetch role requests");
   }
 };
 
@@ -23,8 +42,16 @@ export const sendRoleRequest = async (
       where: { userId },
     });
 
-    if (existingRequest) {
-      throw new Error("You already sent a request!");
+    if (existingRequest?.createdAt) {
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+      if (existingRequest.createdAt > sixMonthsAgo) {
+        throw createHttpError(
+          400,
+          "You already sent a request within the last 6 months!"
+        );
+      }
     }
 
     const roleRequest = await prisma.roleRequest.create({
