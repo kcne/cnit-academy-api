@@ -1,8 +1,19 @@
+import { z } from "zod";
 import prisma from "../prisma";
 import { PrismaRepositoryService } from "./prismaRepositoryService";
 import createHttpError from "http-errors";
+import { validateRequest } from "../middlewares/validate";
 
 const repositoryService = new PrismaRepositoryService(prisma.badge);
+
+const badgeSchema = z.object({
+  title: z.string().max(256),
+  icon: z.string().max(256),
+  cost: z.number().positive().int(),
+});
+
+const validateCreateBadge = validateRequest(badgeSchema);
+const validateUpdateBadge = validateRequest(badgeSchema.optional());
 
 async function buy(id: number, userId: number) {
   const badge = await prisma.badge.findUnique({
@@ -25,4 +36,4 @@ async function buy(id: number, userId: number) {
   });
 }
 
-export { repositoryService, buy };
+export { repositoryService, buy, validateCreateBadge, validateUpdateBadge };

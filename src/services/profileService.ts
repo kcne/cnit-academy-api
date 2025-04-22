@@ -61,6 +61,7 @@ interface Profile {
   experience: EducationExperience[];
   totalCoins?: number;
   pfp?: string;
+  badges: any[];
 }
 
 interface EducationExperience {
@@ -69,7 +70,7 @@ interface EducationExperience {
   description: string;
   organization: string;
   startPeriod: Date;
-  endPeriod: Date | null; // TODO: jobs don't need an end date
+  endPeriod: Date | null;
 }
 
 function compareEduExp(obj1: EducationExperience, obj2: EducationExperience) {
@@ -95,6 +96,7 @@ function rawToProfile(obj: any): Profile | null {
     experience: obj.experience,
     totalCoins: obj.user?.totalCoins,
     pfp: obj.pfp,
+    badges: obj.user?.badges,
   };
 }
 
@@ -113,6 +115,12 @@ async function getProfiles(pagination: PaginationOptions) {
           totalCoins: true,
           email: true,
           createdAt: true,
+          badges: {
+            select: {
+              title: true,
+              icon: true,
+            },
+          },
         },
       },
     },
@@ -135,6 +143,12 @@ async function getProfile(id: number) {
           email: true,
           createdAt: true,
           isEmailVerified: true,
+          badges: {
+            select: {
+              title: true,
+              icon: true,
+            },
+          },
           UserProgram: {
             where: {
               userId: id,
@@ -220,6 +234,12 @@ async function addProfile(id: number, profile: Profile) {
           lastName: true,
           totalCoins: true,
           createdAt: true,
+          badges: {
+            select: {
+              title: true,
+              icon: true,
+            },
+          },
         },
       },
     },
@@ -319,6 +339,12 @@ async function changeProfile(id: number, profile: Profile) {
       email: true,
       isEmailVerified: true,
       createdAt: true,
+      badges: {
+        select: {
+          title: true,
+          icon: true,
+        },
+      },
     },
   });
   return rawToProfile({ ...newProfile, user: newUser });

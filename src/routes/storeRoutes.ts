@@ -9,6 +9,10 @@ import {
   getBadgeById,
   updateBadgeById,
 } from "../controllers/storeController";
+import {
+  validateCreateBadge,
+  validateUpdateBadge,
+} from "../services/storeService";
 
 const router = Router();
 
@@ -20,13 +24,13 @@ router.put("/:id/buy", asyncHandler(buyBadge));
 router.post(
   "/admin",
   authMiddleware("Admin"),
-  // validateCreateBadge,
+  validateCreateBadge,
   asyncHandler(createBadge),
 );
 router.patch(
   "/admin/:id",
   authMiddleware("Admin"),
-  // validateUpdateBadge,
+  validateUpdateBadge,
   asyncHandler(updateBadgeById),
 );
 router.delete(
