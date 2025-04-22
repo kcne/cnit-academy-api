@@ -112,6 +112,7 @@ async function getProfiles(pagination: PaginationOptions) {
           lastName: true,
           totalCoins: true,
           email: true,
+          createdAt: true,
         },
       },
     },
@@ -132,7 +133,37 @@ async function getProfile(id: number) {
           lastName: true,
           totalCoins: true,
           email: true,
+          createdAt: true,
           isEmailVerified: true,
+          UserProgram: {
+            where: {
+              userId: id,
+            },
+            select: {
+              applied: true,
+              enrolled: true,
+              finished: true,
+              program: true,
+            },
+          },
+          UserCourse: {
+            where: {
+              userId: id,
+            },
+            select: {
+              finished: true,
+              course: true,
+            },
+          },
+          UserLecture: {
+            where: {
+              userId: id,
+            },
+            select: {
+              finished: true,
+              lecture: true,
+            },
+          },
         },
       },
     },
@@ -143,7 +174,23 @@ async function getProfile(id: number) {
     throw createHttpError(404, "Profile not found");
   }
 
-  return rawToProfile(profile);
+  return {
+    ...rawToProfile(profile),
+    programs: profile.user.UserProgram.map((el) => ({
+      ...el.program,
+      applied: el.applied ?? false,
+      enrolled: el.enrolled ?? false,
+      finished: el.finished ?? false,
+    })),
+    courses: profile.user.UserCourse.map((el) => ({
+      ...el.course,
+      finished: el.finished ?? false,
+    })),
+    lectures: profile.user.UserLecture.map((el) => ({
+      ...el.lecture,
+      finished: el.finished ?? false,
+    })),
+  };
 }
 
 async function addProfile(id: number, profile: Profile) {
@@ -167,7 +214,14 @@ async function addProfile(id: number, profile: Profile) {
     include: {
       education: true,
       experience: true,
-      user: { select: { firstName: true, lastName: true, totalCoins: true } },
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+          totalCoins: true,
+          createdAt: true,
+        },
+      },
     },
   });
 
@@ -187,7 +241,6 @@ async function changeProfile(id: number, profile: Profile) {
 
   const transactions = [];
 
-  console.log(profile);
   if (profile.education) {
     transactions.push(
       prisma.education.deleteMany({
@@ -265,6 +318,7 @@ async function changeProfile(id: number, profile: Profile) {
       totalCoins: true,
       email: true,
       isEmailVerified: true,
+      createdAt: true,
     },
   });
   return rawToProfile({ ...newProfile, user: newUser });

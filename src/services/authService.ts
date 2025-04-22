@@ -36,7 +36,7 @@ async function createUser(data: z.infer<typeof NewUserSchema>) {
 
   const password = await argon2.hash(data.password);
   const user = await prisma.user.create({
-    data: { ...data, password },
+    data: { ...data, password, roles: { connect: { name: "User" } } },
   });
 
   try {

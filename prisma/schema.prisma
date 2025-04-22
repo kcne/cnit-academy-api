@@ -20,6 +20,7 @@ model User {
   expiresAt        DateTime?
   Profile          Profile?
   Blog             Blog[]
+  createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
   totalCoins       Int           @default(0)
   UserLecture      UserLecture[]
@@ -63,6 +64,7 @@ model Course {
   title           String
   description     String?
   durationInHours Float?
+  createdAt       DateTime     @default(now())
   coins           Int          @default(0)
   lectures        Lecture[]
   UserCourse      UserCourse[]
@@ -95,7 +97,7 @@ model Program {
   founder             String
   durationInDays      Int
   applicationDeadline DateTime
-  CreatedAt           DateTime      @default(now())
+  createdAt           DateTime      @default(now())
   coins               Int           @default(0)
   UserProgram         UserProgram[]
 }
@@ -107,6 +109,7 @@ model Lecture {
   videoUrl    String?
   courseId    Int
   course      Course        @relation(fields: [courseId], references: [id])
+  createdAt   DateTime      @default(now())
   coins       Int           @default(0)
   UserLecture UserLecture[]
 }

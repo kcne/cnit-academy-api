@@ -16,19 +16,33 @@ import authMiddleware from "../middlewares/authMiddleware";
 const router = Router();
 
 router.get("/", asyncHandler(getAllProfiles));
-router.get("/:id", authMiddleware, asyncHandler(getProfileById));
-router.post(
+router.get("/:id", authMiddleware(), asyncHandler(getProfileById));
+router.patch(
   "/me",
-  authMiddleware,
+  authMiddleware(),
+  validateUpdateProfile,
+  asyncHandler(updateProfile),
+);
+router.delete("/me", authMiddleware(), asyncHandler(deleteProfile));
+
+// admin routes
+// createProfile probably has no practical use
+router.post(
+  "/admin/:id",
+  authMiddleware("Admin"),
   validateCreateProfile,
   asyncHandler(createProfile),
 );
 router.patch(
-  "/me",
-  authMiddleware,
+  "/admin/:id",
+  authMiddleware("Admin"),
   validateUpdateProfile,
   asyncHandler(updateProfile),
 );
-router.delete("/me", authMiddleware, asyncHandler(deleteProfile));
+router.delete(
+  "/admin/:id",
+  authMiddleware("Admin"),
+  asyncHandler(deleteProfile),
+);
 
 export default router;
