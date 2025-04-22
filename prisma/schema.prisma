@@ -23,6 +23,7 @@ model User {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   totalCoins       Int               @default(0)
+  badges           Badge[]
   UserLecture      UserLecture[]
   UserCourse       UserCourse[]
   UserProgram      UserProgram[]
@@ -174,4 +175,12 @@ model UserQuizAttempt {
   user   User  @relation(fields: [userId], references: [id])
   quiz   Quiz  @relation(fields: [quizId], references: [id])
   score  Float // 0-1 ratio
+}
+
+model Badge {
+  id    Int    @id @default(autoincrement())
+  icon  String // /badges/streak10.png
+  title String
+  cost  Int
+  Users User[]
 }
