@@ -24,6 +24,15 @@ const router = Router();
 
 router.get("/", asyncHandler(getBlogs));
 router.get("/:id", asyncHandler(getBlog));
+router.get("/user/:userId", asyncHandler(handleGetBlogsByUserId));
+router.get("/slug/:slug", asyncHandler(handleGetBlogBySlug));
+router.get("/:id/comment", authMiddleware(), asyncHandler(getComments));
+router.post(
+  "/:id/comment",
+  authMiddleware(),
+  validateCreateComment,
+  asyncHandler(postComment),
+);
 
 // admin routes
 router.post(
@@ -44,18 +53,8 @@ router.put(
   asyncHandler(togglePublishBlog),
 );
 router.delete("/admin/:id", authMiddleware("Admin"), asyncHandler(deleteBlog));
-router.get("/user/:userId", asyncHandler(handleGetBlogsByUserId));
-router.get("/slug/:slug", asyncHandler(handleGetBlogBySlug));
-
-router.get("/:id/comment", authMiddleware(), asyncHandler(getComments));
-router.post(
-  "/:id/comment",
-  authMiddleware(),
-  validateCreateComment,
-  asyncHandler(postComment),
-);
 router.delete(
-  "/:id/comment/:commentId",
+  "/admin/:id/comment/:commentId",
   authMiddleware("Admin"),
   asyncHandler(deleteCommentById),
 );

@@ -1295,8 +1295,6 @@ Response 404 -> Blog not found
 ### DELETE /api/blog/admin/:id
 
 Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
-
-Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
 Delete a blog
 
 Request query params:
@@ -1370,6 +1368,7 @@ Response 404 -> Blog not found
 
 ### GET /api/blog/:id/comment
 
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
 Fetch comments of blog with :id
 
 | key | example | description |
@@ -1396,6 +1395,7 @@ Response 404 -> Blog not found
 
 ### POST /api/blog/:id/comment
 
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
 Create new comment
 
 | key | example | description |
@@ -1412,8 +1412,9 @@ Request JSON:
 
 Response 404 -> Blog not found
 
-### DELETE /api/blog/:id/comment/:commentId
+### DELETE /api/blog/admin/:id/comment/:commentId
 
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
 Delete a comment
 
 Request query params:
