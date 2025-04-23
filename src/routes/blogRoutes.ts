@@ -14,6 +14,7 @@ import {
 } from "../controllers/blogController";
 import {
   validateCreateBlog,
+  validateCreateComment,
   validateUpdateBlog,
 } from "../services/blogService";
 import asyncHandler from "../middlewares/asyncHandler";
@@ -47,7 +48,12 @@ router.get("/user/:userId", asyncHandler(handleGetBlogsByUserId));
 router.get("/slug/:slug", asyncHandler(handleGetBlogBySlug));
 
 router.get("/:id/comment", authMiddleware(), asyncHandler(getComments));
-router.post("/:id/comment", authMiddleware(), asyncHandler(postComment));
+router.post(
+  "/:id/comment",
+  authMiddleware(),
+  validateCreateComment,
+  asyncHandler(postComment),
+);
 router.delete(
   "/:id/comment/:commentId",
   authMiddleware("Admin"),

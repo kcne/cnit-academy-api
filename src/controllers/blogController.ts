@@ -36,8 +36,14 @@ async function getBlog(req: Request, res: Response) {
   res.json(blog);
 }
 
-async function createBlog(req: Request, res: Response) {
-  const blog = await repositoryService.createItem(req.body);
+async function createBlog(req: AuthenticatedRequest, res: Response) {
+  if (!req.user) {
+    throw new Error("AuthenticatedRequest.user is undefined");
+  }
+  const userId = req.user.id;
+
+  const newBlog = { ...req.body, userId };
+  const blog = await repositoryService.createItem(newBlog);
   res.status(201).json(blog);
 }
 
@@ -76,9 +82,16 @@ async function handleGetBlogBySlug(req: Request, res: Response) {
 }
 
 async function getComments(req: Request, res: Response) {
+  const { page, limit } = req.query;
+
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
 
-  const comments = await getAllComments(id);
+  const comments = await getAllComments(id, {
+    pagination: {
+      page: Number(page ?? 1),
+      limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+    },
+  });
 
   res.json(comments);
 }

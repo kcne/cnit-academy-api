@@ -58,8 +58,12 @@
     - [DELETE /api/blog/admin/:id](#delete-apiblogadminid)
     - [GET /api/blog/user/:userId](#get-apibloguseruserid)
     - [GET /api/blog/slug/:slug](#get-apiblogslugslug)
-  - [Global](#global) - [paginationMeta](#paginationmeta)
-  <!--toc:end-->
+    - [GET /api/blog/:id/comment](#get-apiblogidcomment)
+    - [POST /api/blog/:id/comment](#post-apiblogidcomment)
+    - [DELETE /api/blog/:id/comment/:commentId](#delete-apiblogidcommentcommentid)
+  - [Global](#global)
+    - [paginationMeta](#paginationmeta)
+    <!--toc:end-->
 
 ## Usage
 
@@ -504,7 +508,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Program not found
+Response 404 -> Program not found
 
 ### POST /api/program/admin
 
@@ -584,7 +588,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Program not found
+Response 404 -> Program not found
 
 ### DELETE /api/program/admin/:id
 
@@ -599,7 +603,7 @@ Request query params:
 | id  | 2       | ID of the program, positive integer |
 
 Response 200 -> Program deleted \
-Request 404 -> Program not found
+Response 404 -> Program not found
 
 ### PUT /api/program/:id/apply
 
@@ -612,7 +616,7 @@ Request query params:
 | id  | 2       | ID of the program, positive integer |
 
 Response 200 -> Applied to program \
-Request 404 -> Program not found
+Response 404 -> Program not found
 
 ### PUT /api/program/admin/:id/enroll
 
@@ -633,7 +637,7 @@ Request JSON:
 ```
 
 Response 200 -> Enrolled into program \
-Request 404 -> Program not found
+Response 404 -> Program not found
 
 ### PUT /api/program/admin/:id/finish
 
@@ -648,7 +652,7 @@ Request query params:
 | id  | 2       | ID of the program, positive integer |
 
 Response 200 -> Finished the program \
-Request 404 -> Program not found
+Response 404 -> Program not found
 
 ## Courses
 
@@ -747,7 +751,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Course not found
+Response 404 -> Course not found
 
 ### POST /api/course/admin
 
@@ -791,7 +795,7 @@ Response 201 JSON:
 }
 ```
 
-Request 404 -> Course not found
+Response 404 -> Course not found
 
 ### PATCH /api/course/admin/:id
 
@@ -841,7 +845,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Course not found
+Response 404 -> Course not found
 
 ### PUT /api/course/:id/start
 
@@ -854,7 +858,7 @@ Request query params:
 | id  | 2       | ID of the course, positive integer |
 
 Response 200 -> Started the course \
-Request 404 -> Course not found
+Response 404 -> Course not found
 
 ### PUT /api/course/:id/finish
 
@@ -867,7 +871,7 @@ Request query params:
 | id  | 2       | ID of the course, positive integer |
 
 Response 200 -> Finished the course \
-Request 404 -> Course not found
+Response 404 -> Course not found
 
 ### DELETE /api/course/admin/:id
 
@@ -882,7 +886,7 @@ Request query params:
 | id  | 2       | ID of the course, positive integer |
 
 Response 200 -> Course deleted successfully \
-Request 404 -> Course not found
+Response 404 -> Course not found
 
 ## Lectures
 
@@ -959,7 +963,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Lecture not found
+Response 404 -> Lecture not found
 
 ### POST /api/lecture/admin
 
@@ -994,7 +998,7 @@ Response 201 JSON:
 }
 ```
 
-Request 404 -> Lecture not found
+Response 404 -> Lecture not found
 
 ### PATCH /api/lecture/admin/:id
 
@@ -1034,7 +1038,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Lecture not found
+Response 404 -> Lecture not found
 
 ### PUT /api/lecture/:id/start
 
@@ -1047,7 +1051,7 @@ Request query params:
 | id  | 2       | ID of the lecture, positive integer |
 
 Response 200 -> Started the lecture \
-Request 404 -> Lecture not found
+Response 404 -> Lecture not found
 
 ### PUT /api/lecture/:id/finish
 
@@ -1060,7 +1064,7 @@ Request query params:
 | id  | 2       | ID of the lecture, positive integer |
 
 Response 200 -> Finished the lecture \
-Request 404 -> Lecture not found
+Response 404 -> Lecture not found
 
 ### DELETE /api/lecture/admin/:id
 
@@ -1075,7 +1079,7 @@ Request query params:
 | id  | 2       | ID of the lecture, positive integer |
 
 Response 200 -> Lecture deleted successfully \
-Request 404 -> Lecture not found
+Response 404 -> Lecture not found
 
 ## Leaderboard
 
@@ -1186,14 +1190,14 @@ Response 200 JSON:
   "title": "title",
   "published": true,
   "content": "# Markdown",
-  "blogDescription": null,
+  "blogDescription": "desc",
   "userId": 5,
   "createdAt": "2025-04-05T18:34:35.612Z",
   "updatedAt": "2025-04-05T18:34:35.612Z"
 }
 ```
 
-Request 404 -> Blog not found
+Response 404 -> Blog not found
 
 ### POST /api/blog/admin
 
@@ -1206,11 +1210,10 @@ Request JSON:
 
 ```json
 {
-  "userId": 5
   "title": "title",
   "published": true,
   "content": "# Markdown",
-  "blogDescription": null,
+  "blogDescription": "desc"
 }
 ```
 
@@ -1222,14 +1225,14 @@ Response 201 JSON:
   "title": "title",
   "published": true,
   "content": "# Markdown",
-  "blogDescription": null,
+  "blogDescription": "desc",
   "userId": 5,
   "createdAt": "2025-04-05T18:34:35.612Z",
   "updatedAt": "2025-04-05T18:34:35.612Z"
 }
 ```
 
-Request 404 -> Blog not found
+Response 404 -> Blog not found
 
 ### PUT /api/blog/admin/:id/publish
 
@@ -1245,7 +1248,7 @@ Request query params:
 | id  | 2       | ID of the blog, positive integer |
 
 Response 200 -> Blog published successfully
-Request 404 -> Blog not found
+Response 404 -> Blog not found
 
 ### PATCH /api/blog/admin/:id
 
@@ -1265,11 +1268,10 @@ Request JSON:
 
 ```json
 {
-  "userId": 5
   "title": "title",
   "published": true,
   "content": "# Markdown",
-  "blogDescription": null,
+  "blogDescription": "desc"
 }
 ```
 
@@ -1288,7 +1290,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Blog not found
+Response 404 -> Blog not found
 
 ### DELETE /api/blog/admin/:id
 
@@ -1304,7 +1306,7 @@ Request query params:
 | id  | 2       | ID of the blog, positive integer |
 
 Response 200 -> Blog deleted successfully
-Request 404 -> Blog not found
+Response 404 -> Blog not found
 
 ### GET /api/blog/user/:userId
 
@@ -1326,7 +1328,7 @@ Response 200 JSON:
       "title": "title",
       "published": true,
       "content": "# Markdown",
-      "blogDescription": null,
+      "blogDescription": "desc",
       "userId": 5,
       "createdAt": "2025-04-05T18:34:35.612Z",
       "updatedAt": "2025-04-05T18:34:35.612Z"
@@ -1336,7 +1338,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> User not found
+Response 404 -> User not found
 
 ### GET /api/blog/slug/:slug
 
@@ -1356,7 +1358,7 @@ Response 200 JSON:
   "title": "title",
   "published": true,
   "content": "# Markdown",
-  "blogDescription": null,
+  "blogDescription": "desc",
   "slug": "my-blog-title",
   "userId": 5,
   "createdAt": "2025-04-05T18:34:35.612Z",
@@ -1364,7 +1366,65 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Blog not found
+Response 404 -> Blog not found
+
+### GET /api/blog/:id/comment
+
+Fetch comments of blog with :id
+
+| key | example | description |
+| --- | ------- | ----------- |
+| id  | 2       | ID of blog  |
+
+Response 200 JSON:
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "userId": 16,
+      "content": "content",
+      "createdAt": "2025-04-23T15:35:46.360Z"
+    }
+  ],
+  "meta": "(paginationMeta)"
+}
+```
+
+Response 404 -> Blog not found
+
+### POST /api/blog/:id/comment
+
+Create new comment
+
+| key | example | description |
+| --- | ------- | ----------- |
+| id  | 2       | ID of blog  |
+
+Request JSON:
+
+```json
+{
+  "content": "content"
+}
+```
+
+Response 404 -> Blog not found
+
+### DELETE /api/blog/:id/comment/:commentId
+
+Delete a comment
+
+Request query params:
+
+| key       | example | description   |
+| --------- | ------- | ------------- |
+| id        | 2       | ID of blog    |
+| commentId | 2       | ID of comment |
+
+Response 200 -> Comment successfully deleted \
+Response 404 -> Blog not found
 
 ## Global
 

@@ -3,9 +3,9 @@ import prisma from "../prisma";
 import { PrismaRepositoryService } from "./prismaRepositoryService";
 import { validateRequest } from "../middlewares/validate";
 import createHttpError from "http-errors";
+import { createPaginatedResponse, QueryOptions } from "../utils/queryBuilder";
 
 const BlogSchema = z.object({
-  userId: z.number().int().positive(),
   title: z.string().max(256),
   blogDescription: z.string().max(1024).optional(),
   content: z.string().max(65535),
@@ -62,7 +62,13 @@ async function getBlogBySlug(slug: string) {
   return blog;
 }
 
-async function getAllComments(blogId: number) {
+const commentSchema = z.object({
+  content: z.string().max(4096),
+});
+
+const validateCreateComment = validateRequest(commentSchema);
+
+async function getAllComments(blogId: number, opts: QueryOptions<string>) {
   const blog = prisma.blog.findUnique({ where: { id: blogId } });
   if (!blog) {
     throw createHttpError(404, "Blog not found");
@@ -74,8 +80,15 @@ async function getAllComments(blogId: number) {
       comment: true,
     },
   });
+  const total = await prisma.commentBlog.count({
+    where: { blogId },
+  });
 
-  return comments.map((el) => el.comment);
+  return createPaginatedResponse(
+    comments.map((el) => el.comment),
+    total,
+    opts.pagination,
+  );
 }
 
 async function createComment(commentData: any, blogId: number, userId: number) {
@@ -104,6 +117,7 @@ export {
   repositoryService,
   validateCreateBlog,
   validateUpdateBlog,
+  validateCreateComment,
   publishBlog,
   getBlogsByUserId,
   getBlogBySlug,
