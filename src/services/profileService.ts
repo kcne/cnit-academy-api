@@ -98,7 +98,7 @@ function rawToProfile(obj: any): Profile | null {
     totalCoins: obj.user?.totalCoins,
     pfp: obj.pfp,
     badges: obj.user?.badges,
-    streak: obj.user?.UserActivity?.streak,
+    streak: obj.user?.UserActivity?.streak ?? 0,
   };
 }
 

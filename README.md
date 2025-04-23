@@ -228,6 +228,13 @@ Response 200 JSON:
       "education": [],
       "experience": [],
       "totalCoins": 0,
+      "badges": [
+        {
+          "title": "titl",
+          "icon": "/badges/1.png"
+        }
+      ],
+      "streak": 7,
       "pfp": "/pfp/default"
     },
     {
@@ -238,6 +245,13 @@ Response 200 JSON:
       "education": [],
       "experience": [],
       "totalCoins": 0,
+      "badges": [
+        {
+          "title": "titl",
+          "icon": "/badges/1.png"
+        }
+      ],
+      "streak": 7,
       "pfp": "/pfp/jane.png"
     }
   ],
@@ -275,6 +289,13 @@ Response 200 JSON:
     "endPeriod": "2025-03-14T17:38:29+01:00"
   ],
   "totalCoins": 0,
+      "badges": [
+        {
+          "title": "titl",
+          "icon": "/badges/1.png"
+        }
+      ],
+  "streak": 7,
   "pfp": "/pfp/2.png",
   "programs": [
     {
@@ -1702,6 +1723,7 @@ Request query params:
 | id  | 2       | ID of the badge, positive integer |
 
 Response 200 -> Badge bought successfully
+Response 400 -> Insufficient funds
 Response 404 -> Badge not found
 
 ### DELETE /api/store/admin/:id

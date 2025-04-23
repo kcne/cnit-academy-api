@@ -16,6 +16,14 @@ const validateCreateBadge = validateRequest(badgeSchema);
 const validateUpdateBadge = validateRequest(badgeSchema.optional());
 
 async function buy(id: number, userId: number) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      totalCoins: true,
+    },
+  });
   const badge = await prisma.badge.findUnique({
     where: { id },
     select: { cost: true, Users: { where: { id: userId } } },
@@ -26,8 +34,16 @@ async function buy(id: number, userId: number) {
   if (badge.Users.length > 0) {
     throw createHttpError(409, "User has already bought this badge");
   }
+  if ((user?.totalCoins ?? -1) < badge.cost) {
+    console.log(user?.totalCoins);
+    console.log(badge.cost);
+    throw createHttpError(
+      400,
+      "User doesn't have enough coins for this purchase",
+    );
+  }
 
-  const user = await prisma.user.update({
+  await prisma.user.update({
     where: { id: userId },
     data: {
       totalCoins: { decrement: badge.cost },
@@ -35,24 +51,6 @@ async function buy(id: number, userId: number) {
     },
     select: { totalCoins: true },
   });
-
-  // by decrementing and then incrementing instead of
-  // checking first if the user has enough coins,
-  // we always query the db once on valid requests
-  if (user.totalCoins < 0) {
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        totalCoins: { increment: badge.cost },
-        badges: { connect: { id } },
-      },
-    });
-
-    throw createHttpError(
-      400,
-      "User doesn't have enough coins for this purchase",
-    );
-  }
 }
 
 export { repositoryService, buy, validateCreateBadge, validateUpdateBadge };
