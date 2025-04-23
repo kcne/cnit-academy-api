@@ -62,6 +62,7 @@ interface Profile {
   totalCoins?: number;
   pfp?: string;
   badges: any[];
+  streak: number;
 }
 
 interface EducationExperience {
@@ -97,6 +98,7 @@ function rawToProfile(obj: any): Profile | null {
     totalCoins: obj.user?.totalCoins,
     pfp: obj.pfp,
     badges: obj.user?.badges,
+    streak: obj.user?.UserActivity?.streak,
   };
 }
 
@@ -119,6 +121,11 @@ async function getProfiles(pagination: PaginationOptions) {
             select: {
               title: true,
               icon: true,
+            },
+          },
+          UserActivity: {
+            select: {
+              streak: true,
             },
           },
         },
@@ -147,6 +154,11 @@ async function getProfile(id: number) {
             select: {
               title: true,
               icon: true,
+            },
+          },
+          UserActivity: {
+            select: {
+              streak: true,
             },
           },
           UserProgram: {
@@ -238,6 +250,11 @@ async function addProfile(id: number, profile: Profile) {
             select: {
               title: true,
               icon: true,
+            },
+          },
+          UserActivity: {
+            select: {
+              streak: true,
             },
           },
         },
@@ -343,6 +360,11 @@ async function changeProfile(id: number, profile: Profile) {
         select: {
           title: true,
           icon: true,
+        },
+      },
+      UserActivity: {
+        select: {
+          streak: true,
         },
       },
     },

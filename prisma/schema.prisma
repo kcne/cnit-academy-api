@@ -28,6 +28,7 @@ model User {
   UserCourse       UserCourse[]
   UserProgram      UserProgram[]
   UserQuizAttempt  UserQuizAttempt[]
+  UserActivity     UserActivity[]
 }
 
 model Profile {
@@ -183,4 +184,11 @@ model Badge {
   title String
   cost  Int
   Users User[]
+}
+
+model UserActivity {
+  id      Int      @id
+  user    User     @relation(fields: [id], references: [id])
+  loginAt DateTime @default(now())
+  streak  Int
 }

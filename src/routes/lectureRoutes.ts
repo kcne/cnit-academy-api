@@ -15,6 +15,7 @@ import {
   validateUpdateLecture,
 } from "../services/lectureService";
 import authMiddleware from "../middlewares/authMiddleware";
+import streakMiddleware from "../middlewares/streakMiddleware";
 
 const router = Router();
 
@@ -22,7 +23,7 @@ router.get("/", asyncHandler(getAllLectures));
 router.get("/my", asyncHandler(getMyLectures));
 router.get("/:id", asyncHandler(getLectureById));
 router.put("/:id/start", asyncHandler(startLecture));
-router.put("/:id/finish", asyncHandler(finishLecture));
+router.put("/:id/finish", streakMiddleware, asyncHandler(finishLecture));
 
 // admin routes
 router.post(
