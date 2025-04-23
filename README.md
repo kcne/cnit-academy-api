@@ -1567,6 +1567,158 @@ Request query params:
 Response 200 -> Quiz deleted successfully \
 Response 404 -> Quiz not found
 
+## Badges
+
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
+
+### GET /api/store
+
+Fetch all badges
+
+Request query params:
+
+| key   | example | description               |
+| ----- | ------- | ------------------------- |
+| page  | 2       | Current page              |
+| limit | 20      | Number of Badges per page |
+
+Response 200 JSON:
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "icon": "/badges/streak100.png",
+      "title": "Streak 100",
+      "cost": 50
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 9007199254740991,
+    "total": 1,
+    "totalPages": 1,
+    "hasNextPage": false,
+    "hasPrevPage": false
+  }
+}
+```
+
+### GET /api/store/:id
+
+Request query params:
+
+| key | example | description                       |
+| --- | ------- | --------------------------------- |
+| id  | 2       | ID of the badge, positive integer |
+
+Response 200 JSON:
+
+```json
+{
+  "id": 1,
+  "icon": "/badges/streak100.png",
+  "title": "Streak 100",
+  "cost": 50
+}
+```
+
+Response 404 -> Badge not found
+
+### POST /api/store/admin
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin))
+
+Create a new badge
+
+Request JSON:
+
+```json
+{
+  "icon": "/badges/streak100.png",
+  "title": "Streak 100",
+  "cost": 50
+}
+```
+
+Response 201 JSON:
+
+```json
+{
+  "id": 1,
+  "icon": "/badges/streak100.png",
+  "title": "Streak 100",
+  "cost": 50
+}
+```
+
+Response 404 -> badge not found
+
+### PATCH /api/store/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin))
+
+Update a badge \
+All of the fields are optional
+
+Request query params:
+
+| key | example | description                       |
+| --- | ------- | --------------------------------- |
+| id  | 2       | ID of the badge, positive integer |
+
+Request JSON:
+
+```json
+{
+  "icon": "/badges/streak100.png",
+  "title": "Streak 100",
+  "cost": 50
+}
+```
+
+Response 200 JSON:
+
+```json
+{
+  "id": 1,
+  "icon": "/badges/streak100.png",
+  "title": "Streak 100",
+  "cost": 50
+}
+```
+
+Response 404 -> badge not found
+
+### PUT /api/store/:id/buy
+
+Buy a badge
+
+Request query params:
+
+| key | example | description                       |
+| --- | ------- | --------------------------------- |
+| id  | 2       | ID of the badge, positive integer |
+
+Response 200 -> Badge bought successfully
+Response 404 -> Badge not found
+
+### DELETE /api/store/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin))
+
+Delete a badge
+
+Request query params:
+
+| key | example | description                       |
+| --- | ------- | --------------------------------- |
+| id  | 2       | ID of the badge, positive integer |
+
+Response 200 -> Badge deleted successfully \
+Response 404 -> Badge not found
+
 ## Global
 
 ### paginationMeta
