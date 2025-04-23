@@ -26,6 +26,7 @@ model User {
   UserLecture      UserLecture[]
   UserCourse       UserCourse[]
   UserProgram      UserProgram[]
+  Comment          Comment[]
 }
 
 model Profile {
@@ -151,6 +152,8 @@ model UserProgram {
 
 model Comment {
   id          Int           @id @default(autoincrement())
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id])
   content     String
   createdAt   DateTime      @default(now())
   CommentBlog CommentBlog[]
