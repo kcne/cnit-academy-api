@@ -10,7 +10,7 @@ export interface SortOption {
 
 export interface FilterOption {
   field: string;
-  value: string | number | boolean;
+  value: any;
   operator: "equals" | "contains" | "gt" | "lt" | "gte" | "lte";
 }
 

@@ -1,9 +1,5 @@
 import { Request, Response } from "express";
-import {
-  changeStatus,
-  findMyLectures,
-  repositoryService,
-} from "../services/lectureService";
+import { changeStatus, repositoryService } from "../services/lectureService";
 import { z } from "zod";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 
@@ -20,12 +16,25 @@ async function getAllLectures(req: Request, res: Response) {
 }
 
 async function getMyLectures(req: AuthenticatedRequest, res: Response) {
+  const { page, limit } = req.query;
   if (!req.user) {
     throw new Error("AuthenticatedRequest.user is undefined");
   }
   const userId = req.user.id;
 
-  const lectures = await findMyLectures(userId);
+  const lectures = repositoryService.getAll({
+    pagination: {
+      page: Number(page ?? 1),
+      limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+    },
+    filters: [
+      {
+        field: "UserLecture",
+        value: { some: { userId } },
+        operator: "equals",
+      },
+    ],
+  });
 
   res.json(lectures);
 }

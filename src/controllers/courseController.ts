@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import {
   changeStatus,
   customFindItem,
-  findMyCourses,
   repositoryService,
 } from "../services/courseService";
 import { z } from "zod";
@@ -30,14 +29,30 @@ async function getAllCourses(req: Request, res: Response) {
 }
 
 async function getMyCourses(req: AuthenticatedRequest, res: Response) {
+  const { page, limit } = req.query;
   if (!req.user) {
     throw new Error("AuthenticatedRequest.user is undefined");
   }
   const userId = req.user.id;
 
-  const courses = await findMyCourses(userId);
+  const courses = await repositoryService.getAll({
+    pagination: {
+      page: Number(page ?? 1),
+      limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+    },
+    filters: [
+      {
+        field: "UserCourse",
+        value: { some: { userId } },
+        operator: "equals",
+      },
+    ],
+  });
 
-  return res.json(courses.map((old: any) => renameFields(old)));
+  return res.json({
+    data: courses.data.map((old: any) => renameFields(old)),
+    meta: courses.meta,
+  });
 }
 
 async function getCourseById(req: AuthenticatedRequest, res: Response) {
