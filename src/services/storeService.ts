@@ -27,13 +27,32 @@ async function buy(id: number, userId: number) {
     throw createHttpError(409, "User has already bought this badge");
   }
 
-  await prisma.user.update({
+  const user = await prisma.user.update({
     where: { id: userId },
     data: {
       totalCoins: { decrement: badge.cost },
       badges: { connect: { id } },
     },
+    select: { totalCoins: true },
   });
+
+  // by decrementing and then incrementing instead of
+  // checking first if the user has enough coins,
+  // we always query the db once on valid requests
+  if (user.totalCoins < 0) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        totalCoins: { increment: badge.cost },
+        badges: { connect: { id } },
+      },
+    });
+
+    throw createHttpError(
+      400,
+      "User doesn't have enough coins for this purchase",
+    );
+  }
 }
 
 export { repositoryService, buy, validateCreateBadge, validateUpdateBadge };
