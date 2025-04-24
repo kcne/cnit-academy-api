@@ -3,12 +3,15 @@ import { getUser, createUser } from "../services/authService";
 import { resendVerificationCode, verifyCode } from "../services/emailService";
 import formidable, { Fields, Files } from "formidable";
 import { rename } from "fs/promises";
+import { mkdirSync } from "fs";
 
 async function register(req: Request, res: Response) {
   const user = await createUser(req.body);
   res.status(201).json(user);
 }
 
+// make sure files/pfp directory exists before uploading any files
+mkdirSync("files/pfp", { recursive: true });
 async function registerForm(req: Request, res: Response) {
   const form = formidable({
     uploadDir: "files/pfp",
