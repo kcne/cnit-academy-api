@@ -14,7 +14,7 @@ const NewUserSchema = z.object({
     .string()
     .max(64)
     .refine(
-      (str) => str.match(/^(\/pfp\/\d+\.)(png|webp|jpg)$/),
+      (str) => str.match(/^(\/pfp\/[\d\w]+\.)(png|webp|jpg|jpeg)$/),
       "Pfp string is invalid",
     )
     .optional(),
@@ -36,7 +36,13 @@ async function createUser(data: z.infer<typeof NewUserSchema>) {
 
   const password = await argon2.hash(data.password);
   const user = await prisma.user.create({
-    data: { ...data, password, roles: { connect: { name: "User" } } },
+    data: {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      password,
+      roles: { connect: { name: "User" } },
+    },
   });
 
   try {
