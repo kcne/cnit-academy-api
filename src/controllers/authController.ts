@@ -11,10 +11,10 @@ async function register(req: Request, res: Response) {
 }
 
 // make sure files/pfp directory exists before uploading any files
-mkdirSync("files/pfp", { recursive: true });
+mkdirSync("public/uploads/pfp", { recursive: true });
 async function registerForm(req: Request, res: Response) {
   const form = formidable({
-    uploadDir: "files/pfp",
+    uploadDir: "public/uploads/pfp",
     filter: function ({ mimetype }) {
       return ["image/png", "image/webp", "image/jpeg"].includes(mimetype ?? "");
     },

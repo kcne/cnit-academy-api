@@ -22,7 +22,7 @@ app.use("/api/blog", blogRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/program", authMiddleware(), programRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
-app.use("/pfp", express.static("files/pfp"));
+app.use("/pfp", express.static("public/uploads/pfp"));
 
 app.use(errorHandler);
 app.use((_, res) => {
