@@ -3,26 +3,13 @@ import { getUser, createUser } from "../services/authService";
 import { resendVerificationCode, verifyCode } from "../services/emailService";
 import formidable, { Fields, Files } from "formidable";
 import { PassThrough } from "node:stream";
-import { S3Client } from "@aws-sdk/client-s3";
 import { hash } from "node:crypto";
-import dotenv from "dotenv";
-import { Upload } from "@aws-sdk/lib-storage";
+import { putPfp } from "../services/bucketService";
 
 async function register(req: Request, res: Response) {
   const user = await createUser(req.body);
   res.status(201).json(user);
 }
-
-dotenv.config();
-const s3 = new S3Client({
-  credentials: {
-    accessKeyId: process.env.BUCKET_ACCESS_KEY ?? "",
-    secretAccessKey: process.env.BUCKET_SECRET_KEY ?? "",
-  },
-  forcePathStyle: true,
-  endpoint: process.env.BUCKET_ENDPOINT ?? "http://localhost:9000",
-  region: process.env.BUCKET_REGION ?? "workaround",
-});
 
 async function registerForm(req: Request, res: Response) {
   let successfulUpload = false;
@@ -38,14 +25,7 @@ async function registerForm(req: Request, res: Response) {
       }
 
       try {
-        new Upload({
-          client: s3,
-          params: {
-            Bucket: "pfp",
-            Key: file.newFilename,
-            Body: pass,
-          },
-        }).done();
+        putPfp(file.newFilename, pass);
         successfulUpload = true;
       } catch (err) {
         console.error(err);
