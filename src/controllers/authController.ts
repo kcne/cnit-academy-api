@@ -2,21 +2,64 @@ import { Request, Response } from "express";
 import { getUser, createUser } from "../services/authService";
 import { resendVerificationCode, verifyCode } from "../services/emailService";
 import formidable, { Fields, Files } from "formidable";
-import { rename } from "fs/promises";
-import { mkdirSync } from "fs";
+import { PassThrough } from "node:stream";
+import { S3Client } from "@aws-sdk/client-s3";
+import { hash } from "node:crypto";
+import dotenv from "dotenv";
+import { Upload } from "@aws-sdk/lib-storage";
 
 async function register(req: Request, res: Response) {
   const user = await createUser(req.body);
   res.status(201).json(user);
 }
 
-// make sure files/pfp directory exists before uploading any files
-mkdirSync("public/uploads/pfp", { recursive: true });
+dotenv.config();
+const s3 = new S3Client({
+  credentials: {
+    accessKeyId: process.env.BUCKET_ACCESS_KEY ?? "",
+    secretAccessKey: process.env.BUCKET_SECRET_KEY ?? "",
+  },
+  forcePathStyle: true,
+  endpoint: process.env.BUCKET_ENDPOINT ?? "http://localhost:9000",
+  region: process.env.BUCKET_REGION ?? "workaround",
+});
+
 async function registerForm(req: Request, res: Response) {
+  let successfulUpload = false;
   const form = formidable({
-    uploadDir: "public/uploads/pfp",
-    filter: function ({ mimetype }) {
+    filter({ mimetype }) {
       return ["image/png", "image/webp", "image/jpeg"].includes(mimetype ?? "");
+    },
+    fileWriteStreamHandler: function (file: any) {
+      const pass = new PassThrough();
+
+      if (!file.hasOwnProperty("newFilename")) {
+        return pass;
+      }
+
+      try {
+        new Upload({
+          client: s3,
+          params: {
+            Bucket: "pfp",
+            Key: file.newFilename,
+            Body: pass,
+          },
+        }).done();
+        successfulUpload = true;
+      } catch (err) {
+        console.error(err);
+      }
+
+      return pass;
+    },
+    filename(name, _ext, part) {
+      const { originalFilename } = part;
+
+      const fileExtension = originalFilename?.match(/\.[\d\w]+$/) ?? "";
+      const filename = hash("md5", name + Date.now()) + fileExtension;
+
+      return filename;
     },
   });
   const [fields, files]: [Fields<string>, Files<string>] =
@@ -28,16 +71,11 @@ async function registerForm(req: Request, res: Response) {
     lastName: fields.lastName?.at(0),
     email: fields.email?.at(0),
     password: fields.password?.at(0),
-    pfp: "/pfp/default.png",
+    pfp: successfulUpload
+      ? "/pfp/" + files.pfp?.at(0)?.newFilename
+      : "/pfp/default.png",
   };
-
-  const file = files.pfp?.at(0);
-  if (file) {
-    const fileExtension = file.originalFilename?.match(/\.[\d\w]+$/) ?? "";
-    await rename(file.filepath, file.filepath + fileExtension);
-
-    newUser.pfp = "/pfp/" + file.newFilename + fileExtension;
-  }
+  console.log(files.pfp?.at(0)?.newFilename);
 
   const user = await createUser(newUser);
   res.status(201).json(user);
