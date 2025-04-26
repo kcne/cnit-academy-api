@@ -33,21 +33,6 @@ const UpdateProfileSchema = z.object({
     .optional(),
 });
 
-const CreateProfileSchema = z.object({
-  skills: z.array(z.string().max(64)),
-  education: z.array(EducationExperienceSchema),
-  experience: z.array(EducationExperienceSchema),
-  pfp: z
-    .string()
-    .max(64)
-    .refine(
-      (str) => str.match(/^(\/pfp\/\d+\.)(png|webp|jpg)$/),
-      "Pfp string is invalid",
-    )
-    .optional(),
-});
-
-const validateCreateProfile = validateRequest(CreateProfileSchema);
 const validateUpdateProfile = validateRequest(UpdateProfileSchema);
 
 interface Profile {
@@ -193,41 +178,6 @@ async function getProfile(id: number) {
   };
 }
 
-async function addProfile(id: number, profile: Profile) {
-  if (typeof profile.skills === "string") {
-    throw new Error(
-      "internal validation error: profile.skills was string instead of string[]",
-    );
-  }
-  if (!(await prisma.user.findUnique({ where: { id } }))) {
-    throw createHttpError(404, "User not found");
-  }
-
-  const newProfile = await prisma.profile.create({
-    data: {
-      pfp: profile.pfp,
-      skills: profile.skills.join(","),
-      education: { create: profile.education },
-      experience: { create: profile.experience },
-      id,
-    },
-    include: {
-      education: true,
-      experience: true,
-      user: {
-        select: {
-          firstName: true,
-          lastName: true,
-          totalCoins: true,
-          createdAt: true,
-        },
-      },
-    },
-  });
-
-  return rawToProfile(newProfile);
-}
-
 async function changeProfile(id: number, profile: Profile) {
   if (typeof profile.skills === "string") {
     throw new Error(
@@ -338,9 +288,7 @@ async function removeProfile(id: number) {
 export {
   getProfiles,
   getProfile,
-  addProfile,
   changeProfile,
   removeProfile,
-  validateCreateProfile,
   validateUpdateProfile,
 };

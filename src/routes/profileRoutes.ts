@@ -1,22 +1,20 @@
 import { Router } from "express";
 import {
-  createProfile,
   getAllProfiles,
   getProfileById,
   updateProfile,
   deleteProfile,
+  updateProfilePhoto,
 } from "../controllers/profileController";
 import asyncHandler from "../middlewares/asyncHandler";
-import {
-  validateCreateProfile,
-  validateUpdateProfile,
-} from "../services/profileService";
+import { validateUpdateProfile } from "../services/profileService";
 import authMiddleware from "../middlewares/authMiddleware";
 
 const router = Router();
 
 router.get("/", asyncHandler(getAllProfiles));
 router.get("/:id", authMiddleware(), asyncHandler(getProfileById));
+router.post("/me/pfp", authMiddleware(), asyncHandler(updateProfilePhoto));
 router.patch(
   "/me",
   authMiddleware(),
@@ -26,13 +24,6 @@ router.patch(
 router.delete("/me", authMiddleware(), asyncHandler(deleteProfile));
 
 // admin routes
-// createProfile probably has no practical use
-router.post(
-  "/admin/:id",
-  authMiddleware("Admin"),
-  validateCreateProfile,
-  asyncHandler(createProfile),
-);
 router.patch(
   "/admin/:id",
   authMiddleware("Admin"),
