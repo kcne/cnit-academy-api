@@ -56,8 +56,8 @@ async function registerForm(req: Request, res: Response) {
     email: fields.email?.at(0),
     password: fields.password?.at(0),
     pfp: successfulUpload
-      ? "/pfp/" + files.pfp?.at(0)?.newFilename
-      : "/pfp/default.png",
+      ? process.env.BASE_URL + "/files/pfp/" + files.pfp?.at(0)?.newFilename
+      : process.env.BASE_URL + "/files/pfp/default.png",
   };
   console.log(files.pfp?.at(0)?.newFilename);
 

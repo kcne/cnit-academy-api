@@ -11,6 +11,7 @@ import formidable, { Files } from "formidable";
 import { PassThrough } from "stream";
 import { putPfp } from "../services/bucketService";
 import { hash } from "crypto";
+import createHttpError from "http-errors";
 
 async function getAllProfiles(req: Request, res: Response) {
   const { page, limit } = req.query;
@@ -98,8 +99,12 @@ async function updateProfilePhoto(req: AuthenticatedRequest, res: Response) {
   });
   const [_, files]: [unknown, Files<string>] = await form.parse(req);
 
+  if (!successfulUpload) {
+    throw createHttpError(400, "Photo upload failed");
+  }
+
   const data: any = {
-    pfp: successfulUpload ? "/pfp/" + files.pfp?.at(0)?.newFilename : undefined,
+    pfp: process.env.BASE_URL + "/files/pfp/" + files.pfp?.at(0)?.newFilename,
   };
 
   const user = await changeProfile(id, data);
