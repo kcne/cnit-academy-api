@@ -1,7 +1,13 @@
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectsCommand,
+  GetObjectCommand,
+  ListObjectsCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import dotenv from "dotenv";
 import { PassThrough } from "nodemailer/lib/xoauth2";
+import prisma from "../prisma";
 
 dotenv.config();
 const s3client = new S3Client({
@@ -39,4 +45,39 @@ async function getPfp(key: string) {
   };
 }
 
-export { s3client, putPfp, getPfp };
+async function cleanPfp() {
+  const regex = /\/pfp\/([\d\w]+\.(png|webp|jpg|jpeg))$/;
+  const profiles = await prisma.profile.findMany({ select: { pfp: true } });
+  const dbPfps = new Set(profiles.map((el) => el.pfp.match(regex)?.at(1)));
+
+  const s3response = await s3client.send(
+    new ListObjectsCommand({ Bucket: "pfp" }),
+  );
+  const s3Pfps = s3response.Contents?.map((el) => el.Key);
+  if (!s3Pfps) {
+    return;
+  }
+
+  const stalePfps = [];
+  for (const pfp of s3Pfps) {
+    if (!dbPfps.has(pfp)) {
+      stalePfps.push(pfp);
+    }
+  }
+  if (!stalePfps.length) {
+    return;
+  }
+
+  await s3client.send(
+    new DeleteObjectsCommand({
+      Bucket: "pfp",
+      Delete: {
+        Objects: stalePfps.map((el) => ({
+          Key: el,
+        })),
+      },
+    }),
+  );
+}
+
+export { s3client, putPfp, getPfp, cleanPfp };

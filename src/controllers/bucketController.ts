@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getPfp } from "../services/bucketService";
+import { cleanPfp, getPfp } from "../services/bucketService";
 import { z } from "zod";
 
 async function getPfpById(req: Request, res: Response) {
@@ -21,4 +21,10 @@ async function getPfpById(req: Request, res: Response) {
   res.end();
 }
 
-export { getPfpById };
+async function cleanPfpsRoutine(_req: Request, res: Response) {
+  await cleanPfp();
+
+  res.sendStatus(200);
+}
+
+export { getPfpById, cleanPfpsRoutine };
