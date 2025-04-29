@@ -4,6 +4,8 @@ import argon2 from "argon2";
 import { generateVerificationCode, sendVerificationCode } from "./emailService";
 import createHttpError from "http-errors";
 import { z } from "zod";
+import { OAuth2Client } from "google-auth-library";
+import axios from "axios";
 
 const NewUserSchema = z.object({
   firstName: z.string().min(2).max(256),
@@ -99,4 +101,60 @@ async function getUser(data: z.infer<typeof GetUserSchema>): Promise<{
   return { id: user.id, email: user.email, token };
 }
 
-export { createUser, getUser };
+const oAuth2Client = new OAuth2Client(
+  process.env.OAUTH2_CLIENT_ID,
+  process.env.OAUTH2_CLIENT_SECRET,
+  "postmessage",
+);
+
+async function googleLoginOrRegister(code: string) {
+  let data;
+  try {
+    const { tokens } = await oAuth2Client.getToken(code);
+    data = (
+      await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: { Authorization: "Bearer " + tokens.access_token },
+      })
+    ).data;
+  } catch {
+    throw createHttpError(403, "Invalid oauth2 token");
+  }
+
+  let registered = false;
+  let user = await prisma.user.findUnique({ where: { email: data.email } });
+
+  if (!user) {
+    try {
+      user = await prisma.user.create({
+        data: {
+          firstName: data.given_name ?? data.name,
+          lastName: data.family_name ?? "",
+          email: data.email,
+          password: "oauth2",
+          Profile: {
+            create: {
+              pfp: data.picture ?? "/pfp/default.png",
+              education: {},
+              experience: {},
+              skills: "",
+            },
+          },
+        },
+      });
+      registered = true;
+    } catch {
+      throw createHttpError(400, "User could not be created");
+    }
+  }
+  const token = jwt.sign(
+    { id: user?.id, email: user?.email },
+    process.env.JWT_SECRET || "fallback secret",
+    {
+      expiresIn: "3d",
+    },
+  );
+
+  return { token, registered, id: user.id, email: user.email };
+}
+
+export { createUser, getUser, googleLoginOrRegister };

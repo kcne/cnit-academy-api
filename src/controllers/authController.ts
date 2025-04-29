@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
-import { getUser, createUser } from "../services/authService";
+import {
+  getUser,
+  createUser,
+  googleLoginOrRegister,
+} from "../services/authService";
 import { resendVerificationCode, verifyCode } from "../services/emailService";
 import formidable, { Fields, Files } from "formidable";
 import { PassThrough } from "node:stream";
@@ -81,4 +85,17 @@ async function resendEmail(req: Request, res: Response) {
   res.json({ message: "New code sent!" });
 }
 
-export { verifyEmail, resendEmail, register, registerForm, login };
+async function google(req: Request, res: Response) {
+  const { code } = req.body;
+
+  const { registered, ...rest } = await googleLoginOrRegister(code);
+  if (registered) {
+    res.status(201); // registered
+  } else {
+    res.status(200); // logged in
+  }
+
+  res.json(rest);
+}
+
+export { verifyEmail, resendEmail, register, registerForm, login, google };
