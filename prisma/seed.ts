@@ -13,6 +13,21 @@ interface EducationExperience {
   endPeriod: Date;
 }
 
+async function seedLanguages() {
+  const existing = await prisma.language.findMany();
+  if (existing.length === 0) {
+    await prisma.language.createMany({
+      data: [
+        { languageCode: "sr", language: "Srpski" },
+        { languageCode: "en", language: "English" },
+      ],
+    });
+    console.log("Default languages created.");
+  } else {
+    console.log("Languages already exist. Skipping.");
+  }
+}
+
 async function createNewUser() {
   const skills: string[] = [];
   for (let i = 0; i < faker.number.int({ min: 0, max: 5 }); i++) {
@@ -61,6 +76,7 @@ async function createNewUser() {
       },
     },
     totalCoins: faker.number.int({ min: 0, max: 9999 }),
+    languageCode: faker.helpers.arrayElement(["sr", "en"]), // povezujemo s postojećim jezicima
   };
 }
 
@@ -94,6 +110,10 @@ async function main() {
   if (process.env.SEED) {
     faker.seed(Number(process.env.SEED));
   }
+
+  // Seed jezika
+  await seedLanguages();
+
   const users = Number(process.env.USERS || 15);
   const courses = Number(process.env.COURSES || 10);
   const programs = Number(process.env.PROGRAMS || 5);
@@ -108,9 +128,10 @@ async function main() {
     transactions.push(
       prisma.user.create({
         data: { ...user, roles: { connect: { name: "User" } } },
-      }),
+      })
     );
   }
+
   for (let i = 0; i < courses; i++) {
     const course = createNewCourse();
     const id = (
@@ -123,25 +144,23 @@ async function main() {
       transactions.push(
         prisma.lecture.create({
           data: { ...lecture, courseId: id },
-        }),
+        })
       );
     }
   }
+
   for (let i = 0; i < programs; i++) {
     const program = createNewProgram();
-    transactions.push(
-      prisma.program.create({
-        data: program,
-      }),
-    );
+    transactions.push(prisma.program.create({ data: program }));
   }
 
   await prisma.$transaction(transactions);
 
-  console.log("Seeding completed with " + users + " users!");
-  console.log("Seeding completed with " + courses + " courses!");
-  console.log("Seeding completed with " + programs + " programs!");
-  console.log("Seeding completed with " + lectures * courses + " lectures!");
+  console.log(`Seeding completed with:
+  - ${users} users
+  - ${courses} courses
+  - ${programs} programs
+  - ${lectures * courses} lectures`);
 }
 
 main()
