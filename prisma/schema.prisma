@@ -26,6 +26,8 @@ model User {
   UserLecture      UserLecture[]
   UserCourse       UserCourse[]
   UserProgram      UserProgram[]
+  languageCode     String @default("en")
+  UserLanguage     Language  @relation( fields: [languageCode], references: [languageCode]) 
 }
 
 model Profile {
@@ -146,4 +148,10 @@ model UserProgram {
   finished  DateTime?
 
   @@unique([userId, programId])
+}
+
+model Language{
+  languageCode String @id
+  language String
+  User User[]
 }
