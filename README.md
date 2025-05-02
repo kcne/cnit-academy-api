@@ -6,6 +6,8 @@
   - [Usage](#usage)
   - [Authentication](#authentication)
     - [POST /api/auth/register](#post-apiauthregister)
+    - [POST /api/auth/register-form](#post-apiauthregister-form)
+    - [POST /api/auth/google](#post-apiauthgoogle)
     - [POST /api/auth/verify-email](#post-apiauthverify-email)
     - [POST /api/auth/resend-email](#post-apiauthresend-email)
     - [POST /api/auth/login](#post-apiauthlogin)
@@ -15,6 +17,7 @@
     - [GET /api/profile](#get-apiprofile)
     - [GET /api/profile/:id](#get-apiprofileid)
     - [PATCH /api/profile/me](#patch-apiprofileme)
+    - [POST /api/profile/me/pfp](#post-apiprofilemepfp)
     - [DELETE /api/profile/me](#delete-apiprofileme)
     - [PATCH /api/profile/admin/:id](#patch-apiprofileadminid)
     - [DELETE /api/profile/admin/:id](#delete-apiprofileadminid)
@@ -58,8 +61,9 @@
     - [DELETE /api/blog/admin/:id](#delete-apiblogadminid)
     - [GET /api/blog/user/:userId](#get-apibloguseruserid)
     - [GET /api/blog/slug/:slug](#get-apiblogslugslug)
-  - [Global](#global) - [paginationMeta](#paginationmeta)
-  <!--toc:end-->
+  - [Global](#global)
+    - [paginationMeta](#paginationmeta)
+    <!--toc:end-->
 
 ## Usage
 
@@ -94,6 +98,7 @@ Start the backend: `npm run dev`
 
 ### POST /api/auth/register
 
+**Deprecated, use [/api/auth/register-form](#post-apiauthregister-form) instead** \
 Registering a user automatically sends an email. On failure to send it fails silently.
 
 Request JSON:
@@ -102,7 +107,8 @@ Request JSON:
 {
   "firstName": "john",
   "lastName": "doe",
-  "email": "johndoe@gmail.com"
+  "email": "johndoe@gmail.com",
+  "password": "qwerty"
 }
 ```
 
@@ -117,11 +123,67 @@ Response 201 JSON:
   "isEmailVerified": false,
   "updatedAt": "2025-03-26T21:59:54.755Z",
   "totalCoins": 0,
-  "pfp": "/pfp/default"
+  "pfp": "http://localhost:3000/files/pfp/default.png"
 }
 ```
 
 Response 409 -> User with given email already exists
+
+### POST /api/auth/register-form
+
+Registering a user automatically sends an email. On failure to send it fails silently.
+
+Request form data:
+
+| Key       | Value               |
+| --------- | ------------------- |
+| firstName | john                |
+| lastName  | doe                 |
+| email     | <johndoe@gmail.com> |
+| password  | qwerty              |
+| pfp       | (multipart file)    |
+
+Response 201 JSON:
+
+```json
+{
+  "id": 1,
+  "firstName": "john",
+  "lastName": "doe",
+  "email": "johndoe@gmail.com",
+  "isEmailVerified": false,
+  "updatedAt": "2025-03-26T21:59:54.755Z",
+  "totalCoins": 0,
+  "pfp": "http://localhost:3000/files/pfp/default.png"
+}
+```
+
+Response 409 -> User with given email already exists
+
+### POST /api/auth/google
+
+Google OAuth2 login and register
+
+Request JSON:
+
+```json
+{
+  "code": "(auth-code from google oauth2)"
+}
+```
+
+Response JSON:
+
+```json
+{
+  "id": 1,
+  "email": "tet@test.net",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ0ZXRAdGVzdC5uZXQiLCJpYXQiOjE3NDMwMjY4NTMsImV4cCI6MTc0MzExMzI1M30.MdyIeeyBaMLdJ65F6wfdLnKZVkOwMm8gkWm8ZyX7gQY"
+}
+```
+
+Response 200 -> User successfully logged in \
+Response 201 -> New user registered
 
 ### POST /api/auth/verify-email
 
@@ -228,7 +290,7 @@ Response 200 JSON:
       "education": [],
       "experience": [],
       "totalCoins": 0,
-      "pfp": "/pfp/default"
+      "pfp": "http://localhost:3000/files/pfp/default.png"
     },
     {
       "id": 17,
@@ -238,7 +300,7 @@ Response 200 JSON:
       "education": [],
       "experience": [],
       "totalCoins": 0,
-      "pfp": "/pfp/jane.png"
+      "pfp": "http://localhost:3000/files/pfp/jane.png"
     }
   ],
   "meta": "(paginationMeta)"
@@ -275,7 +337,7 @@ Response 200 JSON:
     "endPeriod": "2025-03-14T17:38:29+01:00"
   ],
   "totalCoins": 0,
-  "pfp": "/pfp/2.png",
+  "pfp": "http://localhost:3000/files/pfp/2.png",
   "programs": [
     {
       "id": 1,
@@ -321,12 +383,12 @@ Changing education/experience:
 
 Request JSON:
 
-```jsonp
+```json
 {
   "firstName": "jans",
   "lastName": "doe",
   "skills": ["none", "all", "great at table tennis"],
-  "pfp": "/pfp/aaa2023-12-15_01-23.png",
+  "pfp": "http://localhost:3000/files/pfp/aaa2023-12-15_01-23.png",
   "education": [
     {
       "title": "school",
@@ -350,6 +412,48 @@ Request JSON:
 
 Response 200 JSON: same as above \
 Reponse 404 -> Profile does not exist
+
+### POST /api/profile/me/pfp
+
+Change profile photo
+
+Request form data:
+
+| Value | Key              |
+| ----- | ---------------- |
+| pfp   | (multipart file) |
+
+Response 200 JSON:
+
+```json
+{
+  "firstName": "jans",
+  "lastName": "doe",
+  "skills": ["none", "all", "great at table tennis"],
+  "pfp": "http://localhost:3000/files/pfp/aaa2023-12-15_01-23.png",
+  "education": [
+    {
+      "title": "school",
+      "description": "primary",
+      "organization": "the state",
+      "startPeriod": "2024-12-04T17:40:50+01:00",
+      "endPeriod": "2025-03-14T17:38:29+01:00"
+    },
+    {
+      "id": 2,
+      "title": "school",
+      "description": "secondary",
+      "organization": "private",
+      "startPeriod": "2024-12-04T17:40:50+01:00",
+      "endPeriod": "2025-03-14T17:38:29+01:00"
+    }
+  ],
+  "experience": []
+}
+```
+
+Response 400 -> Photo upload failed \
+Response 404 -> User not found
 
 ### DELETE /api/profile/me
 
@@ -377,7 +481,7 @@ Request JSON:
   "firstName": "jans",
   "lastName": "doe",
   "skills": ["none", "all", "great at table tennis"],
-  "pfp": "/pfp/aaa2023-12-15_01-23.png",
+  "pfp": "http://localhost:3000/files/pfp/aaa2023-12-15_01-23.png",
   "education": [
     {
       "title": "school",
