@@ -868,7 +868,15 @@ Request JSON:
   "description": "description",
   "durationInHours": 2,
   "coins": 10,
-  "studentCount": 0
+  "studentCount": 0,
+  "lectures": [
+    {
+      "title": "The Woman in White",
+      "content": "We need to reboot the back-end VGA transmitter!",
+      "videoUrl": "https://fragrant-saloon.name/",
+      "coins": 2234
+    }
+  ]
 }
 ```
 
@@ -918,7 +926,27 @@ Request JSON:
   "description": "description",
   "durationInHours": 2,
   "coins": 10,
-  "studentCount": 0
+  "studentCount": 0,
+  "lectures": {
+    "create": [
+      {
+        "title": "The Woman in White",
+        "content": "We need to reboot the back-end VGA transmitter!",
+        "videoUrl": "https://fragrant-saloon.name/",
+        "coins": 2234
+      }
+    ],
+    "update": [
+      {
+        "id": 42,
+        "title": "The Woman in White",
+        "content": "We need to reboot the back-end VGA transmitter!",
+        "videoUrl": "https://fragrant-saloon.name/",
+        "coins": 2234
+      }
+    ],
+    "delete": [1, 2, 3, 5, 8]
+  }
 }
 ```
 
