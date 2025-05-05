@@ -14,9 +14,9 @@ const NewUserSchema = z.object({
   password: z.string().min(8).max(256),
   pfp: z
     .string()
-    .max(64)
+    .max(1024)
     .refine(
-      (str) => str.match(/^(\/pfp\/[\d\w]+\.)(png|webp|jpg|jpeg)$/),
+      (str) => str.match(/(\/pfp\/[\d\w]+\.)(png|webp|jpg|jpeg)$/),
       "Pfp string is invalid",
     )
     .optional(),
