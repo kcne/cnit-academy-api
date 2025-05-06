@@ -131,6 +131,7 @@ async function googleLoginOrRegister(code: string) {
           lastName: data.family_name ?? "",
           email: data.email,
           password: "oauth2",
+          roles: { connect: [{ name: "User" }] },
           Profile: {
             create: {
               pfp: data.picture ?? "/pfp/default.png",
