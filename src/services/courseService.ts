@@ -3,17 +3,36 @@ import prisma from "../prisma";
 import { PrismaRepositoryService } from "./prismaRepositoryService";
 import { validateRequest } from "../middlewares/validate";
 import createHttpError from "http-errors";
+import { LectureSchema } from "./lectureService";
 
-const CourseSchema = z.object({
-  title: z.string().max(256),
-  description: z.string().max(1024),
-  founder: z.string().max(256),
-  durationInDays: z.number().int().min(1).max(1000),
-  applicationDeadline: z.coerce.date().min(new Date()),
-  coins: z.number().int().positive().optional(),
-});
-const validateCreateCourse = validateRequest(CourseSchema);
-const validateUpdateCourse = validateRequest(CourseSchema.partial());
+const CreateCourseSchema = z
+  .object({
+    title: z.string().max(256),
+    description: z.string().max(1024),
+    durationInHours: z.number().max(1000),
+    coins: z.number().int().positive().optional(),
+    lectures: z.array(LectureSchema.omit({ courseId: true })),
+  })
+  .transform((el) => ({ ...el, lectures: { create: el.lectures } }));
+const UpdateCourseSchema = z
+  .object({
+    title: z.string().max(256),
+    description: z.string().max(1024),
+    durationInHours: z.number().max(1000),
+    coins: z.number().int().positive().optional(),
+    lectures: z.object({
+      create: z.array(LectureSchema.omit({ courseId: true })),
+      update: z.array(
+        LectureSchema.omit({ courseId: true }).extend({
+          id: z.number().int().positive(),
+        }),
+      ),
+      delete: z.array(z.number().int().positive()),
+    }),
+  })
+  .partial();
+const validateCreateCourse = validateRequest(CreateCourseSchema);
+const validateUpdateCourse = validateRequest(UpdateCourseSchema);
 
 const repositoryService = new PrismaRepositoryService(prisma.course, {
   id: true,
@@ -182,6 +201,62 @@ async function changeStatus(
   }
 }
 
+async function updateCourse(
+  id: number,
+  data: z.infer<typeof UpdateCourseSchema>,
+) {
+  const course = await prisma.course.findUnique({ where: { id } });
+  if (!course) {
+    throw createHttpError(404, "Course not found");
+  }
+
+  const transactions = [];
+
+  transactions.push(
+    prisma.course.update({
+      where: { id },
+      data: {
+        ...data,
+        lectures: {
+          create: data.lectures?.create,
+        },
+      },
+    }),
+  );
+
+  if (data.lectures?.update) {
+    for (const lecture of data.lectures.update) {
+      try {
+        transactions.push(
+          prisma.lecture.update({
+            where: { id: lecture.id, courseId: course.id },
+            data: lecture,
+          }),
+        );
+      } catch (err) {
+        throw createHttpError(
+          404,
+          "Lecture with id " + lecture.id + " not found",
+        );
+      }
+    }
+  }
+  if (data.lectures?.delete) {
+    transactions.push(
+      prisma.lecture.deleteMany({
+        where: { id: { in: data.lectures.delete }, courseId: course.id },
+      }),
+    );
+  }
+
+  await prisma.$transaction(transactions);
+
+  return await prisma.course.findUnique({
+    where: { id },
+    include: { lectures: true },
+  });
+}
+
 export {
   repositoryService,
   validateCreateCourse,
@@ -189,4 +264,5 @@ export {
   changeStatus,
   customFindItem,
   findMyCourses,
+  updateCourse,
 };

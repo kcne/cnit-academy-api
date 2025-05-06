@@ -111,4 +111,5 @@ export {
   changeStatus,
   customFindItem,
   findMyLectures,
+  LectureSchema,
 };

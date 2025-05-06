@@ -4,6 +4,7 @@ import {
   customFindItem,
   findMyCourses,
   repositoryService,
+  updateCourse,
 } from "../services/courseService";
 import { z } from "zod";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
@@ -60,9 +61,9 @@ async function createCourse(req: Request, res: Response) {
 
 async function updateCourseById(req: Request, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  const course = await repositoryService.updateItem(id, req.body);
+  const course = await updateCourse(id, req.body);
 
-  res.json(renameFields(course));
+  res.json(course);
 }
 
 async function startCourse(req: AuthenticatedRequest, res: Response) {
