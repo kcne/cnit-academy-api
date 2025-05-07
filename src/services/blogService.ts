@@ -33,7 +33,7 @@ async function publishBlog(id: number, userId?: number) {
   if (!blog) {
     throw createHttpError(404, "Blog not found");
   }
-  if (userId ? userId !== blog.userId : false) {
+  if (userId && userId !== blog.userId) {
     throw createHttpError(403, "Only admins can edit foreign blogs");
   }
 }
@@ -112,8 +112,10 @@ async function createComment(commentData: any, blogId: number, userId: number) {
 }
 
 async function deleteComment(blogId: number, commentId: number) {
-  await prisma.comment.delete({ where: { id: commentId } });
-  await prisma.commentBlog.deleteMany({ where: { commentId, blogId } });
+  await prisma.$transaction([
+    prisma.comment.delete({ where: { id: commentId } }),
+    prisma.commentBlog.deleteMany({ where: { commentId, blogId } }),
+  ]);
 }
 
 export {

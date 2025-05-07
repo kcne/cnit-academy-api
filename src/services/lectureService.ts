@@ -46,7 +46,7 @@ async function customFindItem(id: number, userId: number) {
   return res;
 }
 
-async function start(userId: number, lectureId: number) {
+async function beginLesson(userId: number, lectureId: number) {
   const lecture = await prisma.lecture.findUnique({ where: { id: lectureId } });
   if (!lecture) {
     throw createHttpError(404, "Lecture not found");
@@ -60,7 +60,7 @@ async function start(userId: number, lectureId: number) {
   });
 }
 
-async function finish(userId: number, lectureId: number) {
+async function completeLesson(userId: number, lectureId: number) {
   const lecture = await prisma.lecture.findUnique({
     where: { id: lectureId },
     select: { coins: true },
@@ -123,8 +123,8 @@ export {
   repositoryService,
   validateCreateLecture,
   validateUpdateLecture,
-  start,
-  finish,
+  beginLesson,
+  completeLesson,
   customFindItem,
   LectureSchema,
 };

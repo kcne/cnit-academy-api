@@ -1,7 +1,6 @@
 import { Response, NextFunction, Request } from "express";
 import jwt from "jsonwebtoken";
 import prisma from "../prisma";
-import { Role } from "@prisma/client";
 
 export interface AuthenticatedRequest extends Request {
   user?: User;
@@ -13,9 +12,15 @@ interface User {
   role: string;
 }
 
+export enum Role {
+  user = "USER",
+  instructor = "INSTRUCTOR",
+  admin = "ADMIN",
+}
+
 function authMiddleware(requiredRole?: string[]) {
-  const roles = requiredRole ?? Object.values(Role).slice(0, -1);
-  roles.push("ADMIN");
+  const roles = requiredRole ?? Object.values(Role);
+  roles.push(Role.admin);
 
   return async function (
     req: AuthenticatedRequest,

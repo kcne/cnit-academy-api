@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
-import { finish, repositoryService, start } from "../services/lectureService";
+import {
+  completeLesson,
+  repositoryService,
+  beginLesson,
+} from "../services/lectureService";
 import { z } from "zod";
-import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import { AuthenticatedRequest, Role } from "../middlewares/authMiddleware";
 
 async function getAllLectures(req: Request, res: Response) {
   const { page, limit } = req.query;
@@ -60,7 +64,7 @@ async function updateLectureById(req: AuthenticatedRequest, res: Response) {
   const lecture = await repositoryService.updateItem(
     id,
     req.body,
-    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined,
   );
 
   res.json(lecture);
@@ -77,7 +81,7 @@ async function startLecture(req: AuthenticatedRequest, res: Response) {
     .int()
     .parseAsync(req.params.id);
 
-  await start(userId, lectureId);
+  await beginLesson(userId, lectureId);
 
   res.send();
 }
@@ -93,7 +97,7 @@ async function finishLecture(req: AuthenticatedRequest, res: Response) {
     .int()
     .parseAsync(req.params.id);
 
-  await finish(userId, lectureId);
+  await completeLesson(userId, lectureId);
 
   res.send();
 }
@@ -102,7 +106,7 @@ async function deleteLectureById(req: AuthenticatedRequest, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   await repositoryService.deleteItem(
     id,
-    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined,
   );
 
   res.send();

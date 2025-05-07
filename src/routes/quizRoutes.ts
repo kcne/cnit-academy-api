@@ -1,6 +1,6 @@
 import { Router } from "express";
 import asyncHandler from "../middlewares/asyncHandler";
-import authMiddleware from "../middlewares/authMiddleware";
+import authMiddleware, { Role } from "../middlewares/authMiddleware";
 import {
   createQuiz,
   deleteQuiz,
@@ -24,19 +24,19 @@ router.put("/:id/submit", validateSubmitQuiz, asyncHandler(submitQuiz));
 // admin routes
 router.post(
   "/admin",
-  authMiddleware(["INSTRUCTOR"]),
+  authMiddleware([Role.instructor]),
   validateCreateQuiz,
   asyncHandler(createQuiz),
 );
 router.patch(
   "/admin/:id",
-  authMiddleware(["INSTRUCTOR"]),
+  authMiddleware([Role.instructor]),
   validateUpdateQuiz,
   asyncHandler(updateQuiz),
 );
 router.delete(
   "/admin/:id",
-  authMiddleware(["INSTRUCTOR"]),
+  authMiddleware([Role.instructor]),
   asyncHandler(deleteQuiz),
 );
 

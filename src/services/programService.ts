@@ -193,7 +193,11 @@ async function apply(userId: number, programId: number) {
   });
 }
 
-async function enroll(userIds: number[], programId: number, userId?: number) {
+async function enrollApplicantsInProgram(
+  userIds: number[],
+  programId: number,
+  userId?: number,
+) {
   const program = await prisma.program.findUnique({ where: { id: programId } });
   if (!program) {
     throw createHttpError(404, "Program not found");
@@ -214,7 +218,7 @@ async function enroll(userIds: number[], programId: number, userId?: number) {
   });
 }
 
-async function finish(programId: number, userId?: number) {
+async function markProgramAsCompleted(programId: number, userId?: number) {
   const program = await prisma.program.findUnique({ where: { id: programId } });
   if (!program) {
     throw createHttpError(404, "Program not found");
@@ -266,8 +270,8 @@ export {
   validateCreateProgram,
   validateUpdateProgram,
   apply,
-  enroll,
-  finish,
+  enrollApplicantsInProgram,
+  markProgramAsCompleted,
   customGetAll,
   customFindItem,
 };

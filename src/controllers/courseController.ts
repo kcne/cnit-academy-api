@@ -6,7 +6,7 @@ import {
   updateCourse,
 } from "../services/courseService";
 import { z } from "zod";
-import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import { AuthenticatedRequest, Role } from "../middlewares/authMiddleware";
 
 function renameFields(input: any) {
   return { ...input, _count: undefined, studentCount: input._count.UserCourse };
@@ -71,8 +71,8 @@ async function getCourseById(req: AuthenticatedRequest, res: Response) {
 async function createCourse(req: AuthenticatedRequest, res: Response) {
   const course = await repositoryService.createItem({
     ...req.body,
-    lectures: req.body.lectures.map((el: any) => ({
-      ...el,
+    lectures: req.body.lectures.map((lecture: any) => ({
+      ...lecture,
       userId: req.user?.id,
     })),
     userId: req.user?.id,
@@ -86,7 +86,7 @@ async function updateCourseById(req: AuthenticatedRequest, res: Response) {
   const course = await updateCourse(
     id,
     req.body,
-    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined,
   );
 
   res.json(course);
@@ -128,7 +128,7 @@ async function deleteCourseById(req: AuthenticatedRequest, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   await repositoryService.deleteItem(
     id,
-    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined,
   );
 
   res.send();

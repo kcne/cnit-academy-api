@@ -14,7 +14,7 @@ import {
   validateCreateCourse,
   validateUpdateCourse,
 } from "../services/courseService";
-import authMiddleware from "../middlewares/authMiddleware";
+import authMiddleware, { Role } from "../middlewares/authMiddleware";
 import streakMiddleware from "../middlewares/streakMiddleware";
 
 const router = Router();
@@ -28,19 +28,19 @@ router.put("/:id/finish", streakMiddleware, asyncHandler(finishCourse));
 // admin routes
 router.post(
   "/admin",
-  authMiddleware(["INSTRUCTOR"]),
+  authMiddleware([Role.instructor]),
   validateCreateCourse,
   asyncHandler(createCourse),
 );
 router.patch(
   "/admin/:id",
-  authMiddleware(["INSTRUCTOR"]),
+  authMiddleware([Role.instructor]),
   validateUpdateCourse,
   asyncHandler(updateCourseById),
 );
 router.delete(
   "/admin/:id",
-  authMiddleware(["INSTRUCTOR"]),
+  authMiddleware([Role.instructor]),
   asyncHandler(deleteCourseById),
 );
 

@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
 import {
   apply,
-  enroll,
-  finish,
+  enrollApplicantsInProgram,
+  markProgramAsCompleted,
   repositoryService,
   customGetAll,
   customFindItem,
 } from "../services/programService";
 import { z } from "zod";
-import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import { AuthenticatedRequest, Role } from "../middlewares/authMiddleware";
 
 function renameFields(input: any) {
   return {
@@ -85,7 +85,7 @@ async function updateProgram(req: AuthenticatedRequest, res: Response) {
   const program = await repositoryService.updateItem(
     id,
     req.body,
-    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined,
   );
 
   res.json(renameFields(program));
@@ -96,7 +96,7 @@ async function deleteProgram(req: AuthenticatedRequest, res: Response) {
 
   const program = await repositoryService.deleteItem(
     id,
-    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined,
   );
 
   res.json(renameFields(program));
@@ -120,7 +120,7 @@ async function applyToProgram(req: AuthenticatedRequest, res: Response) {
 
 async function enrollToProgram(req: AuthenticatedRequest, res: Response) {
   const creatorId =
-    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined;
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined;
   const userIds = await z.coerce
     .number()
     .positive()
@@ -133,21 +133,21 @@ async function enrollToProgram(req: AuthenticatedRequest, res: Response) {
     .int()
     .parseAsync(req.params.id);
 
-  await enroll(userIds, programId, creatorId);
+  await enrollApplicantsInProgram(userIds, programId, creatorId);
 
   res.send();
 }
 
 async function finishProgram(req: AuthenticatedRequest, res: Response) {
   const creatorId =
-    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined;
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined;
   const programId = await z.coerce
     .number()
     .positive()
     .int()
     .parseAsync(req.params.id);
 
-  await finish(programId, creatorId);
+  await markProgramAsCompleted(programId, creatorId);
 
   res.send();
 }

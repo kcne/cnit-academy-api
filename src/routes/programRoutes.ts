@@ -15,7 +15,7 @@ import {
   validateUpdateProgram,
 } from "../services/programService";
 import asyncHandler from "../middlewares/asyncHandler";
-import authMiddleware from "../middlewares/authMiddleware";
+import authMiddleware, { Role } from "../middlewares/authMiddleware";
 
 const router = Router();
 
@@ -27,29 +27,29 @@ router.put("/:id/apply", asyncHandler(applyToProgram));
 // admin routes
 router.post(
   "/admin",
-  authMiddleware(["INSTRUCTOR"]),
+  authMiddleware([Role.instructor]),
   validateCreateProgram,
   asyncHandler(createProgram),
 );
 router.patch(
   "/admin/:id",
-  authMiddleware(["INSTRUCTOR"]),
+  authMiddleware([Role.instructor]),
   validateUpdateProgram,
   asyncHandler(updateProgram),
 );
 router.put(
   "/admin/:id/enroll",
-  authMiddleware(["INSTRUCTOR"]),
+  authMiddleware([Role.instructor]),
   asyncHandler(enrollToProgram),
 );
 router.put(
   "/admin/:id/finish",
-  authMiddleware(["INSTRUCTOR"]),
+  authMiddleware([Role.instructor]),
   asyncHandler(finishProgram),
 );
 router.delete(
   "/admin/:id",
-  authMiddleware(["INSTRUCTOR"]),
+  authMiddleware([Role.instructor]),
   asyncHandler(deleteProgram),
 );
 

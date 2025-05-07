@@ -1,6 +1,6 @@
 import { Router } from "express";
 import asyncHandler from "../middlewares/asyncHandler";
-import authMiddleware from "../middlewares/authMiddleware";
+import authMiddleware, { Role } from "../middlewares/authMiddleware";
 import {
   buyBadge,
   createBadge,
@@ -23,19 +23,19 @@ router.put("/:id/buy", asyncHandler(buyBadge));
 // admin routes
 router.post(
   "/admin",
-  authMiddleware(["ADMIN"]),
+  authMiddleware([Role.admin]),
   validateCreateBadge,
   asyncHandler(createBadge),
 );
 router.patch(
   "/admin/:id",
-  authMiddleware(["ADMIN"]),
+  authMiddleware([Role.admin]),
   validateUpdateBadge,
   asyncHandler(updateBadgeById),
 );
 router.delete(
   "/admin/:id",
-  authMiddleware(["ADMIN"]),
+  authMiddleware([Role.admin]),
   asyncHandler(deleteBadgeById),
 );
 

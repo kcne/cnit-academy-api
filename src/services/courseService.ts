@@ -13,7 +13,10 @@ const CreateCourseSchema = z
     coins: z.number().int().positive().optional(),
     lectures: z.array(LectureSchema.omit({ courseId: true })),
   })
-  .transform((el) => ({ ...el, lectures: { create: el.lectures } }));
+  .transform((course) => ({
+    ...course,
+    lectures: { create: course.lectures },
+  }));
 const UpdateCourseSchema = z
   .object({
     title: z.string().max(256),
@@ -114,11 +117,11 @@ async function customFindItem(id: number, userId: number) {
 
   const res = {
     ...course,
-    lectures: course.lectures.map((el) => {
+    lectures: course.lectures.map((lecture) => {
       return {
-        ...el,
-        started: Boolean(el.UserLecture.length),
-        finished: Boolean(el.UserLecture[0]?.finished),
+        ...lecture,
+        started: Boolean(lecture.UserLecture.length),
+        finished: Boolean(lecture.UserLecture[0]?.finished),
         UserLecture: undefined,
       };
     }),
@@ -195,8 +198,8 @@ async function updateCourse(
       data: {
         ...data,
         lectures: {
-          create: data.lectures?.create.map((el) => ({
-            ...el,
+          create: data.lectures?.create.map((lecture) => ({
+            ...lecture,
             userId,
           })),
         },

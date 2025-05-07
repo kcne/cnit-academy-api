@@ -6,7 +6,7 @@ import {
   validateAuthScope,
 } from "../services/quizService";
 import { z } from "zod";
-import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import { AuthenticatedRequest, Role } from "../middlewares/authMiddleware";
 import createHttpError from "http-errors";
 
 async function getAllQuizzes(req: Request, res: Response) {
@@ -29,7 +29,7 @@ async function getQuiz(req: Request, res: Response) {
 
 async function createQuiz(req: AuthenticatedRequest, res: Response) {
   const creatorId =
-    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined;
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined;
   const quiz = await createQuizWrapper(req.body, creatorId);
 
   res.status(201).json(quiz);
@@ -37,7 +37,7 @@ async function createQuiz(req: AuthenticatedRequest, res: Response) {
 
 async function updateQuiz(req: AuthenticatedRequest, res: Response) {
   const creatorId =
-    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined;
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined;
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   if (creatorId) {
     if (!validateAuthScope(id, creatorId)) {
@@ -51,7 +51,7 @@ async function updateQuiz(req: AuthenticatedRequest, res: Response) {
 
 async function deleteQuiz(req: AuthenticatedRequest, res: Response) {
   const creatorId =
-    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined;
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined;
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   if (creatorId) {
     if (!validateAuthScope(id, creatorId)) {

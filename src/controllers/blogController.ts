@@ -9,7 +9,7 @@ import {
   deleteComment,
 } from "../services/blogService";
 import { z } from "zod";
-import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import { AuthenticatedRequest, Role } from "../middlewares/authMiddleware";
 
 async function getBlogs(req: Request, res: Response) {
   const { page, limit } = req.query;
@@ -49,7 +49,7 @@ async function updateBlog(req: AuthenticatedRequest, res: Response) {
   const blog = await repositoryService.updateItem(
     id,
     req.body,
-    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined,
   );
   res.json(blog);
 }
@@ -58,7 +58,7 @@ async function deleteBlog(req: AuthenticatedRequest, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   await repositoryService.deleteItem(
     id,
-    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined,
   );
   res.send();
 }
@@ -67,7 +67,7 @@ async function togglePublishBlog(req: AuthenticatedRequest, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
   await publishBlog(
     id,
-    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined,
   );
   res.send();
 }
