@@ -46,6 +46,8 @@ interface Profile {
   experience: EducationExperience[];
   totalCoins?: number;
   pfp?: string;
+  badges: any[];
+  streak: number;
 }
 
 interface EducationExperience {
@@ -54,7 +56,7 @@ interface EducationExperience {
   description: string;
   organization: string;
   startPeriod: Date;
-  endPeriod: Date | null; // TODO: jobs don't need an end date
+  endPeriod: Date | null;
 }
 
 function compareEduExp(obj1: EducationExperience, obj2: EducationExperience) {
@@ -80,6 +82,8 @@ function rawToProfile(obj: any): Profile | null {
     experience: obj.experience,
     totalCoins: obj.user?.totalCoins,
     pfp: obj.pfp,
+    badges: obj.user?.badges,
+    streak: obj.user?.UserActivity?.streak ?? 0,
   };
 }
 
@@ -98,6 +102,17 @@ async function getProfiles(pagination: PaginationOptions) {
           totalCoins: true,
           email: true,
           createdAt: true,
+          badges: {
+            select: {
+              title: true,
+              icon: true,
+            },
+          },
+          UserActivity: {
+            select: {
+              streak: true,
+            },
+          },
         },
       },
     },
@@ -120,6 +135,17 @@ async function getProfile(id: number) {
           email: true,
           createdAt: true,
           isEmailVerified: true,
+          badges: {
+            select: {
+              title: true,
+              icon: true,
+            },
+          },
+          UserActivity: {
+            select: {
+              streak: true,
+            },
+          },
           UserProgram: {
             where: {
               userId: id,
@@ -176,6 +202,52 @@ async function getProfile(id: number) {
       finished: el.finished ?? false,
     })),
   };
+}
+
+async function addProfile(id: number, profile: Profile) {
+  if (typeof profile.skills === "string") {
+    throw new Error(
+      "internal validation error: profile.skills was string instead of string[]",
+    );
+  }
+  if (!(await prisma.user.findUnique({ where: { id } }))) {
+    throw createHttpError(404, "User not found");
+  }
+
+  const newProfile = await prisma.profile.create({
+    data: {
+      pfp: profile.pfp,
+      skills: profile.skills.join(","),
+      education: { create: profile.education },
+      experience: { create: profile.experience },
+      id,
+    },
+    include: {
+      education: true,
+      experience: true,
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+          totalCoins: true,
+          createdAt: true,
+          badges: {
+            select: {
+              title: true,
+              icon: true,
+            },
+          },
+          UserActivity: {
+            select: {
+              streak: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return rawToProfile(newProfile);
 }
 
 async function changeProfile(id: number, profile: Profile) {
@@ -269,6 +341,17 @@ async function changeProfile(id: number, profile: Profile) {
       email: true,
       isEmailVerified: true,
       createdAt: true,
+      badges: {
+        select: {
+          title: true,
+          icon: true,
+        },
+      },
+      UserActivity: {
+        select: {
+          streak: true,
+        },
+      },
     },
   });
   return rawToProfile({ ...newProfile, user: newUser });

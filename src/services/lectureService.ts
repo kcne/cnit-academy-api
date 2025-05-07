@@ -60,16 +60,25 @@ async function findMyLectures(userId: number) {
   return lectures;
 }
 
-async function changeStatus(
-  userId: number,
-  lectureId: number,
-  finished: boolean,
-) {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+async function start(userId: number, lectureId: number) {
   const lecture = await prisma.lecture.findUnique({ where: { id: lectureId } });
-  if (!user) {
-    throw createHttpError(404, "User not found");
+  if (!lecture) {
+    throw createHttpError(404, "Lecture not found");
   }
+
+  await prisma.userLecture.create({
+    data: {
+      userId,
+      lectureId,
+    },
+  });
+}
+
+async function finish(userId: number, lectureId: number) {
+  const lecture = await prisma.lecture.findUnique({
+    where: { id: lectureId },
+    select: { coins: true },
+  });
   if (!lecture) {
     throw createHttpError(404, "Lecture not found");
   }
@@ -77,25 +86,45 @@ async function changeStatus(
   // TODO: this can probably be a single call
   const userLecture = await prisma.userLecture.findFirst({
     where: { userId, lectureId },
+    select: {
+      id: true,
+      finished: true,
+    },
   });
   await prisma.userLecture.upsert({
     create: {
       userId,
       lectureId,
-      finished: finished ? new Date() : undefined,
+      finished: new Date(),
     },
     update: {
-      finished: finished ? new Date() : undefined,
+      finished: new Date(),
     },
     where: {
       id: userLecture?.id || -1,
     },
   });
 
-  if (finished && !userLecture?.finished) {
+  if (!userLecture?.finished) {
+    const userQuizAttempt = await prisma.userQuizAttempt.findFirst({
+      where: { userId, quizId: lectureId },
+      select: {
+        score: true,
+      },
+      orderBy: {
+        id: "asc", // count only the first attempt
+      },
+    });
+    if (!userQuizAttempt) {
+      if (await prisma.quiz.findUnique({ where: { id: lectureId } })) {
+        throw createHttpError(400, "This lecture has an unfinished quiz");
+      }
+    }
     await prisma.user.update({
       data: {
-        totalCoins: { increment: lecture.coins },
+        totalCoins: {
+          increment: Math.ceil(lecture.coins * (userQuizAttempt?.score ?? 1)),
+        },
       },
       where: {
         id: userId,
@@ -108,7 +137,8 @@ export {
   repositoryService,
   validateCreateLecture,
   validateUpdateLecture,
-  changeStatus,
+  start,
+  finish,
   customFindItem,
   findMyLectures,
   LectureSchema,

@@ -9,26 +9,29 @@ datasource db {
 }
 
 model User {
-  id               Int           @id @default(autoincrement())
+  id               Int               @id @default(autoincrement())
   firstName        String
   lastName         String
-  email            String        @unique
+  email            String            @unique
   password         String
-  roles            Role[]        @relation("UserRoles")
-  isEmailVerified  Boolean       @default(false)
+  roles            Role[]            @relation("UserRoles")
+  isEmailVerified  Boolean           @default(false)
   verificationCode String?
   expiresAt        DateTime?
   Profile          Profile?
   Blog             Blog[]
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  totalCoins       Int           @default(0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  totalCoins       Int               @default(0)
+  badges           Badge[]
   UserLecture      UserLecture[]
   UserCourse       UserCourse[]
   UserProgram      UserProgram[]
-  languageCode     String        @default("en")
-  UserLanguage     Language      @relation(fields: [languageCode], references: [languageCode])
+  languageCode     String            @default("en")
+  UserLanguage     Language          @relation(fields: [languageCode], references: [languageCode])
   Comment          Comment[]
+  UserQuizAttempt  UserQuizAttempt[]
+  UserActivity     UserActivity[]
 }
 
 model Profile {
@@ -115,6 +118,7 @@ model Lecture {
   createdAt   DateTime      @default(now())
   coins       Int           @default(0)
   UserLecture UserLecture[]
+  Quiz        Quiz?
 }
 
 model UserLecture {
@@ -173,4 +177,45 @@ model CommentBlog {
   blogId    Int
   comment   Comment @relation(fields: [commentId], references: [id])
   blog      Blog    @relation(fields: [blogId], references: [id])
+}
+
+model Quiz {
+  id        Int               @id @default(autoincrement())
+  lecture   Lecture           @relation(fields: [id], references: [id])
+  questions Question[]
+  attempts  UserQuizAttempt[]
+}
+
+model Question {
+  id      Int    @id @default(autoincrement())
+  text    String
+  quizId  Int
+  quiz    Quiz   @relation(fields: [quizId], references: [id])
+  score   Int
+  options Json // ["c", "c++", "java", "javascript"]
+  answer  String
+}
+
+model UserQuizAttempt {
+  id     Int   @id @default(autoincrement())
+  userId Int
+  quizId Int
+  user   User  @relation(fields: [userId], references: [id])
+  quiz   Quiz  @relation(fields: [quizId], references: [id])
+  score  Float // 0-1 ratio
+}
+
+model Badge {
+  id    Int    @id @default(autoincrement())
+  icon  String // /badges/streak10.png
+  title String
+  cost  Int
+  Users User[]
+}
+
+model UserActivity {
+  id      Int      @id
+  user    User     @relation(fields: [id], references: [id])
+  loginAt DateTime @default(now())
+  streak  Int
 }

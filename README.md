@@ -294,6 +294,13 @@ Response 200 JSON:
       "experience": [],
       "totalCoins": 0,
       "pfp": "http://localhost:3000/files/pfp/default.png"
+      "badges": [
+        {
+          "title": "titl",
+          "icon": "/badges/1.png"
+        }
+      ],
+      "streak": 7,
     },
     {
       "id": 17,
@@ -304,6 +311,13 @@ Response 200 JSON:
       "experience": [],
       "totalCoins": 0,
       "pfp": "http://localhost:3000/files/pfp/jane.png"
+      "badges": [
+        {
+          "title": "titl",
+          "icon": "/badges/1.png"
+        }
+      ],
+      "streak": 7,
     }
   ],
   "meta": "(paginationMeta)"
@@ -341,6 +355,13 @@ Response 200 JSON:
   ],
   "totalCoins": 0,
   "pfp": "http://localhost:3000/files/pfp/2.png",
+      "badges": [
+        {
+          "title": "titl",
+          "icon": "/badges/1.png"
+        }
+      ],
+  "streak": 7,
   "programs": [
     {
       "id": 1,
@@ -479,7 +500,7 @@ Changing education/experience:
 
 Request JSON:
 
-```jsonp
+```json
 {
   "firstName": "jans",
   "lastName": "doe",
@@ -1243,7 +1264,7 @@ Response 200 JSON:
 
 ### GET /api/leaderboard/weekly
 
-nly returns profiles which have been updated this week \
+Only returns profiles which have been updated this week \
 **Prone to change:**
 
 - Return a max of X profiles
@@ -1557,6 +1578,360 @@ Request query params:
 
 Response 200 -> Comment successfully deleted \
 Response 404 -> Blog not found
+
+## Quizzes
+
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
+
+### GET /api/quiz
+
+Fetch all quizzes
+
+Request query params:
+
+| key   | example | description                |
+| ----- | ------- | -------------------------- |
+| page  | 2       | Current page               |
+| limit | 20      | Number of quizzes per page |
+
+Response 200 JSON:
+
+```json
+{
+  "data": [
+    {
+      "id": 7,
+      "questions": [
+        {
+          "id": 1,
+          "text": "programming language",
+          "quizId": 7,
+          "score": 50,
+          "options": ["html", "css", "js"]
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 9007199254740991,
+    "total": 1,
+    "totalPages": 1,
+    "hasNextPage": false,
+    "hasPrevPage": false
+  }
+}
+```
+
+### GET /api/quiz/:id
+
+Request query params:
+
+| key | example | description                      |
+| --- | ------- | -------------------------------- |
+| id  | 2       | ID of the quiz, positive integer |
+
+Response 200 JSON:
+
+```json
+{
+  "id": 7,
+  "questions": [
+    {
+      "id": 1,
+      "text": "programming language",
+      "quizId": 7,
+      "score": 50,
+      "options": ["html", "css", "js"]
+    }
+  ]
+}
+```
+
+Response 404 -> Quiz not found
+
+### POST /api/quiz/admin
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin))
+
+Create a new quiz
+
+Request JSON:
+
+```json
+{
+  "id": 7,
+  "questions": [
+    {
+      "text": "programming language",
+      "score": 50,
+      "options": ["html", "css", "js"],
+      "answer": "js"
+    }
+  ]
+}
+```
+
+Response 201 JSON:
+
+```json
+{
+  "id": 7,
+  "questions": [
+    {
+      "text": "bestest lang",
+      "score": 50,
+      "options": ["html", "css", "js"]
+    }
+  ]
+}
+```
+
+Response 404 -> Quiz not found
+
+### PATCH /api/quiz/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin))
+
+Update a quiz \
+All of the fields are optional
+
+Request query params:
+
+| key | example | description                      |
+| --- | ------- | -------------------------------- |
+| id  | 2       | ID of the quiz, positive integer |
+
+Request JSON:
+
+```json
+{
+  "title": "The Woman in White",
+  "content": "We need to reboot the back-end VGA transmitter!",
+  "videoUrl": "https://fragrant-saloon.name/",
+  "courseId": 2,
+  "coins": 2234
+}
+```
+
+Response 200 JSON:
+
+```json
+{
+  "id": 28,
+  "title": "The Woman in White",
+  "content": "We need to reboot the back-end VGA transmitter!",
+  "videoUrl": "https://fragrant-saloon.name/",
+  "courseId": 10,
+  "coins": 2234
+}
+```
+
+Response 404 -> Quiz not found
+
+### PUT /api/quiz/:id/submit
+
+Submit the answers to a quiz
+
+Request query params:
+
+| key | example | description                      |
+| --- | ------- | -------------------------------- |
+| id  | 2       | ID of the quiz, positive integer |
+
+Request JSON:
+
+```json
+{
+  "3": "c",
+  "4": "c++",
+  "6": "rust",
+  "7": "html",
+  "8": "css",
+  "9": "go",
+  "12": "java"
+}
+```
+
+Response 200 JSON:
+
+```json
+{
+  "maxScore": 800,
+  "score": 400,
+  "ratio": 0.5
+}
+```
+
+Response 404 -> Quiz not found
+
+### DELETE /api/quiz/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin))
+
+Delete a quiz
+
+Request query params:
+
+| key | example | description                      |
+| --- | ------- | -------------------------------- |
+| id  | 2       | ID of the quiz, positive integer |
+
+Response 200 -> Quiz deleted successfully \
+Response 404 -> Quiz not found
+
+## Badges
+
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
+
+### GET /api/store
+
+Fetch all badges
+
+Request query params:
+
+| key   | example | description               |
+| ----- | ------- | ------------------------- |
+| page  | 2       | Current page              |
+| limit | 20      | Number of Badges per page |
+
+Response 200 JSON:
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "icon": "/badges/streak100.png",
+      "title": "Streak 100",
+      "cost": 50
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 9007199254740991,
+    "total": 1,
+    "totalPages": 1,
+    "hasNextPage": false,
+    "hasPrevPage": false
+  }
+}
+```
+
+### GET /api/store/:id
+
+Request query params:
+
+| key | example | description                       |
+| --- | ------- | --------------------------------- |
+| id  | 2       | ID of the badge, positive integer |
+
+Response 200 JSON:
+
+```json
+{
+  "id": 1,
+  "icon": "/badges/streak100.png",
+  "title": "Streak 100",
+  "cost": 50
+}
+```
+
+Response 404 -> Badge not found
+
+### POST /api/store/admin
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin))
+
+Create a new badge
+
+Request JSON:
+
+```json
+{
+  "icon": "/badges/streak100.png",
+  "title": "Streak 100",
+  "cost": 50
+}
+```
+
+Response 201 JSON:
+
+```json
+{
+  "id": 1,
+  "icon": "/badges/streak100.png",
+  "title": "Streak 100",
+  "cost": 50
+}
+```
+
+Response 404 -> badge not found
+
+### PATCH /api/store/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin))
+
+Update a badge \
+All of the fields are optional
+
+Request query params:
+
+| key | example | description                       |
+| --- | ------- | --------------------------------- |
+| id  | 2       | ID of the badge, positive integer |
+
+Request JSON:
+
+```json
+{
+  "icon": "/badges/streak100.png",
+  "title": "Streak 100",
+  "cost": 50
+}
+```
+
+Response 200 JSON:
+
+```json
+{
+  "id": 1,
+  "icon": "/badges/streak100.png",
+  "title": "Streak 100",
+  "cost": 50
+}
+```
+
+Response 404 -> badge not found
+
+### PUT /api/store/:id/buy
+
+Buy a badge
+
+Request query params:
+
+| key | example | description                       |
+| --- | ------- | --------------------------------- |
+| id  | 2       | ID of the badge, positive integer |
+
+Response 200 -> Badge bought successfully
+Response 400 -> Insufficient funds
+Response 404 -> Badge not found
+
+### DELETE /api/store/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin))
+
+Delete a badge
+
+Request query params:
+
+| key | example | description                       |
+| --- | ------- | --------------------------------- |
+| id  | 2       | ID of the badge, positive integer |
+
+Response 200 -> Badge deleted successfully \
+Response 404 -> Badge not found
 
 ## Global
 

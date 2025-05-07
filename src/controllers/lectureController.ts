@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import {
-  changeStatus,
   findMyLectures,
+  finish,
   repositoryService,
+  start,
 } from "../services/lectureService";
 import { z } from "zod";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
@@ -61,7 +62,7 @@ async function startLecture(req: AuthenticatedRequest, res: Response) {
     .int()
     .parseAsync(req.params.id);
 
-  await changeStatus(userId, lectureId, false);
+  await start(userId, lectureId);
 
   res.send();
 }
@@ -77,7 +78,7 @@ async function finishLecture(req: AuthenticatedRequest, res: Response) {
     .int()
     .parseAsync(req.params.id);
 
-  await changeStatus(userId, lectureId, true);
+  await finish(userId, lectureId);
 
   res.send();
 }

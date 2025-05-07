@@ -10,6 +10,8 @@ import errorHandler from "./middlewares/errorHandler";
 import authMiddleware from "./middlewares/authMiddleware";
 import blogRoutes from "./routes/blogRoutes";
 import bucketRoutes from "./routes/bucketRoutes";
+import quizRoutes from "./routes/quizRoutes";
+import storeRoutes from "./routes/storeRoutes";
 
 const app = express();
 
@@ -23,6 +25,8 @@ app.use("/api/blog", blogRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/program", authMiddleware(), programRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
+app.use("/api/quiz", authMiddleware(), quizRoutes);
+app.use("/api/store", authMiddleware(), storeRoutes);
 app.use("/files", bucketRoutes);
 
 app.use(errorHandler);
