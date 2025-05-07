@@ -128,7 +128,7 @@ async function main() {
     transactions.push(
       prisma.user.create({
         data: { ...user, roles: { connect: { name: "User" } } },
-      })
+      }),
     );
   }
 
@@ -144,7 +144,7 @@ async function main() {
       transactions.push(
         prisma.lecture.create({
           data: { ...lecture, courseId: id },
-        })
+        }),
       );
     }
   }

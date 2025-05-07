@@ -95,7 +95,7 @@ async function getUser(data: z.infer<typeof GetUserSchema>): Promise<{
     process.env.JWT_SECRET || "fallback secret",
     {
       expiresIn: "3d",
-    },
+    }
   );
 
   return { id: user.id, email: user.email, token };
