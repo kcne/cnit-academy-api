@@ -35,8 +35,6 @@ async function buy(id: number, userId: number) {
     throw createHttpError(409, "User has already bought this badge");
   }
   if ((user?.totalCoins ?? -1) < badge.cost) {
-    console.log(user?.totalCoins);
-    console.log(badge.cost);
     throw createHttpError(
       400,
       "User doesn't have enough coins for this purchase",

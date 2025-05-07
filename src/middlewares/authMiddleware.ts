@@ -16,7 +16,6 @@ interface User {
 function authMiddleware(requiredRole?: string[]) {
   const roles = requiredRole ?? Object.values(Role).slice(0, -1);
   roles.push("ADMIN");
-  console.log(roles);
 
   return async function (
     req: AuthenticatedRequest,

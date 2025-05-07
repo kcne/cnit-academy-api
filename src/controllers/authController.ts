@@ -59,7 +59,6 @@ async function registerForm(req: Request, res: Response) {
       ? process.env.BASE_URL + "/files/pfp/" + files.pfp?.at(0)?.newFilename
       : process.env.BASE_URL + "/files/pfp/default.png",
   };
-  console.log(files.pfp?.at(0)?.newFilename);
 
   const user = await createUser(newUser);
   res.status(201).json(user);
