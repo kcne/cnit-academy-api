@@ -38,13 +38,7 @@ async function createUser(data: z.infer<typeof NewUserSchema>) {
 
   const password = await argon2.hash(data.password);
   const user = await prisma.user.create({
-    data: {
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      password,
-      roles: { connect: { name: "User" } },
-    },
+    data: { ...data, password, role: "USER" },
   });
 
   try {
@@ -95,7 +89,7 @@ async function getUser(data: z.infer<typeof GetUserSchema>): Promise<{
     process.env.JWT_SECRET || "fallback secret",
     {
       expiresIn: "3d",
-    }
+    },
   );
 
   return { id: user.id, email: user.email, token };
@@ -131,7 +125,7 @@ async function googleLoginOrRegister(code: string) {
           lastName: data.family_name ?? "",
           email: data.email,
           password: "oauth2",
-          roles: { connect: [{ name: "User" }] },
+          role: "USER",
           Profile: {
             create: {
               pfp: data.picture ?? "/pfp/default.png",

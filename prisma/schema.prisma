@@ -13,7 +13,7 @@ model User {
   lastName         String
   email            String            @unique
   password         String
-  roles            Role[]            @relation("UserRoles")
+  role             Role
   isEmailVerified  Boolean           @default(false)
   verificationCode String?
   expiresAt        DateTime?
@@ -34,6 +34,15 @@ model User {
   links            Links[]
   roleRequests     RoleRequest[]
   professor        Professor?
+  Course           Course[]
+  Program          Program[]
+  Lecture          Lecture[]
+}
+
+enum Role {
+  USER
+  INSTRUCTOR
+  ADMIN
 }
 
 model Profile {
@@ -74,14 +83,10 @@ model Course {
   durationInHours Float?
   createdAt       DateTime     @default(now())
   coins           Int          @default(0)
+  createdBy       User         @relation(fields: [userId], references: [id])
+  userId          Int
   lectures        Lecture[]
   UserCourse      UserCourse[]
-}
-
-model Role {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  users User[] @relation("UserRoles")
 }
 
 model Blog {
@@ -102,11 +107,12 @@ model Program {
   id                  Int           @id @default(autoincrement())
   title               String
   description         String
-  founder             String
   durationInDays      Int
   applicationDeadline DateTime
   createdAt           DateTime      @default(now())
   coins               Int           @default(0)
+  createdBy           User          @relation(fields: [userId], references: [id])
+  userId              Int
   UserProgram         UserProgram[]
 }
 
@@ -119,6 +125,8 @@ model Lecture {
   course      Course        @relation(fields: [courseId], references: [id])
   createdAt   DateTime      @default(now())
   coins       Int           @default(0)
+  createdBy   User          @relation(fields: [userId], references: [id])
+  userId      Int
   UserLecture UserLecture[]
   Quiz        Quiz?
 }

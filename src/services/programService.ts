@@ -41,7 +41,6 @@ async function customGetAll(opts: QueryOptions<string>) {
       id: true,
       title: true,
       description: true,
-      founder: true,
       durationInDays: true,
       applicationDeadline: true,
       coins: true,
@@ -115,7 +114,6 @@ async function customFindItem(id: number, userId: number) {
       id: true,
       title: true,
       description: true,
-      founder: true,
       durationInDays: true,
       applicationDeadline: true,
       coins: true,
@@ -195,7 +193,15 @@ async function apply(userId: number, programId: number) {
   });
 }
 
-async function enroll(userIds: number[], programId: number) {
+async function enroll(userIds: number[], programId: number, userId?: number) {
+  const program = await prisma.program.findUnique({ where: { id: programId } });
+  if (!program) {
+    throw createHttpError(404, "Program not found");
+  }
+  if (userId ? userId !== program.userId : false) {
+    throw createHttpError(403, "Only admins can edit foreign programs");
+  }
+
   await prisma.userProgram.updateMany({
     where: {
       programId,
@@ -208,7 +214,15 @@ async function enroll(userIds: number[], programId: number) {
   });
 }
 
-async function finish(programId: number) {
+async function finish(programId: number, userId?: number) {
+  const program = await prisma.program.findUnique({ where: { id: programId } });
+  if (!program) {
+    throw createHttpError(404, "Program not found");
+  }
+  if (userId ? userId !== program.userId : false) {
+    throw createHttpError(403, "Only admins can edit foreign programs");
+  }
+
   const now = new Date();
 
   const [

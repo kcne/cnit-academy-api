@@ -25,13 +25,16 @@ const validateUpdateBlog = validateRequest(BlogSchema.partial());
 
 const repositoryService = new PrismaRepositoryService(prisma.blog);
 
-async function publishBlog(id: number) {
+async function publishBlog(id: number, userId?: number) {
   const blog = await prisma.blog.update({
     where: { id },
     data: { published: true },
   });
   if (!blog) {
     throw createHttpError(404, "Blog not found");
+  }
+  if (userId ? userId !== blog.userId : false) {
+    throw createHttpError(403, "Only admins can edit foreign blogs");
   }
 }
 

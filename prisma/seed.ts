@@ -121,13 +121,11 @@ async function main() {
 
   const transactions: any[] = [];
 
-  transactions.push(prisma.role.create({ data: { name: "User" } }));
-
   for (let i = 0; i < users; i++) {
     const user = await createNewUser();
     transactions.push(
       prisma.user.create({
-        data: { ...user, roles: { connect: { name: "User" } } },
+        data: { ...user, role: "USER" },
       }),
     );
   }

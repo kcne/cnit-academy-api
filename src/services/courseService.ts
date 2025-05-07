@@ -177,11 +177,15 @@ async function changeStatus(
 async function updateCourse(
   id: number,
   data: z.infer<typeof UpdateCourseSchema>,
+  maybeUserId?: number,
 ) {
-  const course = await prisma.course.findUnique({ where: { id } });
+  const course = await prisma.course.findUnique({
+    where: { id, createdBy: { id: maybeUserId } },
+  });
   if (!course) {
     throw createHttpError(404, "Course not found");
   }
+  const userId = maybeUserId ?? course.userId;
 
   const transactions = [];
 
@@ -191,7 +195,10 @@ async function updateCourse(
       data: {
         ...data,
         lectures: {
-          create: data.lectures?.create,
+          create: data.lectures?.create.map((el) => ({
+            ...el,
+            createdBy: { connect: { id: userId } },
+          })),
         },
       },
     }),
