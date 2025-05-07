@@ -23,7 +23,7 @@ async function getAllCourses(req: Request, res: Response) {
   });
 
   const { data, meta } = courses;
-  return res.json({
+  res.json({
     data: data.map((old: any) => renameFields(old)),
     meta,
   });
@@ -50,7 +50,7 @@ async function getMyCourses(req: AuthenticatedRequest, res: Response) {
     ],
   });
 
-  return res.json({
+  res.json({
     data: courses.data.map((old: any) => renameFields(old)),
     meta: courses.meta,
   });

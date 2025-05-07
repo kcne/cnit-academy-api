@@ -28,7 +28,7 @@ async function getAllPrograms(req: Request, res: Response) {
     },
   });
 
-  return res.json(programs);
+  res.json(programs);
 }
 
 async function getMyPrograms(req: AuthenticatedRequest, res: Response) {
@@ -52,7 +52,7 @@ async function getMyPrograms(req: AuthenticatedRequest, res: Response) {
     ],
   });
 
-  return res.json({
+  res.json({
     data: programs.data.map((old: any) => renameFields(old)),
     meta: programs.meta,
   });
