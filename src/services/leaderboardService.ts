@@ -1,4 +1,9 @@
 import { PrismaClient } from "@prisma/client";
+import {
+  createPaginatedResponse,
+  PaginatedResult,
+  QueryOptions,
+} from "../utils/queryBuilder";
 const prisma = new PrismaClient();
 
 interface LeaderboardUser {
@@ -11,7 +16,8 @@ interface LeaderboardUser {
 
 export async function getLeaderboardData(
   weekly: boolean,
-): Promise<LeaderboardUser[]> {
+  opt: QueryOptions<string>,
+): Promise<PaginatedResult<LeaderboardUser>> {
   const leaderboard = await prisma.user.findMany({
     where: weekly
       ? { updatedAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } }
@@ -25,6 +31,7 @@ export async function getLeaderboardData(
       updatedAt: true,
     },
   });
+  const total = await prisma.user.count();
 
-  return leaderboard;
+  return createPaginatedResponse(leaderboard, total, opt.pagination);
 }

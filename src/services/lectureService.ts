@@ -46,20 +46,6 @@ async function customFindItem(id: number, userId: number) {
   return res;
 }
 
-async function findMyLectures(userId: number) {
-  const lectures = await prisma.lecture.findMany({
-    where: {
-      UserLecture: {
-        some: {
-          userId,
-        },
-      },
-    },
-  });
-
-  return lectures;
-}
-
 async function start(userId: number, lectureId: number) {
   const lecture = await prisma.lecture.findUnique({ where: { id: lectureId } });
   if (!lecture) {
@@ -140,6 +126,5 @@ export {
   start,
   finish,
   customFindItem,
-  findMyLectures,
   LectureSchema,
 };

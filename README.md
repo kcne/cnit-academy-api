@@ -583,6 +583,7 @@ Return applied to programs
 Response 200 JSON:
 
 ```json
+{"data":
 [
   {
     "id": 1,
@@ -599,8 +600,8 @@ Response 200 JSON:
     "coins": 50,
     "applicationDeadline": "2025-03-07T16:42:30.000Z",
     "createdAt": "2025-03-27T18:05:56.343Z"
-  }
-]
+  },
+"meta": "(paginationMeta)"]}
 ```
 
 ### GET /api/program/:id
@@ -828,16 +829,19 @@ Return applied to courses
 Response 200 JSON:
 
 ```json
-[
-  {
-    "id": 1,
-    "title": "title",
-    "description": "description",
-    "durationInHours": 2,
-    "studentCount": 0,
-    "coins": 10
-  }
-]
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "title",
+      "description": "description",
+      "durationInHours": 2,
+      "studentCount": 0,
+      "coins": 10
+    }
+  ],
+  "meta": "(paginationMeta)"
+}
 ```
 
 ### GET /api/course/:id
@@ -1080,16 +1084,19 @@ Return applied to lectures
 Response 200 JSON:
 
 ```json
-[
-  {
-    "id": 28,
-    "title": "The Woman in White",
-    "content": "We need to reboot the back-end VGA transmitter!",
-    "videoUrl": "https://fragrant-saloon.name/",
-    "courseId": 10,
-    "coins": 2234
-  }
-]
+{
+  "data": [
+    {
+      "id": 28,
+      "title": "The Woman in White",
+      "content": "We need to reboot the back-end VGA transmitter!",
+      "videoUrl": "https://fragrant-saloon.name/",
+      "courseId": 10,
+      "coins": 2234
+    }
+  ],
+  "meta": "(paginationMeta)"
+}
 ```
 
 ### GET /api/lecture/:id
@@ -1244,22 +1251,25 @@ Response 404 -> Lecture not found
 Response 200 JSON:
 
 ```json
-[
-  {
-    "id": 1,
-    "firstName": "john",
-    "lastName": "doe",
-    "totalCoins": 1000,
-    "updatedAt": "2025-03-27T18:54:17.460Z"
-  },
-  {
-    "id": 2,
-    "firstName": "jane",
-    "lastName": "doe",
-    "totalCoins": 50,
-    "updatedAt": "2025-03-27T18:54:22.415Z"
-  }
-]
+{
+  "data": [
+    {
+      "id": 1,
+      "firstName": "john",
+      "lastName": "doe",
+      "totalCoins": 1000,
+      "updatedAt": "2025-03-27T18:54:17.460Z"
+    },
+    {
+      "id": 2,
+      "firstName": "jane",
+      "lastName": "doe",
+      "totalCoins": 50,
+      "updatedAt": "2025-03-27T18:54:22.415Z"
+    }
+  ],
+  "meta": "(paginationMeta)"
+}
 ```
 
 ### GET /api/leaderboard/weekly
@@ -1273,22 +1283,25 @@ Only returns profiles which have been updated this week \
 Response 200 JSON:
 
 ```json
-[
-  {
-    "id": 1,
-    "firstName": "john",
-    "lastName": "doe",
-    "totalCoins": 1000,
-    "updatedAt": "2025-03-27T18:54:17.460Z"
-  },
-  {
-    "id": 2,
-    "firstName": "jane",
-    "lastName": "doe",
-    "totalCoins": 50,
-    "updatedAt": "2025-03-27T18:54:22.415Z"
-  }
-]
+{
+  "data": [
+    {
+      "id": 1,
+      "firstName": "john",
+      "lastName": "doe",
+      "totalCoins": 1000,
+      "updatedAt": "2025-03-27T18:54:17.460Z"
+    },
+    {
+      "id": 2,
+      "firstName": "jane",
+      "lastName": "doe",
+      "totalCoins": 50,
+      "updatedAt": "2025-03-27T18:54:22.415Z"
+    }
+  ],
+  "meta": "(paginationMeta)"
+}
 ```
 
 ## Blogs

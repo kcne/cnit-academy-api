@@ -130,33 +130,6 @@ async function customFindItem(id: number, userId: number) {
   return res;
 }
 
-async function findMyCourses(userId: number) {
-  const courses = await prisma.course.findMany({
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      durationInHours: true,
-      createdAt: true,
-      coins: true,
-      _count: {
-        select: {
-          UserCourse: { where: { finished: { not: null } } },
-        },
-      },
-    },
-    where: {
-      UserCourse: {
-        some: {
-          userId,
-        },
-      },
-    },
-  });
-
-  return courses;
-}
-
 async function changeStatus(
   userId: number,
   courseId: number,
@@ -263,6 +236,5 @@ export {
   validateUpdateCourse,
   changeStatus,
   customFindItem,
-  findMyCourses,
   updateCourse,
 };
