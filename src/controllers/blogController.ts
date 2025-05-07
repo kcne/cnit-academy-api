@@ -4,9 +4,7 @@ import {
   publishBlog,
   getBlogsByUserId,
   getBlogBySlug,
-  getAllComments,
-  createComment,
-  deleteComment,
+  updateBlogById as updateBlogByIdService,
 } from "../services/blogService";
 import { z } from "zod";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
@@ -17,7 +15,7 @@ async function getBlogs(req: Request, res: Response) {
   const blogs = await repositoryService.getAll({
     pagination: {
       page: Number(page ?? 1),
-      limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+      limit: Number(page ? limit ?? 10 : Number.MAX_SAFE_INTEGER),
     },
     filters: [
       {
@@ -46,11 +44,15 @@ async function createBlog(req: AuthenticatedRequest, res: Response) {
 
 async function updateBlog(req: AuthenticatedRequest, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  const blog = await repositoryService.updateItem(
-    id,
-    req.body,
-    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined,
-  );
+  const updatedBlog = req.body;
+  const blog = await updateBlogByIdService(id, updatedBlog);
+  res.json(blog);
+}
+
+async function updateBlogById(req: Request, res: Response) {
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+  const updatedBlog = req.body;
+  const blog = await updateBlogByIdService(id, updatedBlog);
   res.json(blog);
 }
 
@@ -133,6 +135,7 @@ export {
   getBlogs,
   getBlog,
   updateBlog,
+  updateBlogById,
   deleteBlog,
   togglePublishBlog,
   handleGetBlogsByUserId,

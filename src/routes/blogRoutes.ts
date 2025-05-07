@@ -8,9 +8,7 @@ import {
   togglePublishBlog,
   handleGetBlogsByUserId,
   handleGetBlogBySlug,
-  getComments,
-  deleteCommentById,
-  postComment,
+  updateBlogById,
 } from "../controllers/blogController";
 import {
   validateCreateBlog,
@@ -36,23 +34,24 @@ router.post(
 router.get("/user/:userId", asyncHandler(handleGetBlogsByUserId));
 router.get("/slug/:slug", asyncHandler(handleGetBlogBySlug));
 
-// admin routes
+router.patch("/user/:id", authMiddleware(), asyncHandler(updateBlogById));
+
 router.post(
   "/admin",
   authMiddleware(["INSTRUCTOR"]),
   validateCreateBlog,
-  asyncHandler(createBlog),
+  asyncHandler(createBlog)
 );
 router.patch(
   "/admin/:id",
   authMiddleware(["INSTRUCTOR"]),
   validateUpdateBlog,
-  asyncHandler(updateBlog),
+  asyncHandler(updateBlog)
 );
 router.put(
   "/admin/:id/publish",
-  authMiddleware(["INSTRUCTOR"]),
-  asyncHandler(togglePublishBlog),
+  authMiddleware("Admin"),
+  asyncHandler(togglePublishBlog)
 );
 router.delete(
   "/admin/:id",
