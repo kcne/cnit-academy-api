@@ -78,9 +78,9 @@ async function customGetAll(opts: QueryOptions<string>) {
       i++;
       res.push({
         ...programs[i],
-        applied: 0,
-        enrolled: 0,
-        finished: 0,
+        appliedCount: 0,
+        enrolledCount: 0,
+        finishedCount: 0,
       });
       continue;
     }
@@ -88,9 +88,22 @@ async function customGetAll(opts: QueryOptions<string>) {
     res.push({
       ...programs[i],
       ...counts[j]._count,
+      appliedCount: counts[j]._count.applied,
+      enrolledCount: counts[j]._count.enrolled,
+      finishedCount: counts[j]._count.finished,
     });
     i++;
     j++;
+  }
+  if (!res.length) {
+    for (const program of programs) {
+      res.push({
+        ...program,
+        appliedCount: 0,
+        enrolledCount: 0,
+        finishedCount: 0,
+      });
+    }
   }
 
   return createPaginatedResponse(res, total, opts.pagination);
