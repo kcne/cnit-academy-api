@@ -70,8 +70,11 @@ async function getProgramById(req: AuthenticatedRequest, res: Response) {
   res.json(program);
 }
 
-async function createProgram(req: Request, res: Response) {
-  const program = await repositoryService.createItem(req.body);
+async function createProgram(req: AuthenticatedRequest, res: Response) {
+  const program = await repositoryService.createItem({
+    ...req.body,
+    userId: req.user?.id,
+  });
 
   res.status(201).json(renameFields(program));
 }
@@ -116,6 +119,8 @@ async function applyToProgram(req: AuthenticatedRequest, res: Response) {
 }
 
 async function enrollToProgram(req: AuthenticatedRequest, res: Response) {
+  const creatorId =
+    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined;
   const userIds = await z.coerce
     .number()
     .positive()
@@ -128,19 +133,21 @@ async function enrollToProgram(req: AuthenticatedRequest, res: Response) {
     .int()
     .parseAsync(req.params.id);
 
-  await enroll(userIds, programId);
+  await enroll(userIds, programId, creatorId);
 
   res.send();
 }
 
 async function finishProgram(req: AuthenticatedRequest, res: Response) {
+  const creatorId =
+    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined;
   const programId = await z.coerce
     .number()
     .positive()
     .int()
     .parseAsync(req.params.id);
 
-  await finish(programId);
+  await finish(programId, creatorId);
 
   res.send();
 }

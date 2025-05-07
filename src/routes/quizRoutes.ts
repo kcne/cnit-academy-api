@@ -24,16 +24,20 @@ router.put("/:id/submit", validateSubmitQuiz, asyncHandler(submitQuiz));
 // admin routes
 router.post(
   "/admin",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   validateCreateQuiz,
   asyncHandler(createQuiz),
 );
 router.patch(
   "/admin/:id",
-  authMiddleware("Admin"),
+  authMiddleware(["INSTRUCTOR"]),
   validateUpdateQuiz,
   asyncHandler(updateQuiz),
 );
-router.delete("/admin/:id", asyncHandler(deleteQuiz));
+router.delete(
+  "/admin/:id",
+  authMiddleware(["INSTRUCTOR"]),
+  asyncHandler(deleteQuiz),
+);
 
 export default router;

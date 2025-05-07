@@ -6,6 +6,10 @@ import authMiddleware from "../middlewares/authMiddleware";
 const router = Router();
 
 router.get("/pfp/:id", asyncHandler(getPfpById));
-router.delete("/pfp", authMiddleware("Admin"), asyncHandler(cleanPfpsRoutine));
+router.delete(
+  "/pfp",
+  authMiddleware(["Admin"]),
+  asyncHandler(cleanPfpsRoutine),
+);
 
 export default router;

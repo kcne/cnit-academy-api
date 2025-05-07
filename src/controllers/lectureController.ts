@@ -46,8 +46,11 @@ async function getLectureById(req: Request, res: Response) {
   res.json(lecture);
 }
 
-async function createLecture(req: Request, res: Response) {
-  const lecture = await repositoryService.createItem(req.body);
+async function createLecture(req: AuthenticatedRequest, res: Response) {
+  const lecture = await repositoryService.createItem({
+    ...req.body,
+    userId: req.user?.id,
+  });
 
   res.status(201).json(lecture);
 }

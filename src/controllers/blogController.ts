@@ -37,13 +37,10 @@ async function getBlog(req: Request, res: Response) {
 }
 
 async function createBlog(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
-  const userId = req.user.id;
-
-  const newBlog = { ...req.body, userId };
-  const blog = await repositoryService.createItem(newBlog);
+  const blog = await repositoryService.createItem({
+    ...req.body,
+    userId: req.user?.id,
+  });
   res.status(201).json(blog);
 }
 

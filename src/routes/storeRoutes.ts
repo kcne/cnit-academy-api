@@ -23,19 +23,19 @@ router.put("/:id/buy", asyncHandler(buyBadge));
 // admin routes
 router.post(
   "/admin",
-  authMiddleware("Admin"),
+  authMiddleware(["ADMIN"]),
   validateCreateBadge,
   asyncHandler(createBadge),
 );
 router.patch(
   "/admin/:id",
-  authMiddleware("Admin"),
+  authMiddleware(["ADMIN"]),
   validateUpdateBadge,
   asyncHandler(updateBadgeById),
 );
 router.delete(
   "/admin/:id",
-  authMiddleware("Admin"),
+  authMiddleware(["ADMIN"]),
   asyncHandler(deleteBadgeById),
 );
 

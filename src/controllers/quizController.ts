@@ -3,9 +3,11 @@ import {
   createQuizWrapper,
   repositoryService,
   takeQuiz,
+  validateAuthScope,
 } from "../services/quizService";
 import { z } from "zod";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import createHttpError from "http-errors";
 
 async function getAllQuizzes(req: Request, res: Response) {
   const { page, limit } = req.query;
@@ -25,21 +27,37 @@ async function getQuiz(req: Request, res: Response) {
   res.json(blog);
 }
 
-async function createQuiz(req: Request, res: Response) {
-  const quiz = await createQuizWrapper(req.body);
+async function createQuiz(req: AuthenticatedRequest, res: Response) {
+  const creatorId =
+    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined;
+  const quiz = await createQuizWrapper(req.body, creatorId);
 
   res.status(201).json(quiz);
 }
 
-async function updateQuiz(req: Request, res: Response) {
+async function updateQuiz(req: AuthenticatedRequest, res: Response) {
+  const creatorId =
+    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined;
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+  if (creatorId) {
+    if (!validateAuthScope(id, creatorId)) {
+      throw createHttpError(403, "Only admins can edit foreign items");
+    }
+  }
   const quiz = await repositoryService.updateItem(id, req.body);
 
   res.json(quiz);
 }
 
-async function deleteQuiz(req: Request, res: Response) {
+async function deleteQuiz(req: AuthenticatedRequest, res: Response) {
+  const creatorId =
+    req.user?.role === "ADMIN" ? (req.user?.id ?? -1) : undefined;
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
+  if (creatorId) {
+    if (!validateAuthScope(id, creatorId)) {
+      throw createHttpError(403, "Only admins can edit foreign items");
+    }
+  }
   await repositoryService.deleteItem(id);
 
   res.send();

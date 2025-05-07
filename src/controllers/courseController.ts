@@ -68,8 +68,15 @@ async function getCourseById(req: AuthenticatedRequest, res: Response) {
   res.json(renameFields(course));
 }
 
-async function createCourse(req: Request, res: Response) {
-  const course = await repositoryService.createItem(req.body);
+async function createCourse(req: AuthenticatedRequest, res: Response) {
+  const course = await repositoryService.createItem({
+    ...req.body,
+    lectures: req.body.lectures.map((el: any) => ({
+      ...el,
+      userId: req.user?.id,
+    })),
+    userId: req.user?.id,
+  });
 
   res.status(201).json(renameFields(course));
 }

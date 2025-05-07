@@ -46,9 +46,12 @@ const validateUpdateQuiz = validateRequest(
   })),
 );
 
-async function createQuizWrapper(data: z.infer<typeof QuizSchema>) {
+async function createQuizWrapper(
+  data: z.infer<typeof QuizSchema>,
+  userId?: number,
+) {
   const lecture = await prisma.lecture.findUnique({
-    where: { id: data.id },
+    where: { id: data.id, userId },
     select: {
       id: true,
       Quiz: {
@@ -110,6 +113,11 @@ async function takeQuiz(
   return { maxScore, score };
 }
 
+async function validateAuthScope(lectureId: number, userId: number) {
+  const lecture = await prisma.lecture.findUnique({ where: { id: lectureId } });
+  return lecture ? lecture.userId === userId : true;
+}
+
 export {
   repositoryService,
   validateSubmitQuiz,
@@ -117,4 +125,5 @@ export {
   validateUpdateQuiz,
   takeQuiz,
   createQuizWrapper,
+  validateAuthScope,
 };

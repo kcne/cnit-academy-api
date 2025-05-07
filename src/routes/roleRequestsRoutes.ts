@@ -7,18 +7,12 @@ import {
 } from "../controllers/roleRequestController";
 import asyncHandler from "../middlewares/asyncHandler";
 import authMiddleware from "../middlewares/authMiddleware";
-import adminMiddleware from "../middlewares/adminMiddleware";
 import { validateRequest } from "../middlewares/validate";
 import { roleRequestSchema } from "../schemas/roleRequestValidationSchema";
 
 const router = Router();
 
-router.get(
-  "/",
-  authMiddleware(),
-  adminMiddleware,
-  asyncHandler(getRoleRequests),
-);
+router.get("/", authMiddleware(["ADMIN"]), asyncHandler(getRoleRequests));
 router.post(
   "/",
   authMiddleware(),
@@ -27,14 +21,12 @@ router.post(
 );
 router.post(
   "/approve/:id",
-  adminMiddleware,
-  authMiddleware(),
+  authMiddleware(["ADMIN"]),
   asyncHandler(approveRoleRequest),
 );
 router.post(
   "/decline/:id",
-  adminMiddleware,
-  authMiddleware(),
+  authMiddleware(["ADMIN"]),
   asyncHandler(declineRoleRequest),
 );
 

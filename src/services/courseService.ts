@@ -180,7 +180,7 @@ async function updateCourse(
   maybeUserId?: number,
 ) {
   const course = await prisma.course.findUnique({
-    where: { id, createdBy: { id: maybeUserId } },
+    where: { id, userId: maybeUserId },
   });
   if (!course) {
     throw createHttpError(404, "Course not found");
@@ -197,7 +197,7 @@ async function updateCourse(
         lectures: {
           create: data.lectures?.create.map((el) => ({
             ...el,
-            createdBy: { connect: { id: userId } },
+            userId,
           })),
         },
       },

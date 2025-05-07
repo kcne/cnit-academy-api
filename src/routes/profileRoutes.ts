@@ -26,10 +26,14 @@ router.delete("/me", authMiddleware(), asyncHandler(deleteProfile));
 // admin routes
 router.patch(
   "/admin/:id",
-  authMiddleware([]),
+  authMiddleware(["ADMIN"]),
   validateUpdateProfile,
   asyncHandler(updateProfile),
 );
-router.delete("/admin/:id", authMiddleware([]), asyncHandler(deleteProfile));
+router.delete(
+  "/admin/:id",
+  authMiddleware(["ADMIN"]),
+  asyncHandler(deleteProfile),
+);
 
 export default router;
