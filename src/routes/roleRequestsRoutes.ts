@@ -13,24 +13,29 @@ import { roleRequestSchema } from "../schemas/roleRequestValidationSchema";
 
 const router = Router();
 
-router.get("/", authMiddleware, adminMiddleware, asyncHandler(getRoleRequests));
+router.get(
+  "/",
+  authMiddleware(),
+  adminMiddleware,
+  asyncHandler(getRoleRequests),
+);
 router.post(
   "/",
-  authMiddleware,
+  authMiddleware(),
   validateRequest(roleRequestSchema),
-  asyncHandler(sendRoleRequest)
+  asyncHandler(sendRoleRequest),
 );
 router.post(
   "/approve/:id",
   adminMiddleware,
-  authMiddleware,
-  asyncHandler(approveRoleRequest)
+  authMiddleware(),
+  asyncHandler(approveRoleRequest),
 );
 router.post(
   "/decline/:id",
   adminMiddleware,
-  authMiddleware,
-  asyncHandler(declineRoleRequest)
+  authMiddleware(),
+  asyncHandler(declineRoleRequest),
 );
 
 export default router;
