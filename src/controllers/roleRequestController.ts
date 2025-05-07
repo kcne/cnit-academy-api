@@ -1,56 +1,41 @@
 import { Request, Response } from "express";
 import * as RoleRequestService from "../services/RoleRequestService";
+import { z } from "zod";
 
-async function getRoleRequests(req: Request, res: Response) {
+async function getRoleRequests(_req: Request, res: Response) {
   const users = await RoleRequestService.getRoleRequests();
 
   res.status(200).json(users);
 }
 
 async function sendRoleRequest(req: Request, res: Response) {
-  try {
-    const { userId, bio, age, photoURL, coverLetter, links } = req.body;
+  const { userId, bio, age, photoURL, coverLetter, links } = req.body;
 
-    const roleRequest = await RoleRequestService.sendRoleRequest(
-      userId,
-      bio,
-      age,
-      photoURL,
-      coverLetter,
-      links,
-    );
-    res.status(200).json({ message: "Successfully role request is sent!" });
-  } catch (error: any) {
-    res.status(400).json({ error: error.message });
-  }
+  await RoleRequestService.sendRoleRequest(
+    userId,
+    bio,
+    age,
+    photoURL,
+    coverLetter,
+    links,
+  );
+  res.status(200).json({ message: "Successfully role request is sent!" });
 }
 
 async function approveRoleRequest(req: Request, res: Response) {
-  try {
-    const { id } = req.params;
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
 
-    const approvedRoleRequest = await RoleRequestService.approveRoleRequest(
-      Number(id),
-    );
+  await RoleRequestService.approveRoleRequest(id);
 
-    res.status(200).json({ message: "Successfully role request is approved" });
-  } catch (error: any) {
-    res.status(400).json({ error: error.message });
-  }
+  res.status(200).json({ message: "Successfully role request is approved" });
 }
 
 async function declineRoleRequest(req: Request, res: Response) {
-  try {
-    const { id } = req.params;
+  const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
 
-    const declineRoleRequest = await RoleRequestService.declineRoleRequest(
-      Number(id),
-    );
+  await RoleRequestService.declineRoleRequest(id);
 
-    res.status(200).json({ message: "Successfully role request is declined" });
-  } catch (error: any) {
-    res.status(400).json({ error: error.message });
-  }
+  res.status(200).json({ message: "Successfully role request is declined" });
 }
 
 export {

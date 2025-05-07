@@ -35,7 +35,7 @@ export const sendRoleRequest = async (
   age: string,
   photoURL: string,
   coverLetter: string,
-  links: { key: string; value: string }[]
+  links: { key: string; value: string }[],
 ) => {
   try {
     const existingRequest = await prisma.roleRequest.findFirst({
@@ -49,7 +49,7 @@ export const sendRoleRequest = async (
       if (existingRequest.createdAt > sixMonthsAgo) {
         throw createHttpError(
           400,
-          "You already sent a request within the last 6 months!"
+          "You already sent a request within the last 6 months!",
         );
       }
     }
@@ -119,20 +119,10 @@ export const approveRoleRequest = async (roleRequestId: number) => {
       },
     });
 
-    const professorRole = await prisma.role.findUnique({
-      where: { name: "Professor" },
-    });
-
-    if (!professorRole) {
-      throw createHttpError(400, "Professor role not found");
-    }
-
     await prisma.user.update({
       where: { id: roleRequest.userId },
       data: {
-        roles: {
-          connect: { id: professorRole.id },
-        },
+        role: "INSTRUCTOR",
       },
     });
 
@@ -156,7 +146,7 @@ export const declineRoleRequest = async (roleRequestId: number) => {
 
     return roleRequest;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     throw createHttpError(500, "Failed to decline role request");
   }
 };
