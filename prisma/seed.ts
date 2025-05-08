@@ -92,7 +92,6 @@ function createNewProgram() {
   return {
     title: faker.book.title(),
     description: faker.hacker.phrase(),
-    founder: faker.person.fullName(),
     durationInDays: faker.number.int({ min: 2, max: 365 }),
     applicationDeadline: faker.date.soon({ days: 30 }),
   };
@@ -123,33 +122,36 @@ async function main() {
 
   for (let i = 0; i < users; i++) {
     const user = await createNewUser();
-    transactions.push(
-      prisma.user.create({
-        data: { ...user, role: "USER" },
-      }),
-    );
+    await prisma.user.create({
+      data: { ...user, role: "USER" },
+    });
   }
 
   for (let i = 0; i < courses; i++) {
     const course = createNewCourse();
     const id = (
       await prisma.course.create({
-        data: course,
+        data: { ...course, createdBy: { connect: { id: 1 } } },
       })
     ).id;
-    for (let j = 0; j < lectures; j++) {
-      const lecture = createNewLecture();
-      transactions.push(
-        prisma.lecture.create({
-          data: { ...lecture, courseId: id },
-        }),
-      );
-    }
+    // TODO: FIX THIS
+    // for (let j = 0; j < lectures; j++) {
+    //   const lecture = createNewLecture();
+    //   transactions.push(
+    //     prisma.lecture.create({
+    //       data: { ...lecture, courseId: id, createdBy: undefined },
+    //     }),
+    //   );
+    // }
   }
 
   for (let i = 0; i < programs; i++) {
     const program = createNewProgram();
-    transactions.push(prisma.program.create({ data: program }));
+    transactions.push(
+      prisma.program.create({
+        data: { ...program, createdBy: { connect: { id: 1 } } },
+      }),
+    );
   }
 
   await prisma.$transaction(transactions);
