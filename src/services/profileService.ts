@@ -48,6 +48,7 @@ interface Profile {
   pfp?: string;
   badges: any[];
   streak: number;
+  role?: string;
 }
 
 interface EducationExperience {
@@ -84,6 +85,7 @@ function rawToProfile(obj: any): Profile | null {
     pfp: obj.pfp,
     badges: obj.user?.badges,
     streak: obj.user?.UserActivity?.streak ?? 0,
+    role: obj.user?.role,
   };
 }
 
@@ -175,6 +177,7 @@ async function getProfile(id: number) {
               lecture: true,
             },
           },
+          role: true,
         },
       },
     },
