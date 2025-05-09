@@ -54,7 +54,19 @@ async function createUser(data: z.infer<typeof NewUserSchema>) {
 
   const password = await argon2.hash(data.password);
   const user = await prisma.user.create({
-    data: { ...data, password, role: "USER" },
+    data: {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      password,
+      role: "USER",
+      Profile: {
+        create: {
+          pfp: data.pfp ?? process.env.BASE_URL + "/files/pfp/default.png",
+          skills: "",
+        },
+      },
+    },
   });
 
   try {
@@ -65,17 +77,9 @@ async function createUser(data: z.infer<typeof NewUserSchema>) {
     console.error("Error while sending verification code: ", error);
   }
 
-  const profile = await prisma.profile.create({
-    data: {
-      id: user.id,
-      pfp: data.pfp,
-      skills: "",
-    },
-  });
-
   return {
     ...user,
-    pfp: profile.pfp,
+    pfp: data.pfp,
     password: undefined,
     verificationCode: undefined,
     expiresAt: undefined,
