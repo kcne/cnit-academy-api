@@ -6,6 +6,7 @@ import {
 } from "../services/lectureService";
 import { z } from "zod";
 import { AuthenticatedRequest, Role } from "../middlewares/authMiddleware";
+import assert from "assert";
 
 async function getAllLectures(req: Request, res: Response) {
   const { page, limit } = req.query;
@@ -21,9 +22,7 @@ async function getAllLectures(req: Request, res: Response) {
 
 async function getMyLectures(req: AuthenticatedRequest, res: Response) {
   const { page, limit } = req.query;
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const userId = req.user.id;
 
   const lectures = repositoryService.getAll({
@@ -71,9 +70,7 @@ async function updateLectureById(req: AuthenticatedRequest, res: Response) {
 }
 
 async function startLecture(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const userId = req.user.id;
   const lectureId = await z.coerce
     .number()
@@ -87,9 +84,7 @@ async function startLecture(req: AuthenticatedRequest, res: Response) {
 }
 
 async function finishLecture(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const userId = req.user.id;
   const lectureId = await z.coerce
     .number()

@@ -1,6 +1,7 @@
 import { NextFunction, Response } from "express";
 import { AuthenticatedRequest } from "./authMiddleware";
 import prisma from "../prisma";
+import assert from "assert";
 
 const ONE_DAY = 24 * 60 * 60 * 1000;
 
@@ -9,9 +10,7 @@ export default async function (
   _res: Response,
   next: NextFunction,
 ) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const id = req.user.id;
 
   const lastActivity = await prisma.userActivity.findUnique({

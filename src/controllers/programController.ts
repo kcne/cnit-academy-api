@@ -9,6 +9,7 @@ import {
 } from "../services/programService";
 import { z } from "zod";
 import { AuthenticatedRequest, Role } from "../middlewares/authMiddleware";
+import assert from "assert";
 
 function renameFields(input: any) {
   return {
@@ -33,9 +34,7 @@ async function getAllPrograms(req: Request, res: Response) {
 
 async function getMyPrograms(req: AuthenticatedRequest, res: Response) {
   const { page, limit } = req.query;
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const userId = req.user.id;
 
   const programs = await repositoryService.getAll({
@@ -59,9 +58,7 @@ async function getMyPrograms(req: AuthenticatedRequest, res: Response) {
 }
 
 async function getProgramById(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const userId = req.user.id;
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
 
@@ -103,9 +100,7 @@ async function deleteProgram(req: AuthenticatedRequest, res: Response) {
 }
 
 async function applyToProgram(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const userId = req.user.id;
   const programId = await z.coerce
     .number()

@@ -7,6 +7,7 @@ import {
 } from "../services/courseService";
 import { z } from "zod";
 import { AuthenticatedRequest, Role } from "../middlewares/authMiddleware";
+import assert from "assert";
 
 function renameFields(input: any) {
   return { ...input, _count: undefined, studentCount: input._count.UserCourse };
@@ -31,9 +32,7 @@ async function getAllCourses(req: Request, res: Response) {
 
 async function getMyCourses(req: AuthenticatedRequest, res: Response) {
   const { page, limit } = req.query;
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const userId = req.user.id;
 
   const courses = await repositoryService.getAll({
@@ -57,9 +56,7 @@ async function getMyCourses(req: AuthenticatedRequest, res: Response) {
 }
 
 async function getCourseById(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const userId = req.user.id;
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
 
@@ -93,9 +90,7 @@ async function updateCourseById(req: AuthenticatedRequest, res: Response) {
 }
 
 async function startCourse(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const userId = req.user.id;
   const courseId = await z.coerce
     .number()
@@ -109,9 +104,7 @@ async function startCourse(req: AuthenticatedRequest, res: Response) {
 }
 
 async function finishCourse(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const userId = req.user.id;
   const courseId = await z.coerce
     .number()

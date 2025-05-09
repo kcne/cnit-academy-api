@@ -8,6 +8,7 @@ import {
 import { z } from "zod";
 import { AuthenticatedRequest, Role } from "../middlewares/authMiddleware";
 import createHttpError from "http-errors";
+import assert from "assert";
 
 async function getAllQuizzes(req: Request, res: Response) {
   const { page, limit } = req.query;
@@ -64,9 +65,7 @@ async function deleteQuiz(req: AuthenticatedRequest, res: Response) {
 }
 
 async function submitQuiz(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const userId = req.user.id;
   const answers = req.body;
   const quizId = await z.coerce
@@ -88,35 +87,3 @@ export {
   createQuiz,
   submitQuiz,
 };
-
-// async function startQuiz(req: AuthenticatedRequest, res: Response) {
-//   if (!req.user) {
-//     throw new Error("AuthenticatedRequest.user is undefined");
-//   }
-//   const userId = req.user.id;
-//   const quizId = await z.coerce
-//     .number()
-//     .positive()
-//     .int()
-//     .parseAsync(req.params.id);
-//
-//   await changeStatus(userId, quizId, false);
-//
-//   res.send();
-// }
-//
-// async function finishQuiz(req: AuthenticatedRequest, res: Response) {
-//   if (!req.user) {
-//     throw new Error("AuthenticatedRequest.user is undefined");
-//   }
-//   const userId = req.user.id;
-//   const quizId = await z.coerce
-//     .number()
-//     .positive()
-//     .int()
-//     .parseAsync(req.params.id);
-//
-//   await changeStatus(userId, quizId, true);
-//
-//   res.send();
-// }

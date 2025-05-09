@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { buy, repositoryService } from "../services/storeService";
 import { z } from "zod";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import assert from "assert";
 
 async function getAllBadges(req: Request, res: Response) {
   const { page, limit } = req.query;
@@ -30,9 +31,7 @@ async function createBadge(req: Request, res: Response) {
 
 async function buyBadge(req: AuthenticatedRequest, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const userId = req.user.id;
 
   await buy(id, userId);

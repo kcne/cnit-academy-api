@@ -10,6 +10,7 @@ import {
 } from "../services/blogService";
 import { z } from "zod";
 import { AuthenticatedRequest, Role } from "../middlewares/authMiddleware";
+import assert from "assert";
 
 async function getBlogs(req: Request, res: Response) {
   const { page, limit } = req.query;
@@ -104,9 +105,7 @@ async function getComments(req: Request, res: Response) {
 }
 
 async function postComment(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const userId = req.user.id;
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
 
