@@ -31,9 +31,8 @@ model User {
   Comment          Comment[]
   UserQuizAttempt  UserQuizAttempt[]
   UserActivity     UserActivity[]
-  links            Links[]
   roleRequests     RoleRequest[]
-  professor        Professor?
+  links            Json              @default("[]")
   Course           Course[]
   Program          Program[]
   Lecture          Lecture[]
@@ -231,41 +230,17 @@ model UserActivity {
 }
 
 model RoleRequest {
-  id          Int      @id @default(autoincrement())
+  id          Int               @id @default(autoincrement())
   userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  bio         String
-  age         String
-  photoURL    String
+  user        User              @relation(fields: [userId], references: [id])
   coverLetter String
-  status      String   @default("pending")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  links       Links[]
+  status      RoleRequestStatus
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 }
 
-model Professor {
-  id          Int      @id @default(autoincrement())
-  userId      Int      @unique
-  user        User     @relation(fields: [userId], references: [id])
-  bio         String
-  age         String
-  photoURL    String
-  coverLetter String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  links       Links[]
-}
-
-model Links {
-  key           String
-  value         String
-  userId        Int
-  user          User        @relation(fields: [userId], references: [id])
-  roleRequestId Int
-  roleRequest   RoleRequest @relation(fields: [roleRequestId], references: [id])
-  professorId   Int?
-  professor     Professor?  @relation(fields: [professorId], references: [id])
-
-  @@id([key, value, userId, roleRequestId], name: "key_value_userId_roleRequestId")
+enum RoleRequestStatus {
+  PENDING
+  ACCEPTED
+  DENIED
 }

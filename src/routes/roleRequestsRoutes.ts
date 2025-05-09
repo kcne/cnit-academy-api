@@ -1,22 +1,27 @@
 import { Router } from "express";
 import {
-  getRoleRequests,
+  getAllRoleRequests,
   sendRoleRequest,
   approveRoleRequest,
   declineRoleRequest,
+  getPendingRoleRequests,
 } from "../controllers/roleRequestController";
 import asyncHandler from "../middlewares/asyncHandler";
 import authMiddleware, { Role } from "../middlewares/authMiddleware";
-import { validateRequest } from "../middlewares/validate";
-import { roleRequestSchema } from "../schemas/roleRequestValidationSchema";
+import { validateCreateRoleRequest } from "../services/RoleRequestService";
 
 const router = Router();
 
-router.get("/", authMiddleware([Role.admin]), asyncHandler(getRoleRequests));
+router.get("/", authMiddleware([Role.admin]), asyncHandler(getAllRoleRequests));
+router.get(
+  "/pending",
+  authMiddleware([Role.admin]),
+  asyncHandler(getPendingRoleRequests),
+);
 router.post(
   "/",
   authMiddleware(),
-  validateRequest(roleRequestSchema),
+  validateCreateRoleRequest,
   asyncHandler(sendRoleRequest),
 );
 router.post(

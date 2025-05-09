@@ -2,23 +2,20 @@ import { Request, Response } from "express";
 import * as RoleRequestService from "../services/RoleRequestService";
 import { z } from "zod";
 
-async function getRoleRequests(_req: Request, res: Response) {
-  const users = await RoleRequestService.getRoleRequests();
+async function getAllRoleRequests(_req: Request, res: Response) {
+  const users = await RoleRequestService.getRoleRequests(false);
+
+  res.status(200).json(users);
+}
+
+async function getPendingRoleRequests(_req: Request, res: Response) {
+  const users = await RoleRequestService.getRoleRequests(false);
 
   res.status(200).json(users);
 }
 
 async function sendRoleRequest(req: Request, res: Response) {
-  const { userId, bio, age, photoURL, coverLetter, links } = req.body;
-
-  await RoleRequestService.sendRoleRequest(
-    userId,
-    bio,
-    age,
-    photoURL,
-    coverLetter,
-    links,
-  );
+  await RoleRequestService.sendRoleRequest(req.body);
   res.status(200).json({ message: "Successfully role request is sent!" });
 }
 
@@ -27,7 +24,7 @@ async function approveRoleRequest(req: Request, res: Response) {
 
   await RoleRequestService.approveRoleRequest(id);
 
-  res.status(200).json({ message: "Successfully role request is approved" });
+  res.sendStatus(200);
 }
 
 async function declineRoleRequest(req: Request, res: Response) {
@@ -35,11 +32,12 @@ async function declineRoleRequest(req: Request, res: Response) {
 
   await RoleRequestService.declineRoleRequest(id);
 
-  res.status(200).json({ message: "Successfully role request is declined" });
+  res.sendStatus(200);
 }
 
 export {
-  getRoleRequests,
+  getAllRoleRequests,
+  getPendingRoleRequests,
   sendRoleRequest,
   approveRoleRequest,
   declineRoleRequest,

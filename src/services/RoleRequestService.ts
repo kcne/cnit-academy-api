@@ -1,152 +1,103 @@
 import prisma from "../prisma";
 import createHttpError from "http-errors";
+import { z } from "zod";
+import { validateRequest } from "../middlewares/validate";
 
-export const getRoleRequests = async () => {
-  try {
-    const requests = await prisma.roleRequest.findMany({
-      where: {
-        status: "pending",
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+const roleRequestSchema = z.object({
+  userId: z.number().int().positive(),
+  coverLetter: z.string().min(20),
+});
 
-    const otherRequests = await prisma.roleRequest.findMany({
-      where: {
-        status: {},
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+const validateCreateRoleRequest = validateRequest(roleRequestSchema);
 
-    const allRequests = [...requests, ...otherRequests];
+enum RoleRequestStatus {
+  pending = "PENDING",
+  accepted = "ACCEPTED",
+  denied = "DENIED",
+}
 
-    return allRequests;
-  } catch (error) {
-    throw createHttpError(500, "Failed to fetch role requests");
-  }
-};
+const ONE_DAY = 24 * 60 * 60 * 1000;
 
-export const sendRoleRequest = async (
-  userId: number,
-  bio: string,
-  age: string,
-  photoURL: string,
-  coverLetter: string,
-  links: { key: string; value: string }[],
-) => {
-  try {
-    const existingRequest = await prisma.roleRequest.findFirst({
-      where: { userId },
-    });
+async function getRoleRequests(pending: boolean) {
+  const requests = await prisma.roleRequest.findMany({
+    where: {
+      status: pending ? RoleRequestStatus.pending : undefined,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
-    if (existingRequest?.createdAt) {
-      const sixMonthsAgo = new Date();
-      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  return requests;
+}
 
-      if (existingRequest.createdAt > sixMonthsAgo) {
-        throw createHttpError(
-          400,
-          "You already sent a request within the last 6 months!",
-        );
-      }
+async function sendRoleRequest(data: z.infer<typeof roleRequestSchema>) {
+  const existingRequest = await prisma.roleRequest.findFirst({
+    where: { userId: data.userId },
+  });
+
+  if (existingRequest?.createdAt) {
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    if (
+      Date.now() - existingRequest.createdAt.getMilliseconds() >
+      180 * ONE_DAY
+    ) {
+      throw createHttpError(
+        400,
+        "You already sent a request within the last 6 months!",
+      );
     }
-
-    const roleRequest = await prisma.roleRequest.create({
-      data: {
-        userId,
-        bio,
-        age,
-        photoURL,
-        coverLetter,
-        links: {
-          create: links.map((link) => ({
-            key: link.key,
-            value: link.value,
-            user: { connect: { id: userId } },
-          })),
-        },
-      },
-      include: {
-        links: true,
-      },
-    });
-
-    return roleRequest;
-  } catch (error) {
-    console.error(error);
-    throw createHttpError(500, "Failed to send role request");
   }
-};
 
-export const approveRoleRequest = async (roleRequestId: number) => {
-  try {
-    const roleRequest = await prisma.roleRequest.findUnique({
-      where: { id: roleRequestId },
-      include: {
-        links: true,
-      },
-    });
+  const roleRequest = await prisma.roleRequest.create({
+    data: {
+      ...data,
+      status: RoleRequestStatus.pending,
+    },
+  });
 
-    if (!roleRequest) {
-      throw createHttpError(404, "Role request not found");
-    }
+  return roleRequest;
+}
 
-    await prisma.roleRequest.update({
-      where: { id: roleRequestId },
-      data: { status: "approved" },
-    });
+async function approveRoleRequest(roleRequestId: number) {
+  const roleRequest = await prisma.roleRequest.findUnique({
+    where: { id: roleRequestId },
+  });
 
-    await prisma.professor.create({
-      data: {
-        userId: roleRequest.userId,
-        bio: roleRequest.bio,
-        age: roleRequest.age,
-        photoURL: roleRequest.photoURL,
-        coverLetter: roleRequest.coverLetter,
-        links: {
-          connect: roleRequest.links.map((link) => ({
-            key_value_userId_roleRequestId: {
-              key: link.key,
-              value: link.value,
-              userId: link.userId,
-              roleRequestId: roleRequest.id,
-            },
-          })),
-        },
-      },
-    });
-
-    await prisma.user.update({
-      where: { id: roleRequest.userId },
-      data: {
-        role: "INSTRUCTOR",
-      },
-    });
-
-    return { message: "Role request approved and professor created." };
-  } catch (error) {
-    console.error(error);
-    throw createHttpError(500, "Failed to approve role request");
+  if (!roleRequest) {
+    throw createHttpError(404, "Role request not found");
   }
-};
 
-export const declineRoleRequest = async (roleRequestId: number) => {
-  try {
-    const roleRequest = await prisma.roleRequest.findFirst({
-      where: { id: roleRequestId },
-    });
+  await prisma.roleRequest.update({
+    where: { id: roleRequestId },
+    data: { status: RoleRequestStatus.accepted },
+  });
 
-    await prisma.roleRequest.update({
-      where: { id: roleRequestId },
-      data: { status: "declined" },
-    });
+  await prisma.user.update({
+    where: { id: roleRequest.userId },
+    data: {
+      role: "INSTRUCTOR", // TODO: allow adding any role
+    },
+  });
+}
 
-    return roleRequest;
-  } catch (error) {
-    console.error(error);
-    throw createHttpError(500, "Failed to decline role request");
-  }
+async function declineRoleRequest(roleRequestId: number) {
+  await prisma.roleRequest.findFirst({
+    where: { id: roleRequestId },
+  });
+
+  await prisma.roleRequest.update({
+    where: { id: roleRequestId },
+    data: { status: RoleRequestStatus.denied },
+  });
+}
+
+export {
+  approveRoleRequest,
+  declineRoleRequest,
+  sendRoleRequest,
+  getRoleRequests,
+  validateCreateRoleRequest,
 };
