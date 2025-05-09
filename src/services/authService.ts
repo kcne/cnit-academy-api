@@ -140,6 +140,7 @@ async function googleLoginOrRegister(code: string) {
           firstName: data.given_name ?? data.name,
           lastName: data.family_name ?? "",
           email: data.email,
+          isEmailVerified: true,
           password: "oauth2",
           role: "USER",
           Profile: {
