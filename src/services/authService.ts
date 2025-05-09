@@ -7,6 +7,22 @@ import { z } from "zod";
 import { OAuth2Client } from "google-auth-library";
 import axios from "axios";
 
+// TODO: find a better way to deal with languages
+prisma.language.findMany().then((res) => {
+  // checking if the language model has any rows
+  if (res.length === 0) {
+    // not having any languages breaks registration
+    prisma.language.createMany({
+      data: [
+        { languageCode: "sr", language: "Srpski" },
+        { languageCode: "en", language: "English" },
+      ],
+    });
+  }
+});
+// since these methods are async, there is no way to guarantee that
+// there will be present languages when the user tries to register
+
 const NewUserSchema = z.object({
   firstName: z.string().min(2).max(256),
   lastName: z.string().min(2).max(256),

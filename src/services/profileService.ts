@@ -207,52 +207,6 @@ async function getProfile(id: number) {
   };
 }
 
-async function addProfile(id: number, profile: Profile) {
-  if (typeof profile.skills === "string") {
-    throw new Error(
-      "internal validation error: profile.skills was string instead of string[]",
-    );
-  }
-  if (!(await prisma.user.findUnique({ where: { id } }))) {
-    throw createHttpError(404, "User not found");
-  }
-
-  const newProfile = await prisma.profile.create({
-    data: {
-      pfp: profile.pfp,
-      skills: profile.skills.join(","),
-      education: { create: profile.education },
-      experience: { create: profile.experience },
-      id,
-    },
-    include: {
-      education: true,
-      experience: true,
-      user: {
-        select: {
-          firstName: true,
-          lastName: true,
-          totalCoins: true,
-          createdAt: true,
-          badges: {
-            select: {
-              title: true,
-              icon: true,
-            },
-          },
-          UserActivity: {
-            select: {
-              streak: true,
-            },
-          },
-        },
-      },
-    },
-  });
-
-  return rawToProfile(newProfile);
-}
-
 async function changeProfile(id: number, profile: Profile) {
   if (typeof profile.skills === "string") {
     throw new Error(
