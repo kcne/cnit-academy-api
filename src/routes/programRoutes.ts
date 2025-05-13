@@ -9,6 +9,7 @@ import {
   enrollToProgram,
   finishProgram,
   getMyPrograms,
+  getProgramsByUserId,
 } from "../controllers/programController";
 import {
   validateCreateProgram,
@@ -21,6 +22,7 @@ const router = Router();
 
 router.get("/", asyncHandler(getAllPrograms));
 router.get("/my", asyncHandler(getMyPrograms));
+router.get("/userId/:userId", asyncHandler(getProgramsByUserId));
 router.get("/:id", asyncHandler(getProgramById));
 router.put("/:id/apply", asyncHandler(applyToProgram));
 

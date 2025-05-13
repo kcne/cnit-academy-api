@@ -6,6 +6,7 @@ import {
   getAllLectures,
   getLectureById,
   getMyLectures,
+  getLecturesByUserId,
   startLecture,
   updateLectureById,
 } from "../controllers/lectureController";
@@ -21,6 +22,7 @@ const router = Router();
 
 router.get("/", asyncHandler(getAllLectures));
 router.get("/my", asyncHandler(getMyLectures));
+router.get("/userId/:userId", asyncHandler(getLecturesByUserId));
 router.get("/:id", asyncHandler(getLectureById));
 router.put("/:id/start", asyncHandler(startLecture));
 router.put("/:id/finish", streakMiddleware, asyncHandler(finishLecture));

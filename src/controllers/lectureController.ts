@@ -25,7 +25,7 @@ async function getMyLectures(req: AuthenticatedRequest, res: Response) {
   assert(req.user);
   const userId = req.user.id;
 
-  const lectures = repositoryService.getAll({
+  const lectures = await repositoryService.getAll({
     pagination: {
       page: Number(page ?? 1),
       limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
@@ -34,6 +34,31 @@ async function getMyLectures(req: AuthenticatedRequest, res: Response) {
       {
         field: "UserLecture",
         value: { some: { userId } },
+        operator: "equals",
+      },
+    ],
+  });
+
+  res.json(lectures);
+}
+
+async function getLecturesByUserId(req: AuthenticatedRequest, res: Response) {
+  const { page, limit } = req.query;
+  assert(req.user);
+  const userId =
+    req.params.userId === "me"
+      ? req.user.id
+      : z.coerce.number().positive().int().parseAsync(req.params.userId);
+
+  const lectures = await repositoryService.getAll({
+    pagination: {
+      page: Number(page ?? 1),
+      limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+    },
+    filters: [
+      {
+        field: "userId",
+        value: userId,
         operator: "equals",
       },
     ],
@@ -116,4 +141,5 @@ export {
   startLecture,
   finishLecture,
   getMyLectures,
+  getLecturesByUserId,
 };

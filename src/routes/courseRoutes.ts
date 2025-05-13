@@ -5,6 +5,7 @@ import {
   finishCourse,
   getAllCourses,
   getCourseById,
+  getCoursesByUserId,
   getMyCourses,
   startCourse,
   updateCourseById,
@@ -21,6 +22,7 @@ const router = Router();
 
 router.get("/", asyncHandler(getAllCourses));
 router.get("/my", asyncHandler(getMyCourses));
+router.get("/userId/:userId", asyncHandler(getCoursesByUserId));
 router.get("/:id", asyncHandler(getCourseById));
 router.put("/:id/start", asyncHandler(startCourse));
 router.put("/:id/finish", streakMiddleware, asyncHandler(finishCourse));

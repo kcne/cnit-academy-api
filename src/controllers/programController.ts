@@ -57,6 +57,34 @@ async function getMyPrograms(req: AuthenticatedRequest, res: Response) {
   });
 }
 
+async function getProgramsByUserId(req: AuthenticatedRequest, res: Response) {
+  const { page, limit } = req.query;
+  assert(req.user);
+  const userId =
+    req.params.userId === "me"
+      ? req.user.id
+      : z.coerce.number().positive().int().parseAsync(req.params.userId);
+
+  const programs = await repositoryService.getAll({
+    pagination: {
+      page: Number(page ?? 1),
+      limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+    },
+    filters: [
+      {
+        field: "userId",
+        value: userId,
+        operator: "equals",
+      },
+    ],
+  });
+
+  res.json({
+    data: programs.data.map((old: any) => renameFields(old)),
+    meta: programs.meta,
+  });
+}
+
 async function getProgramById(req: AuthenticatedRequest, res: Response) {
   assert(req.user);
   const userId = req.user.id;
@@ -157,4 +185,5 @@ export {
   enrollToProgram,
   finishProgram,
   getMyPrograms,
+  getProgramsByUserId,
 };

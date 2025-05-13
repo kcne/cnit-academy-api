@@ -55,6 +55,34 @@ async function getMyCourses(req: AuthenticatedRequest, res: Response) {
   });
 }
 
+async function getCoursesByUserId(req: AuthenticatedRequest, res: Response) {
+  const { page, limit } = req.query;
+  assert(req.user);
+  const userId =
+    req.params.userId === "me"
+      ? req.user.id
+      : z.coerce.number().positive().int().parseAsync(req.params.userId);
+
+  const courses = await repositoryService.getAll({
+    pagination: {
+      page: Number(page ?? 1),
+      limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+    },
+    filters: [
+      {
+        field: "userId",
+        value: userId,
+        operator: "equals",
+      },
+    ],
+  });
+
+  res.json({
+    data: courses.data.map((old: any) => renameFields(old)),
+    meta: courses.meta,
+  });
+}
+
 async function getCourseById(req: AuthenticatedRequest, res: Response) {
   assert(req.user);
   const userId = req.user.id;
@@ -138,4 +166,5 @@ export {
   startCourse,
   finishCourse,
   getMyCourses,
+  getCoursesByUserId,
 };
