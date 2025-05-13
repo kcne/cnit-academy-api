@@ -6,6 +6,8 @@ import createHttpError from "http-errors";
 import { z } from "zod";
 import { OAuth2Client } from "google-auth-library";
 import axios from "axios";
+import { hash } from "node:crypto";
+import { putPfp } from "./bucketService";
 
 // TODO: find a better way to deal with languages
 prisma.language.findMany().then((res) => {
@@ -138,6 +140,21 @@ async function googleLoginOrRegister(code: string) {
   let user = await prisma.user.findUnique({ where: { email: data.email } });
 
   if (!user) {
+    let pfp = process.env.BASE_URL + "/files/pfp/default.png";
+    if (data.picture) {
+      const fileExtension = data.picture.match(/\.[\d\w]+$/) ?? "";
+      const filename = hash("md5", data.email + Date.now()) + fileExtension;
+
+      try {
+        const { data: pictureStream } = await axios.get(data.picture, {
+          responseType: "stream",
+        });
+        putPfp(filename, pictureStream);
+        pfp = process.env.BASE_URL + "/files/pfp/" + filename;
+      } catch (err) {
+        console.error("Error uploading google profile picture, ", err);
+      }
+    }
     try {
       user = await prisma.user.create({
         data: {
@@ -149,7 +166,7 @@ async function googleLoginOrRegister(code: string) {
           role: "USER",
           Profile: {
             create: {
-              pfp: data.picture ?? "/pfp/default.png",
+              pfp,
               education: {},
               experience: {},
               skills: "",

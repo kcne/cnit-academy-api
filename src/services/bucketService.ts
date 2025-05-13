@@ -6,7 +6,6 @@ import {
 } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import dotenv from "dotenv";
-import { PassThrough } from "nodemailer/lib/xoauth2";
 import prisma from "../prisma";
 
 dotenv.config();
@@ -20,7 +19,7 @@ const s3client = new S3Client({
   region: process.env.BUCKET_REGION ?? "workaround",
 });
 
-async function putPfp(filename: string, pass: PassThrough) {
+async function putPfp(filename: string, pass: any) {
   await new Upload({
     client: s3client,
     params: {
