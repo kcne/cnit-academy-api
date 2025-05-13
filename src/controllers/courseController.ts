@@ -68,10 +68,12 @@ async function getCourseById(req: AuthenticatedRequest, res: Response) {
 async function createCourse(req: AuthenticatedRequest, res: Response) {
   const course = await repositoryService.createItem({
     ...req.body,
-    lectures: req.body.lectures.map((lecture: any) => ({
-      ...lecture,
-      userId: req.user?.id,
-    })),
+    lectures: {
+      create: req.body.lectures.create.map((lecture: any) => ({
+        ...lecture,
+        userId: req.user?.id,
+      })),
+    },
     userId: req.user?.id,
   });
 
