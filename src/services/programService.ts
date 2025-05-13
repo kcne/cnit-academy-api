@@ -26,6 +26,13 @@ const repositoryService = new PrismaRepositoryService(prisma.program, {
   applicationDeadline: true,
   createdAt: true,
   coins: true,
+  createdBy: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+    },
+  },
   _count: {
     select: {
       UserProgram: { where: { applied: { not: null } } },

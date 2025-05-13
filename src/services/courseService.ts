@@ -44,6 +44,13 @@ const repositoryService = new PrismaRepositoryService(prisma.course, {
   durationInHours: true,
   createdAt: true,
   coins: true,
+  createdBy: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+    },
+  },
   lectures: {
     select: {
       id: true,

@@ -14,7 +14,22 @@ const LectureSchema = z.object({
 const validateCreateLecture = validateRequest(LectureSchema);
 const validateUpdateLecture = validateRequest(LectureSchema.partial());
 
-const repositoryService = new PrismaRepositoryService(prisma.lecture);
+const repositoryService = new PrismaRepositoryService(prisma.lecture, {
+  id: true,
+  title: true,
+  content: true,
+  videoUrl: true,
+  courseId: true,
+  createdAt: true,
+  coins: true,
+  createdBy: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+    },
+  },
+});
 
 async function customFindItem(id: number, userId: number) {
   const lecture = await prisma.lecture.findUnique({
