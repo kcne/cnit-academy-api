@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import * as RoleRequestService from "../services/RoleRequestService";
 import { z } from "zod";
+import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import assert from "node:assert";
 
 async function getAllRoleRequests(_req: Request, res: Response) {
   const users = await RoleRequestService.getRoleRequests(false);
@@ -14,8 +16,11 @@ async function getPendingRoleRequests(_req: Request, res: Response) {
   res.status(200).json(users);
 }
 
-async function sendRoleRequest(req: Request, res: Response) {
-  await RoleRequestService.sendRoleRequest(req.body);
+async function sendRoleRequest(req: AuthenticatedRequest, res: Response) {
+  assert(req.user);
+  const userId = req.user.id;
+
+  await RoleRequestService.sendRoleRequest(req.body, userId);
   res.status(200).json({ message: "Successfully role request is sent!" });
 }
 

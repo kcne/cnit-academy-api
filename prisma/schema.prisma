@@ -235,6 +235,7 @@ model RoleRequest {
   user        User              @relation(fields: [userId], references: [id])
   coverLetter String
   status      RoleRequestStatus
+  role        Role
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 }

@@ -2,9 +2,10 @@ import prisma from "../prisma";
 import createHttpError from "http-errors";
 import { z } from "zod";
 import { validateRequest } from "../middlewares/validate";
+import { Role } from "../middlewares/authMiddleware";
 
 const roleRequestSchema = z.object({
-  userId: z.number().int().positive(),
+  role: z.nativeEnum(Role),
   coverLetter: z.string().min(20),
 });
 
@@ -31,9 +32,12 @@ async function getRoleRequests(pending: boolean) {
   return requests;
 }
 
-async function sendRoleRequest(data: z.infer<typeof roleRequestSchema>) {
+async function sendRoleRequest(
+  data: z.infer<typeof roleRequestSchema>,
+  userId: number,
+) {
   const existingRequest = await prisma.roleRequest.findFirst({
-    where: { userId: data.userId },
+    where: { userId: userId },
   });
 
   if (existingRequest?.createdAt) {
@@ -55,6 +59,7 @@ async function sendRoleRequest(data: z.infer<typeof roleRequestSchema>) {
     data: {
       ...data,
       status: RoleRequestStatus.pending,
+      userId,
     },
   });
 
