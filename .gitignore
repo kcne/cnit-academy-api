@@ -3,3 +3,4 @@ node_modules/
 prisma/dev.db
 prisma/dev.db-journal
 public/
+.DS_store

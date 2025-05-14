@@ -7,7 +7,7 @@ import {
   resendEmail,
   google,
 } from "../controllers/authController";
-import authMiddleware from "../middlewares/authMiddleware";
+import authMiddleware, { Role } from "../middlewares/authMiddleware";
 import asyncHandler from "../middlewares/asyncHandler";
 
 const router = Router();
@@ -24,7 +24,7 @@ router.post("/protected", authMiddleware(), (_req: Request, res: Response) => {
 });
 router.post(
   "/admin",
-  authMiddleware("Admin"),
+  authMiddleware([Role.admin]),
   (_req: Request, res: Response) => {
     res.json("great");
   },

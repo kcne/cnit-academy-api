@@ -12,6 +12,7 @@ import { PassThrough } from "stream";
 import { putPfp } from "../services/bucketService";
 import { hash } from "crypto";
 import createHttpError from "http-errors";
+import assert from "assert";
 
 async function getAllProfiles(req: Request, res: Response) {
   const { page, limit } = req.query;
@@ -25,9 +26,7 @@ async function getAllProfiles(req: Request, res: Response) {
 }
 
 async function getProfileById(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const id =
     req.params.id === "me"
       ? req.user.id
@@ -39,9 +38,7 @@ async function getProfileById(req: AuthenticatedRequest, res: Response) {
 }
 
 async function updateProfile(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const id =
     (await z.coerce
       .number()
@@ -56,9 +53,7 @@ async function updateProfile(req: AuthenticatedRequest, res: Response) {
 }
 
 async function updateProfilePhoto(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const id =
     (await z.coerce
       .number()
@@ -112,9 +107,7 @@ async function updateProfilePhoto(req: AuthenticatedRequest, res: Response) {
 }
 
 async function deleteProfile(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const id =
     (await z.coerce
       .number()

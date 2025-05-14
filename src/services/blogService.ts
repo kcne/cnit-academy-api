@@ -3,9 +3,9 @@ import prisma from "../prisma";
 import { PrismaRepositoryService } from "./prismaRepositoryService";
 import { validateRequest } from "../middlewares/validate";
 import createHttpError from "http-errors";
+import { createPaginatedResponse, QueryOptions } from "../utils/queryBuilder";
 
 const BlogSchema = z.object({
-  userId: z.number().int().positive(),
   title: z.string().max(256),
   blogDescription: z.string().max(1024).optional(),
   content: z.string().max(65535),
@@ -16,7 +16,7 @@ const BlogSchema = z.object({
     .max(256)
     .regex(
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Slug must be URL-friendly (lowercase letters, numbers, and hyphens)"
+      "Slug must be URL-friendly (lowercase letters, numbers, and hyphens)",
     ),
 });
 
@@ -25,13 +25,16 @@ const validateUpdateBlog = validateRequest(BlogSchema.partial());
 
 const repositoryService = new PrismaRepositoryService(prisma.blog);
 
-async function publishBlog(id: number) {
+async function publishBlog(id: number, userId?: number) {
   const blog = await prisma.blog.update({
     where: { id },
     data: { published: true },
   });
   if (!blog) {
     throw createHttpError(404, "Blog not found");
+  }
+  if (userId && userId !== blog.userId) {
+    throw createHttpError(403, "Only admins can edit foreign blogs");
   }
 }
 
@@ -62,26 +65,68 @@ async function getBlogBySlug(slug: string) {
   return blog;
 }
 
-async function updateBlogById(
-  id: number,
-  updatedBlog: Partial<z.infer<typeof BlogSchema>>
-) {
-  const blog = await prisma.blog.update({
-    where: { id },
-    data: updatedBlog,
-  });
+const commentSchema = z.object({
+  content: z.string().max(4096),
+});
+
+const validateCreateComment = validateRequest(commentSchema);
+
+async function getAllComments(blogId: number, opts: QueryOptions<string>) {
+  const blog = prisma.blog.findUnique({ where: { id: blogId } });
   if (!blog) {
     throw createHttpError(404, "Blog not found");
   }
-  return blog;
+
+  const comments = await prisma.commentBlog.findMany({
+    where: { blogId },
+    select: {
+      comment: true,
+    },
+  });
+  const total = await prisma.commentBlog.count({
+    where: { blogId },
+  });
+
+  return createPaginatedResponse(
+    comments.map((el) => el.comment),
+    total,
+    opts.pagination,
+  );
+}
+
+async function createComment(commentData: any, blogId: number, userId: number) {
+  const blog = prisma.blog.findUnique({ where: { id: blogId } });
+  if (!blog) {
+    throw createHttpError(404, "Blog not found");
+  }
+
+  const comment = await prisma.comment.create({
+    data: { ...commentData, userId },
+  });
+  await prisma.commentBlog.create({
+    data: {
+      commentId: comment.id,
+      blogId,
+    },
+  });
+}
+
+async function deleteComment(blogId: number, commentId: number) {
+  await prisma.$transaction([
+    prisma.comment.delete({ where: { id: commentId } }),
+    prisma.commentBlog.deleteMany({ where: { commentId, blogId } }),
+  ]);
 }
 
 export {
   repositoryService,
   validateCreateBlog,
   validateUpdateBlog,
+  validateCreateComment,
   publishBlog,
   getBlogsByUserId,
   getBlogBySlug,
-  updateBlogById,
+  getAllComments,
+  createComment,
+  deleteComment,
 };

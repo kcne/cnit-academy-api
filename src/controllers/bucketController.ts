@@ -7,7 +7,7 @@ async function getPfpById(req: Request, res: Response) {
     .string()
     .max(64)
     .refine(
-      (str) => str.match(/^([\d\w]+\.)(png|webp|jpg|jpeg)$/),
+      (str) => str.match(/^([\d\w]+)\.?(png|webp|jpg|jpeg)?$/),
       "Pfp id is invalid",
     )
     .parseAsync(req.params.id);

@@ -39,7 +39,7 @@ export class PrismaRepositoryService<T, K extends string> {
 
   async findItem(id: number): Promise<T> {
     const model = await this.model.findUnique({
-      where: { id: id },
+      where: { id },
       select: this.select,
     });
     if (!model) {
@@ -53,31 +53,37 @@ export class PrismaRepositoryService<T, K extends string> {
     return await this.model.create({ data, select: this.select });
   }
 
-  async updateItem(id: number, data: any): Promise<T> {
+  async updateItem(id: number, data: any, userId?: number): Promise<T> {
     const model = await this.model.findUnique({
-      where: { id: id },
+      where: { id },
     });
     if (!model) {
       throw createHttpError(404, "Not found");
     }
+    if (userId ? userId !== model.userId : false) {
+      throw createHttpError(403, "Only admins can edit foreign items");
+    }
 
     return await this.model.update({
-      where: { id: id },
+      where: { id },
       data,
       select: this.select,
     });
   }
 
-  async deleteItem(id: number): Promise<T> {
+  async deleteItem(id: number, userId?: number): Promise<T> {
     const model = await this.model.findUnique({
-      where: { id: id },
+      where: { id },
     });
     if (!model) {
       throw createHttpError(404, "Not found");
     }
+    if (userId ? userId !== model.userId : false) {
+      throw createHttpError(403, "Only admins can edit foreign items");
+    }
 
     return await this.model.delete({
-      where: { id: id },
+      where: { id },
       select: this.select,
     });
   }

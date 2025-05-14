@@ -26,6 +26,13 @@ const repositoryService = new PrismaRepositoryService(prisma.program, {
   applicationDeadline: true,
   createdAt: true,
   coins: true,
+  createdBy: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+    },
+  },
   _count: {
     select: {
       UserProgram: { where: { applied: { not: null } } },
@@ -41,7 +48,6 @@ async function customGetAll(opts: QueryOptions<string>) {
       id: true,
       title: true,
       description: true,
-      founder: true,
       durationInDays: true,
       applicationDeadline: true,
       coins: true,
@@ -78,9 +84,9 @@ async function customGetAll(opts: QueryOptions<string>) {
       i++;
       res.push({
         ...programs[i],
-        applied: 0,
-        enrolled: 0,
-        finished: 0,
+        appliedCount: 0,
+        enrolledCount: 0,
+        finishedCount: 0,
       });
       continue;
     }
@@ -88,41 +94,25 @@ async function customGetAll(opts: QueryOptions<string>) {
     res.push({
       ...programs[i],
       ...counts[j]._count,
+      appliedCount: counts[j]._count.applied,
+      enrolledCount: counts[j]._count.enrolled,
+      finishedCount: counts[j]._count.finished,
     });
     i++;
     j++;
   }
+  if (!res.length) {
+    for (const program of programs) {
+      res.push({
+        ...program,
+        appliedCount: 0,
+        enrolledCount: 0,
+        finishedCount: 0,
+      });
+    }
+  }
 
   return createPaginatedResponse(res, total, opts.pagination);
-}
-
-async function findMyPrograms(userId: number) {
-  const courses = await prisma.program.findMany({
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      founder: true,
-      durationInDays: true,
-      applicationDeadline: true,
-      createdAt: true,
-      coins: true,
-      _count: {
-        select: {
-          UserProgram: { where: { applied: { not: null } } },
-        },
-      },
-    },
-    where: {
-      UserProgram: {
-        some: {
-          userId,
-        },
-      },
-    },
-  });
-
-  return courses;
 }
 
 async function customFindItem(id: number, userId: number) {
@@ -131,7 +121,6 @@ async function customFindItem(id: number, userId: number) {
       id: true,
       title: true,
       description: true,
-      founder: true,
       durationInDays: true,
       applicationDeadline: true,
       coins: true,
@@ -211,7 +200,19 @@ async function apply(userId: number, programId: number) {
   });
 }
 
-async function enroll(userIds: number[], programId: number) {
+async function enrollApplicantsInProgram(
+  userIds: number[],
+  programId: number,
+  userId?: number,
+) {
+  const program = await prisma.program.findUnique({ where: { id: programId } });
+  if (!program) {
+    throw createHttpError(404, "Program not found");
+  }
+  if (userId ? userId !== program.userId : false) {
+    throw createHttpError(403, "Only admins can edit foreign programs");
+  }
+
   await prisma.userProgram.updateMany({
     where: {
       programId,
@@ -224,7 +225,15 @@ async function enroll(userIds: number[], programId: number) {
   });
 }
 
-async function finish(programId: number) {
+async function markProgramAsCompleted(programId: number, userId?: number) {
+  const program = await prisma.program.findUnique({ where: { id: programId } });
+  if (!program) {
+    throw createHttpError(404, "Program not found");
+  }
+  if (userId ? userId !== program.userId : false) {
+    throw createHttpError(403, "Only admins can edit foreign programs");
+  }
+
   const now = new Date();
 
   const [
@@ -268,9 +277,8 @@ export {
   validateCreateProgram,
   validateUpdateProgram,
   apply,
-  enroll,
-  finish,
+  enrollApplicantsInProgram,
+  markProgramAsCompleted,
   customGetAll,
   customFindItem,
-  findMyPrograms,
 };

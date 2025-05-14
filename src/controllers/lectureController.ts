@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import {
-  changeStatus,
-  findMyLectures,
+  completeLesson,
   repositoryService,
+  beginLesson,
 } from "../services/lectureService";
 import { z } from "zod";
-import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import { AuthenticatedRequest, Role } from "../middlewares/authMiddleware";
+import assert from "assert";
 
 async function getAllLectures(req: Request, res: Response) {
   const { page, limit } = req.query;
@@ -20,12 +21,48 @@ async function getAllLectures(req: Request, res: Response) {
 }
 
 async function getMyLectures(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  const { page, limit } = req.query;
+  assert(req.user);
   const userId = req.user.id;
 
-  const lectures = await findMyLectures(userId);
+  const lectures = await repositoryService.getAll({
+    pagination: {
+      page: Number(page ?? 1),
+      limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+    },
+    filters: [
+      {
+        field: "UserLecture",
+        value: { some: { userId } },
+        operator: "equals",
+      },
+    ],
+  });
+
+  res.json(lectures);
+}
+
+async function getLecturesByUserId(req: AuthenticatedRequest, res: Response) {
+  const { page, limit } = req.query;
+  assert(req.user);
+  const userId =
+    req.params.userId === "me"
+      ? req.user.id
+      : z.coerce.number().positive().int().parseAsync(req.params.userId);
+
+  const lectures = await repositoryService.getAll({
+    pagination: {
+      page: Number(page ?? 1),
+      limit: Number(page ? (limit ?? 10) : Number.MAX_SAFE_INTEGER),
+    },
+    filters: [
+      {
+        field: "userId",
+        value: userId,
+        operator: "equals",
+      },
+    ],
+  });
 
   res.json(lectures);
 }
@@ -37,23 +74,28 @@ async function getLectureById(req: Request, res: Response) {
   res.json(lecture);
 }
 
-async function createLecture(req: Request, res: Response) {
-  const lecture = await repositoryService.createItem(req.body);
+async function createLecture(req: AuthenticatedRequest, res: Response) {
+  const lecture = await repositoryService.createItem({
+    ...req.body,
+    userId: req.user?.id,
+  });
 
   res.status(201).json(lecture);
 }
 
-async function updateLectureById(req: Request, res: Response) {
+async function updateLectureById(req: AuthenticatedRequest, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  const lecture = await repositoryService.updateItem(id, req.body);
+  const lecture = await repositoryService.updateItem(
+    id,
+    req.body,
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined,
+  );
 
   res.json(lecture);
 }
 
 async function startLecture(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const userId = req.user.id;
   const lectureId = await z.coerce
     .number()
@@ -61,15 +103,13 @@ async function startLecture(req: AuthenticatedRequest, res: Response) {
     .int()
     .parseAsync(req.params.id);
 
-  await changeStatus(userId, lectureId, false);
+  await beginLesson(userId, lectureId);
 
   res.send();
 }
 
 async function finishLecture(req: AuthenticatedRequest, res: Response) {
-  if (!req.user) {
-    throw new Error("AuthenticatedRequest.user is undefined");
-  }
+  assert(req.user);
   const userId = req.user.id;
   const lectureId = await z.coerce
     .number()
@@ -77,14 +117,17 @@ async function finishLecture(req: AuthenticatedRequest, res: Response) {
     .int()
     .parseAsync(req.params.id);
 
-  await changeStatus(userId, lectureId, true);
+  await completeLesson(userId, lectureId);
 
   res.send();
 }
 
-async function deleteLectureById(req: Request, res: Response) {
+async function deleteLectureById(req: AuthenticatedRequest, res: Response) {
   const id = await z.coerce.number().positive().int().parseAsync(req.params.id);
-  await repositoryService.deleteItem(id);
+  await repositoryService.deleteItem(
+    id,
+    req.user?.role === Role.admin ? (req.user?.id ?? -1) : undefined,
+  );
 
   res.send();
 }
@@ -98,4 +141,5 @@ export {
   startLecture,
   finishLecture,
   getMyLectures,
+  getLecturesByUserId,
 };

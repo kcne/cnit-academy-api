@@ -13,7 +13,10 @@ const CreateCourseSchema = z
     coins: z.number().int().positive().optional(),
     lectures: z.array(LectureSchema.omit({ courseId: true })),
   })
-  .transform((el) => ({ ...el, lectures: { create: el.lectures } }));
+  .transform((course) => ({
+    ...course,
+    lectures: { create: course.lectures },
+  }));
 const UpdateCourseSchema = z
   .object({
     title: z.string().max(256),
@@ -41,6 +44,13 @@ const repositoryService = new PrismaRepositoryService(prisma.course, {
   durationInHours: true,
   createdAt: true,
   coins: true,
+  createdBy: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+    },
+  },
   lectures: {
     select: {
       id: true,
@@ -114,11 +124,11 @@ async function customFindItem(id: number, userId: number) {
 
   const res = {
     ...course,
-    lectures: course.lectures.map((el) => {
+    lectures: course.lectures.map((lecture) => {
       return {
-        ...el,
-        started: Boolean(el.UserLecture.length),
-        finished: Boolean(el.UserLecture[0]?.finished),
+        ...lecture,
+        started: Boolean(lecture.UserLecture.length),
+        finished: Boolean(lecture.UserLecture[0]?.finished),
         UserLecture: undefined,
       };
     }),
@@ -128,33 +138,6 @@ async function customFindItem(id: number, userId: number) {
   };
 
   return res;
-}
-
-async function findMyCourses(userId: number) {
-  const courses = await prisma.course.findMany({
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      durationInHours: true,
-      createdAt: true,
-      coins: true,
-      _count: {
-        select: {
-          UserCourse: { where: { finished: { not: null } } },
-        },
-      },
-    },
-    where: {
-      UserCourse: {
-        some: {
-          userId,
-        },
-      },
-    },
-  });
-
-  return courses;
 }
 
 async function changeStatus(
@@ -204,11 +187,15 @@ async function changeStatus(
 async function updateCourse(
   id: number,
   data: z.infer<typeof UpdateCourseSchema>,
+  maybeUserId?: number,
 ) {
-  const course = await prisma.course.findUnique({ where: { id } });
+  const course = await prisma.course.findUnique({
+    where: { id, userId: maybeUserId },
+  });
   if (!course) {
     throw createHttpError(404, "Course not found");
   }
+  const userId = maybeUserId ?? course.userId;
 
   const transactions = [];
 
@@ -218,7 +205,10 @@ async function updateCourse(
       data: {
         ...data,
         lectures: {
-          create: data.lectures?.create,
+          create: data.lectures?.create.map((lecture) => ({
+            ...lecture,
+            userId,
+          })),
         },
       },
     }),
@@ -263,6 +253,5 @@ export {
   validateUpdateCourse,
   changeStatus,
   customFindItem,
-  findMyCourses,
   updateCourse,
 };

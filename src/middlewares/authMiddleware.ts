@@ -9,52 +9,63 @@ export interface AuthenticatedRequest extends Request {
 interface User {
   id: number;
   email: string;
-  roles: string[];
+  role: string;
 }
 
-function authMiddleware(requiredRole?: string) {
-  const role = requiredRole ?? "User";
+export enum Role {
+  user = "USER",
+  instructor = "INSTRUCTOR",
+  admin = "ADMIN",
+}
+
+function authMiddleware(requiredRole?: string[]) {
+  const roles = requiredRole ?? Object.values(Role);
+  roles.push(Role.admin);
 
   return async function (
     req: AuthenticatedRequest,
     res: Response,
     next: NextFunction,
   ) {
-    const authHeader = req.headers.authorization || "";
-    const token = authHeader.split(" ")[1];
+    let user;
+    if (req.user) {
+      user = req.user;
+    } else {
+      const authHeader = req.headers.authorization || "";
+      const token = authHeader.split(" ")[1];
 
-    if (!token) {
-      res
-        .status(401)
-        .json({ error: "Authentication token is missing or malformed" });
-      return;
+      if (!token) {
+        res
+          .status(401)
+          .json({ error: "Authentication token is missing or malformed" });
+        return;
+      }
+
+      let decoded;
+      try {
+        decoded = jwt.verify(
+          token,
+          process.env.JWT_SECRET || "fallback secret",
+        ) as User;
+      } catch (error) {
+        res.status(403).json({ error: "Invalid or expired token" });
+        return;
+      }
+
+      user = await prisma.user.findUnique({
+        where: { id: decoded.id, email: decoded.email, isEmailVerified: true },
+        select: { id: true, email: true, role: true },
+      });
+      if (!user) {
+        res.status(403).json({ error: "Invalid or expired token" });
+        return;
+      }
     }
 
-    let decoded;
-    try {
-      decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET || "fallback secret",
-      ) as User;
-    } catch (error) {
-      res.status(403).json({ error: "Invalid or expired token" });
-      return;
-    }
-
-    const rawUser = await prisma.user.findUnique({
-      where: { id: decoded.id, email: decoded.email, isEmailVerified: true },
-      select: { id: true, email: true, roles: { select: { name: true } } },
-    });
-    if (!rawUser) {
-      res.status(403).json({ error: "Invalid or expired token" });
-      return;
-    }
-
-    const user = { ...rawUser, roles: rawUser.roles.map((obj) => obj.name) };
-    if (!user.roles.includes(role)) {
-      res
-        .status(403)
-        .json({ error: "This route requires the " + role + " role" });
+    if (!roles.includes(user.role)) {
+      res.status(403).json({
+        error: "This route requires the " + roles.join(" or ") + " role",
+      });
       return;
     }
 

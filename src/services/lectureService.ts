@@ -14,7 +14,22 @@ const LectureSchema = z.object({
 const validateCreateLecture = validateRequest(LectureSchema);
 const validateUpdateLecture = validateRequest(LectureSchema.partial());
 
-const repositoryService = new PrismaRepositoryService(prisma.lecture);
+const repositoryService = new PrismaRepositoryService(prisma.lecture, {
+  id: true,
+  title: true,
+  content: true,
+  videoUrl: true,
+  courseId: true,
+  createdAt: true,
+  coins: true,
+  createdBy: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+    },
+  },
+});
 
 async function customFindItem(id: number, userId: number) {
   const lecture = await prisma.lecture.findUnique({
@@ -46,30 +61,25 @@ async function customFindItem(id: number, userId: number) {
   return res;
 }
 
-async function findMyLectures(userId: number) {
-  const lectures = await prisma.lecture.findMany({
-    where: {
-      UserLecture: {
-        some: {
-          userId,
-        },
-      },
+async function beginLesson(userId: number, lectureId: number) {
+  const lecture = await prisma.lecture.findUnique({ where: { id: lectureId } });
+  if (!lecture) {
+    throw createHttpError(404, "Lecture not found");
+  }
+
+  await prisma.userLecture.create({
+    data: {
+      userId,
+      lectureId,
     },
   });
-
-  return lectures;
 }
 
-async function changeStatus(
-  userId: number,
-  lectureId: number,
-  finished: boolean,
-) {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  const lecture = await prisma.lecture.findUnique({ where: { id: lectureId } });
-  if (!user) {
-    throw createHttpError(404, "User not found");
-  }
+async function completeLesson(userId: number, lectureId: number) {
+  const lecture = await prisma.lecture.findUnique({
+    where: { id: lectureId },
+    select: { coins: true },
+  });
   if (!lecture) {
     throw createHttpError(404, "Lecture not found");
   }
@@ -77,25 +87,45 @@ async function changeStatus(
   // TODO: this can probably be a single call
   const userLecture = await prisma.userLecture.findFirst({
     where: { userId, lectureId },
+    select: {
+      id: true,
+      finished: true,
+    },
   });
   await prisma.userLecture.upsert({
     create: {
       userId,
       lectureId,
-      finished: finished ? new Date() : undefined,
+      finished: new Date(),
     },
     update: {
-      finished: finished ? new Date() : undefined,
+      finished: new Date(),
     },
     where: {
       id: userLecture?.id || -1,
     },
   });
 
-  if (finished && !userLecture?.finished) {
+  if (!userLecture?.finished) {
+    const userQuizAttempt = await prisma.userQuizAttempt.findFirst({
+      where: { userId, quizId: lectureId },
+      select: {
+        score: true,
+      },
+      orderBy: {
+        id: "asc", // count only the first attempt
+      },
+    });
+    if (!userQuizAttempt) {
+      if (await prisma.quiz.findUnique({ where: { id: lectureId } })) {
+        throw createHttpError(400, "This lecture has an unfinished quiz");
+      }
+    }
     await prisma.user.update({
       data: {
-        totalCoins: { increment: lecture.coins },
+        totalCoins: {
+          increment: Math.ceil(lecture.coins * (userQuizAttempt?.score ?? 1)),
+        },
       },
       where: {
         id: userId,
@@ -108,8 +138,8 @@ export {
   repositoryService,
   validateCreateLecture,
   validateUpdateLecture,
-  changeStatus,
+  beginLesson,
+  completeLesson,
   customFindItem,
-  findMyLectures,
   LectureSchema,
 };

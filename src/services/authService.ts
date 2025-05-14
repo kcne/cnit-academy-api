@@ -6,6 +6,24 @@ import createHttpError from "http-errors";
 import { z } from "zod";
 import { OAuth2Client } from "google-auth-library";
 import axios from "axios";
+import { hash } from "node:crypto";
+import { putPfp } from "./bucketService";
+
+// TODO: find a better way to deal with languages
+prisma.language.findMany().then((res) => {
+  // checking if the language model has any rows
+  if (res.length === 0) {
+    // not having any languages breaks registration
+    prisma.language.createMany({
+      data: [
+        { languageCode: "sr", language: "Srpski" },
+        { languageCode: "en", language: "English" },
+      ],
+    });
+  }
+});
+// since these methods are async, there is no way to guarantee that
+// there will be present languages when the user tries to register
 
 const NewUserSchema = z.object({
   firstName: z.string().min(2).max(256),
@@ -43,7 +61,13 @@ async function createUser(data: z.infer<typeof NewUserSchema>) {
       lastName: data.lastName,
       email: data.email,
       password,
-      roles: { connect: { name: "User" } },
+      role: "USER",
+      Profile: {
+        create: {
+          pfp: data.pfp ?? process.env.BASE_URL + "/files/pfp/default.png",
+          skills: "",
+        },
+      },
     },
   });
 
@@ -55,17 +79,9 @@ async function createUser(data: z.infer<typeof NewUserSchema>) {
     console.error("Error while sending verification code: ", error);
   }
 
-  const profile = await prisma.profile.create({
-    data: {
-      id: user.id,
-      pfp: data.pfp,
-      skills: "",
-    },
-  });
-
   return {
     ...user,
-    pfp: profile.pfp,
+    pfp: data.pfp,
     password: undefined,
     verificationCode: undefined,
     expiresAt: undefined,
@@ -124,16 +140,33 @@ async function googleLoginOrRegister(code: string) {
   let user = await prisma.user.findUnique({ where: { email: data.email } });
 
   if (!user) {
+    let pfp = process.env.BASE_URL + "/files/pfp/default.png";
+    if (data.picture) {
+      const fileExtension = data.picture.match(/\.[\d\w]+$/) ?? "";
+      const filename = hash("md5", data.email + Date.now()) + fileExtension;
+
+      try {
+        const { data: pictureStream } = await axios.get(data.picture, {
+          responseType: "stream",
+        });
+        putPfp(filename, pictureStream);
+        pfp = process.env.BASE_URL + "/files/pfp/" + filename;
+      } catch (err) {
+        console.error("Error uploading google profile picture, ", err);
+      }
+    }
     try {
       user = await prisma.user.create({
         data: {
           firstName: data.given_name ?? data.name,
           lastName: data.family_name ?? "",
           email: data.email,
+          isEmailVerified: true,
           password: "oauth2",
+          role: "USER",
           Profile: {
             create: {
-              pfp: data.picture ?? "/pfp/default.png",
+              pfp,
               education: {},
               experience: {},
               skills: "",

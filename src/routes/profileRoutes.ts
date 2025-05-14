@@ -8,7 +8,7 @@ import {
 } from "../controllers/profileController";
 import asyncHandler from "../middlewares/asyncHandler";
 import { validateUpdateProfile } from "../services/profileService";
-import authMiddleware from "../middlewares/authMiddleware";
+import authMiddleware, { Role } from "../middlewares/authMiddleware";
 
 const router = Router();
 
@@ -26,13 +26,13 @@ router.delete("/me", authMiddleware(), asyncHandler(deleteProfile));
 // admin routes
 router.patch(
   "/admin/:id",
-  authMiddleware("Admin"),
+  authMiddleware([Role.admin]),
   validateUpdateProfile,
   asyncHandler(updateProfile),
 );
 router.delete(
   "/admin/:id",
-  authMiddleware("Admin"),
+  authMiddleware([Role.admin]),
   asyncHandler(deleteProfile),
 );
 

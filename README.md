@@ -61,6 +61,9 @@
     - [DELETE /api/blog/admin/:id](#delete-apiblogadminid)
     - [GET /api/blog/user/:userId](#get-apibloguseruserid)
     - [GET /api/blog/slug/:slug](#get-apiblogslugslug)
+    - [GET /api/blog/:id/comment](#get-apiblogidcomment)
+    - [POST /api/blog/:id/comment](#post-apiblogidcomment)
+    - [DELETE /api/blog/:id/comment/:commentId](#delete-apiblogidcommentcommentid)
   - [Global](#global)
     - [paginationMeta](#paginationmeta)
     <!--toc:end-->
@@ -291,6 +294,13 @@ Response 200 JSON:
       "experience": [],
       "totalCoins": 0,
       "pfp": "http://localhost:3000/files/pfp/default.png"
+      "badges": [
+        {
+          "title": "titl",
+          "icon": "/badges/1.png"
+        }
+      ],
+      "streak": 7,
     },
     {
       "id": 17,
@@ -301,6 +311,13 @@ Response 200 JSON:
       "experience": [],
       "totalCoins": 0,
       "pfp": "http://localhost:3000/files/pfp/jane.png"
+      "badges": [
+        {
+          "title": "titl",
+          "icon": "/badges/1.png"
+        }
+      ],
+      "streak": 7,
     }
   ],
   "meta": "(paginationMeta)"
@@ -338,6 +355,13 @@ Response 200 JSON:
   ],
   "totalCoins": 0,
   "pfp": "http://localhost:3000/files/pfp/2.png",
+      "badges": [
+        {
+          "title": "titl",
+          "icon": "/badges/1.png"
+        }
+      ],
+  "streak": 7,
   "programs": [
     {
       "id": 1,
@@ -476,7 +500,7 @@ Changing education/experience:
 
 Request JSON:
 
-```jsonp
+```json
 {
   "firstName": "jans",
   "lastName": "doe",
@@ -559,6 +583,7 @@ Return applied to programs
 Response 200 JSON:
 
 ```json
+{"data":
 [
   {
     "id": 1,
@@ -575,8 +600,8 @@ Response 200 JSON:
     "coins": 50,
     "applicationDeadline": "2025-03-07T16:42:30.000Z",
     "createdAt": "2025-03-27T18:05:56.343Z"
-  }
-]
+  },
+"meta": "(paginationMeta)"]}
 ```
 
 ### GET /api/program/:id
@@ -608,7 +633,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Program not found
+Response 404 -> Program not found
 
 ### POST /api/program/admin
 
@@ -688,7 +713,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Program not found
+Response 404 -> Program not found
 
 ### DELETE /api/program/admin/:id
 
@@ -703,7 +728,7 @@ Request query params:
 | id  | 2       | ID of the program, positive integer |
 
 Response 200 -> Program deleted \
-Request 404 -> Program not found
+Response 404 -> Program not found
 
 ### PUT /api/program/:id/apply
 
@@ -716,7 +741,7 @@ Request query params:
 | id  | 2       | ID of the program, positive integer |
 
 Response 200 -> Applied to program \
-Request 404 -> Program not found
+Response 404 -> Program not found
 
 ### PUT /api/program/admin/:id/enroll
 
@@ -737,7 +762,7 @@ Request JSON:
 ```
 
 Response 200 -> Enrolled into program \
-Request 404 -> Program not found
+Response 404 -> Program not found
 
 ### PUT /api/program/admin/:id/finish
 
@@ -752,7 +777,7 @@ Request query params:
 | id  | 2       | ID of the program, positive integer |
 
 Response 200 -> Finished the program \
-Request 404 -> Program not found
+Response 404 -> Program not found
 
 ## Courses
 
@@ -804,16 +829,19 @@ Return applied to courses
 Response 200 JSON:
 
 ```json
-[
-  {
-    "id": 1,
-    "title": "title",
-    "description": "description",
-    "durationInHours": 2,
-    "studentCount": 0,
-    "coins": 10
-  }
-]
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "title",
+      "description": "description",
+      "durationInHours": 2,
+      "studentCount": 0,
+      "coins": 10
+    }
+  ],
+  "meta": "(paginationMeta)"
+}
 ```
 
 ### GET /api/course/:id
@@ -851,7 +879,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Course not found
+Response 404 -> Course not found
 
 ### POST /api/course/admin
 
@@ -903,7 +931,7 @@ Response 201 JSON:
 }
 ```
 
-Request 404 -> Course not found
+Response 404 -> Course not found
 
 ### PATCH /api/course/admin/:id
 
@@ -973,7 +1001,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Course not found
+Response 404 -> Course not found
 
 ### PUT /api/course/:id/start
 
@@ -986,7 +1014,7 @@ Request query params:
 | id  | 2       | ID of the course, positive integer |
 
 Response 200 -> Started the course \
-Request 404 -> Course not found
+Response 404 -> Course not found
 
 ### PUT /api/course/:id/finish
 
@@ -999,7 +1027,7 @@ Request query params:
 | id  | 2       | ID of the course, positive integer |
 
 Response 200 -> Finished the course \
-Request 404 -> Course not found
+Response 404 -> Course not found
 
 ### DELETE /api/course/admin/:id
 
@@ -1014,7 +1042,7 @@ Request query params:
 | id  | 2       | ID of the course, positive integer |
 
 Response 200 -> Course deleted successfully \
-Request 404 -> Course not found
+Response 404 -> Course not found
 
 ## Lectures
 
@@ -1056,16 +1084,19 @@ Return applied to lectures
 Response 200 JSON:
 
 ```json
-[
-  {
-    "id": 28,
-    "title": "The Woman in White",
-    "content": "We need to reboot the back-end VGA transmitter!",
-    "videoUrl": "https://fragrant-saloon.name/",
-    "courseId": 10,
-    "coins": 2234
-  }
-]
+{
+  "data": [
+    {
+      "id": 28,
+      "title": "The Woman in White",
+      "content": "We need to reboot the back-end VGA transmitter!",
+      "videoUrl": "https://fragrant-saloon.name/",
+      "courseId": 10,
+      "coins": 2234
+    }
+  ],
+  "meta": "(paginationMeta)"
+}
 ```
 
 ### GET /api/lecture/:id
@@ -1091,7 +1122,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Lecture not found
+Response 404 -> Lecture not found
 
 ### POST /api/lecture/admin
 
@@ -1126,7 +1157,7 @@ Response 201 JSON:
 }
 ```
 
-Request 404 -> Lecture not found
+Response 404 -> Lecture not found
 
 ### PATCH /api/lecture/admin/:id
 
@@ -1166,7 +1197,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Lecture not found
+Response 404 -> Lecture not found
 
 ### PUT /api/lecture/:id/start
 
@@ -1179,7 +1210,7 @@ Request query params:
 | id  | 2       | ID of the lecture, positive integer |
 
 Response 200 -> Started the lecture \
-Request 404 -> Lecture not found
+Response 404 -> Lecture not found
 
 ### PUT /api/lecture/:id/finish
 
@@ -1192,7 +1223,7 @@ Request query params:
 | id  | 2       | ID of the lecture, positive integer |
 
 Response 200 -> Finished the lecture \
-Request 404 -> Lecture not found
+Response 404 -> Lecture not found
 
 ### DELETE /api/lecture/admin/:id
 
@@ -1207,7 +1238,7 @@ Request query params:
 | id  | 2       | ID of the lecture, positive integer |
 
 Response 200 -> Lecture deleted successfully \
-Request 404 -> Lecture not found
+Response 404 -> Lecture not found
 
 ## Leaderboard
 
@@ -1220,27 +1251,30 @@ Request 404 -> Lecture not found
 Response 200 JSON:
 
 ```json
-[
-  {
-    "id": 1,
-    "firstName": "john",
-    "lastName": "doe",
-    "totalCoins": 1000,
-    "updatedAt": "2025-03-27T18:54:17.460Z"
-  },
-  {
-    "id": 2,
-    "firstName": "jane",
-    "lastName": "doe",
-    "totalCoins": 50,
-    "updatedAt": "2025-03-27T18:54:22.415Z"
-  }
-]
+{
+  "data": [
+    {
+      "id": 1,
+      "firstName": "john",
+      "lastName": "doe",
+      "totalCoins": 1000,
+      "updatedAt": "2025-03-27T18:54:17.460Z"
+    },
+    {
+      "id": 2,
+      "firstName": "jane",
+      "lastName": "doe",
+      "totalCoins": 50,
+      "updatedAt": "2025-03-27T18:54:22.415Z"
+    }
+  ],
+  "meta": "(paginationMeta)"
+}
 ```
 
 ### GET /api/leaderboard/weekly
 
-nly returns profiles which have been updated this week \
+Only returns profiles which have been updated this week \
 **Prone to change:**
 
 - Return a max of X profiles
@@ -1249,22 +1283,25 @@ nly returns profiles which have been updated this week \
 Response 200 JSON:
 
 ```json
-[
-  {
-    "id": 1,
-    "firstName": "john",
-    "lastName": "doe",
-    "totalCoins": 1000,
-    "updatedAt": "2025-03-27T18:54:17.460Z"
-  },
-  {
-    "id": 2,
-    "firstName": "jane",
-    "lastName": "doe",
-    "totalCoins": 50,
-    "updatedAt": "2025-03-27T18:54:22.415Z"
-  }
-]
+{
+  "data": [
+    {
+      "id": 1,
+      "firstName": "john",
+      "lastName": "doe",
+      "totalCoins": 1000,
+      "updatedAt": "2025-03-27T18:54:17.460Z"
+    },
+    {
+      "id": 2,
+      "firstName": "jane",
+      "lastName": "doe",
+      "totalCoins": 50,
+      "updatedAt": "2025-03-27T18:54:22.415Z"
+    }
+  ],
+  "meta": "(paginationMeta)"
+}
 ```
 
 ## Blogs
@@ -1318,14 +1355,14 @@ Response 200 JSON:
   "title": "title",
   "published": true,
   "content": "# Markdown",
-  "blogDescription": null,
+  "blogDescription": "desc",
   "userId": 5,
   "createdAt": "2025-04-05T18:34:35.612Z",
   "updatedAt": "2025-04-05T18:34:35.612Z"
 }
 ```
 
-Request 404 -> Blog not found
+Response 404 -> Blog not found
 
 ### POST /api/blog/admin
 
@@ -1338,11 +1375,10 @@ Request JSON:
 
 ```json
 {
-  "userId": 5
   "title": "title",
   "published": true,
   "content": "# Markdown",
-  "blogDescription": null,
+  "blogDescription": "desc"
 }
 ```
 
@@ -1354,14 +1390,14 @@ Response 201 JSON:
   "title": "title",
   "published": true,
   "content": "# Markdown",
-  "blogDescription": null,
+  "blogDescription": "desc",
   "userId": 5,
   "createdAt": "2025-04-05T18:34:35.612Z",
   "updatedAt": "2025-04-05T18:34:35.612Z"
 }
 ```
 
-Request 404 -> Blog not found
+Response 404 -> Blog not found
 
 ### PUT /api/blog/admin/:id/publish
 
@@ -1377,7 +1413,7 @@ Request query params:
 | id  | 2       | ID of the blog, positive integer |
 
 Response 200 -> Blog published successfully
-Request 404 -> Blog not found
+Response 404 -> Blog not found
 
 ### PATCH /api/blog/admin/:id
 
@@ -1397,11 +1433,10 @@ Request JSON:
 
 ```json
 {
-  "userId": 5
   "title": "title",
   "published": true,
   "content": "# Markdown",
-  "blogDescription": null,
+  "blogDescription": "desc"
 }
 ```
 
@@ -1420,13 +1455,11 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Blog not found
+Response 404 -> Blog not found
 
 ### DELETE /api/blog/admin/:id
 
 Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
-
-Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
 Delete a blog
 
 Request query params:
@@ -1436,7 +1469,7 @@ Request query params:
 | id  | 2       | ID of the blog, positive integer |
 
 Response 200 -> Blog deleted successfully
-Request 404 -> Blog not found
+Response 404 -> Blog not found
 
 ### GET /api/blog/user/:userId
 
@@ -1458,7 +1491,7 @@ Response 200 JSON:
       "title": "title",
       "published": true,
       "content": "# Markdown",
-      "blogDescription": null,
+      "blogDescription": "desc",
       "userId": 5,
       "createdAt": "2025-04-05T18:34:35.612Z",
       "updatedAt": "2025-04-05T18:34:35.612Z"
@@ -1468,7 +1501,7 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> User not found
+Response 404 -> User not found
 
 ### GET /api/blog/slug/:slug
 
@@ -1488,7 +1521,7 @@ Response 200 JSON:
   "title": "title",
   "published": true,
   "content": "# Markdown",
-  "blogDescription": null,
+  "blogDescription": "desc",
   "slug": "my-blog-title",
   "userId": 5,
   "createdAt": "2025-04-05T18:34:35.612Z",
@@ -1496,7 +1529,422 @@ Response 200 JSON:
 }
 ```
 
-Request 404 -> Blog not found
+Response 404 -> Blog not found
+
+### GET /api/blog/:id/comment
+
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
+Fetch comments of blog with :id
+
+| key | example | description |
+| --- | ------- | ----------- |
+| id  | 2       | ID of blog  |
+
+Response 200 JSON:
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "userId": 16,
+      "content": "content",
+      "createdAt": "2025-04-23T15:35:46.360Z"
+    }
+  ],
+  "meta": "(paginationMeta)"
+}
+```
+
+Response 404 -> Blog not found
+
+### POST /api/blog/:id/comment
+
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected)) \
+Create new comment
+
+| key | example | description |
+| --- | ------- | ----------- |
+| id  | 2       | ID of blog  |
+
+Request JSON:
+
+```json
+{
+  "content": "content"
+}
+```
+
+Response 404 -> Blog not found
+
+### DELETE /api/blog/admin/:id/comment/:commentId
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin)) \
+Delete a comment
+
+Request query params:
+
+| key       | example | description   |
+| --------- | ------- | ------------- |
+| id        | 2       | ID of blog    |
+| commentId | 2       | ID of comment |
+
+Response 200 -> Comment successfully deleted \
+Response 404 -> Blog not found
+
+## Quizzes
+
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
+
+### GET /api/quiz
+
+Fetch all quizzes
+
+Request query params:
+
+| key   | example | description                |
+| ----- | ------- | -------------------------- |
+| page  | 2       | Current page               |
+| limit | 20      | Number of quizzes per page |
+
+Response 200 JSON:
+
+```json
+{
+  "data": [
+    {
+      "id": 7,
+      "questions": [
+        {
+          "id": 1,
+          "text": "programming language",
+          "quizId": 7,
+          "score": 50,
+          "options": ["html", "css", "js"]
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 9007199254740991,
+    "total": 1,
+    "totalPages": 1,
+    "hasNextPage": false,
+    "hasPrevPage": false
+  }
+}
+```
+
+### GET /api/quiz/:id
+
+Request query params:
+
+| key | example | description                      |
+| --- | ------- | -------------------------------- |
+| id  | 2       | ID of the quiz, positive integer |
+
+Response 200 JSON:
+
+```json
+{
+  "id": 7,
+  "questions": [
+    {
+      "id": 1,
+      "text": "programming language",
+      "quizId": 7,
+      "score": 50,
+      "options": ["html", "css", "js"]
+    }
+  ]
+}
+```
+
+Response 404 -> Quiz not found
+
+### POST /api/quiz/admin
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin))
+
+Create a new quiz
+
+Request JSON:
+
+```json
+{
+  "id": 7,
+  "questions": [
+    {
+      "text": "programming language",
+      "score": 50,
+      "options": ["html", "css", "js"],
+      "answer": "js"
+    }
+  ]
+}
+```
+
+Response 201 JSON:
+
+```json
+{
+  "id": 7,
+  "questions": [
+    {
+      "text": "bestest lang",
+      "score": 50,
+      "options": ["html", "css", "js"]
+    }
+  ]
+}
+```
+
+Response 404 -> Quiz not found
+
+### PATCH /api/quiz/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin))
+
+Update a quiz \
+All of the fields are optional
+
+Request query params:
+
+| key | example | description                      |
+| --- | ------- | -------------------------------- |
+| id  | 2       | ID of the quiz, positive integer |
+
+Request JSON:
+
+```json
+{
+  "title": "The Woman in White",
+  "content": "We need to reboot the back-end VGA transmitter!",
+  "videoUrl": "https://fragrant-saloon.name/",
+  "courseId": 2,
+  "coins": 2234
+}
+```
+
+Response 200 JSON:
+
+```json
+{
+  "id": 28,
+  "title": "The Woman in White",
+  "content": "We need to reboot the back-end VGA transmitter!",
+  "videoUrl": "https://fragrant-saloon.name/",
+  "courseId": 10,
+  "coins": 2234
+}
+```
+
+Response 404 -> Quiz not found
+
+### PUT /api/quiz/:id/submit
+
+Submit the answers to a quiz
+
+Request query params:
+
+| key | example | description                      |
+| --- | ------- | -------------------------------- |
+| id  | 2       | ID of the quiz, positive integer |
+
+Request JSON:
+
+```json
+{
+  "3": "c",
+  "4": "c++",
+  "6": "rust",
+  "7": "html",
+  "8": "css",
+  "9": "go",
+  "12": "java"
+}
+```
+
+Response 200 JSON:
+
+```json
+{
+  "maxScore": 800,
+  "score": 400,
+  "ratio": 0.5
+}
+```
+
+Response 404 -> Quiz not found
+
+### DELETE /api/quiz/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin))
+
+Delete a quiz
+
+Request query params:
+
+| key | example | description                      |
+| --- | ------- | -------------------------------- |
+| id  | 2       | ID of the quiz, positive integer |
+
+Response 200 -> Quiz deleted successfully \
+Response 404 -> Quiz not found
+
+## Badges
+
+Requires authorization (see [/api/auth/protected](#get-apiauthprotected))
+
+### GET /api/store
+
+Fetch all badges
+
+Request query params:
+
+| key   | example | description               |
+| ----- | ------- | ------------------------- |
+| page  | 2       | Current page              |
+| limit | 20      | Number of Badges per page |
+
+Response 200 JSON:
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "icon": "/badges/streak100.png",
+      "title": "Streak 100",
+      "cost": 50
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 9007199254740991,
+    "total": 1,
+    "totalPages": 1,
+    "hasNextPage": false,
+    "hasPrevPage": false
+  }
+}
+```
+
+### GET /api/store/:id
+
+Request query params:
+
+| key | example | description                       |
+| --- | ------- | --------------------------------- |
+| id  | 2       | ID of the badge, positive integer |
+
+Response 200 JSON:
+
+```json
+{
+  "id": 1,
+  "icon": "/badges/streak100.png",
+  "title": "Streak 100",
+  "cost": 50
+}
+```
+
+Response 404 -> Badge not found
+
+### POST /api/store/admin
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin))
+
+Create a new badge
+
+Request JSON:
+
+```json
+{
+  "icon": "/badges/streak100.png",
+  "title": "Streak 100",
+  "cost": 50
+}
+```
+
+Response 201 JSON:
+
+```json
+{
+  "id": 1,
+  "icon": "/badges/streak100.png",
+  "title": "Streak 100",
+  "cost": 50
+}
+```
+
+Response 404 -> badge not found
+
+### PATCH /api/store/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin))
+
+Update a badge \
+All of the fields are optional
+
+Request query params:
+
+| key | example | description                       |
+| --- | ------- | --------------------------------- |
+| id  | 2       | ID of the badge, positive integer |
+
+Request JSON:
+
+```json
+{
+  "icon": "/badges/streak100.png",
+  "title": "Streak 100",
+  "cost": 50
+}
+```
+
+Response 200 JSON:
+
+```json
+{
+  "id": 1,
+  "icon": "/badges/streak100.png",
+  "title": "Streak 100",
+  "cost": 50
+}
+```
+
+Response 404 -> badge not found
+
+### PUT /api/store/:id/buy
+
+Buy a badge
+
+Request query params:
+
+| key | example | description                       |
+| --- | ------- | --------------------------------- |
+| id  | 2       | ID of the badge, positive integer |
+
+Response 200 -> Badge bought successfully
+Response 400 -> Insufficient funds
+Response 404 -> Badge not found
+
+### DELETE /api/store/admin/:id
+
+Requires admin authorization (see [/api/auth/admin](#get-apiauthadmin))
+
+Delete a badge
+
+Request query params:
+
+| key | example | description                       |
+| --- | ------- | --------------------------------- |
+| id  | 2       | ID of the badge, positive integer |
+
+Response 200 -> Badge deleted successfully \
+Response 404 -> Badge not found
 
 ## Global
 
