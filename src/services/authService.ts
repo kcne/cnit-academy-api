@@ -13,13 +13,16 @@ import { putPfp } from "./bucketService";
 prisma.language.findMany().then((res) => {
   // checking if the language model has any rows
   if (res.length === 0) {
+    console.warn("No languages found. Adding Serbian and English...");
     // not having any languages breaks registration
-    prisma.language.createMany({
-      data: [
-        { languageCode: "sr", language: "Srpski" },
-        { languageCode: "en", language: "English" },
-      ],
-    });
+    prisma.language
+      .createManyAndReturn({
+        data: [
+          { languageCode: "sr", language: "Srpski" },
+          { languageCode: "en", language: "English" },
+        ],
+      })
+      .then((res) => console.log("Successfully created: ", res));
   }
 });
 // since these methods are async, there is no way to guarantee that
@@ -175,7 +178,8 @@ async function googleLoginOrRegister(code: string) {
         },
       });
       registered = true;
-    } catch {
+    } catch (err) {
+      console.error("Error creating user via Oauth2: ", err);
       throw createHttpError(400, "User could not be created");
     }
   }
