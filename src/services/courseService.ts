@@ -49,6 +49,7 @@ const repositoryService = new PrismaRepositoryService(prisma.course, {
       id: true,
       firstName: true,
       lastName: true,
+      email: true,
     },
   },
   lectures: {
@@ -71,71 +72,79 @@ const repositoryService = new PrismaRepositoryService(prisma.course, {
 
 async function customFindItem(id: number, userId: number) {
   const course = await prisma.course.findUnique({
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      durationInHours: true,
-      createdAt: true,
-      coins: true,
-      lectures: {
-        select: {
-          id: true,
-          title: true,
-          content: true,
-          videoUrl: true,
-          courseId: true,
-          createdAt: true,
-          coins: true,
-          UserLecture: {
-            where: {
-              id,
-              userId,
-            },
-            select: {
-              finished: true,
-            },
+  select: {
+    id: true,
+    title: true,
+    description: true,
+    durationInHours: true,
+    createdAt: true,
+    coins: true,
+    createdBy: {
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+      },
+    },
+    lectures: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        videoUrl: true,
+        courseId: true,
+        createdAt: true,
+        coins: true,
+        UserLecture: {
+          where: {
+            id,
+            userId,
+          },
+          select: {
+            finished: true,
           },
         },
       },
-      UserCourse: {
-        select: {
-          finished: true,
-        },
-        where: {
-          id,
-          userId,
-        },
+    },
+    UserCourse: {
+      select: {
+        finished: true,
       },
-      _count: {
-        select: {
-          UserCourse: { where: { finished: { not: null } } },
-        },
+      where: {
+        id,
+        userId,
       },
     },
-    where: {
-      id,
+    _count: {
+      select: {
+        UserCourse: { where: { finished: { not: null } } },
+      },
     },
-  });
+  },
+  where: {
+    id,
+  },
+});
+
 
   if (!course) {
     throw createHttpError(404, "Course not found");
   }
 
   const res = {
-    ...course,
-    lectures: course.lectures.map((lecture) => {
-      return {
-        ...lecture,
-        started: Boolean(lecture.UserLecture.length),
-        finished: Boolean(lecture.UserLecture[0]?.finished),
-        UserLecture: undefined,
-      };
-    }),
-    started: Boolean(course.UserCourse.length),
-    finished: Boolean(course.UserCourse[0]?.finished),
-    UserCourse: undefined,
-  };
+  ...course,
+  createdBy: course.createdBy, // ⬅️ make sure it’s passed through
+  lectures: course.lectures.map((lecture) => ({
+    ...lecture,
+    started: Boolean(lecture.UserLecture.length),
+    finished: Boolean(lecture.UserLecture[0]?.finished),
+    UserLecture: undefined,
+  })),
+  started: Boolean(course.UserCourse.length),
+  finished: Boolean(course.UserCourse[0]?.finished),
+  UserCourse: undefined,
+};
 
   return res;
 }
