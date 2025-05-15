@@ -27,6 +27,7 @@ const repositoryService = new PrismaRepositoryService(prisma.lecture, {
       id: true,
       firstName: true,
       lastName: true,
+      email: true,
     },
   },
 });
