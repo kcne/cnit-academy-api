@@ -31,6 +31,7 @@ const repositoryService = new PrismaRepositoryService(prisma.program, {
       id: true,
       firstName: true,
       lastName: true,
+      email: true,
     },
   },
   _count: {
@@ -51,6 +52,14 @@ async function customGetAll(opts: QueryOptions<string>) {
       durationInDays: true,
       applicationDeadline: true,
       coins: true,
+      createdBy: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+        },
+      },
     },
     orderBy: {
       id: "asc",
@@ -133,6 +142,14 @@ async function customFindItem(id: number, userId: number) {
           applied: true,
           enrolled: true,
           finished: true,
+        },
+      },
+      createdBy: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
         },
       },
     },
